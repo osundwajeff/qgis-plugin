@@ -845,7 +845,7 @@ def download_field_map(
                              else BRIDGE_URLS[region]['prod'])
 
             reflectance_map_family = REFLECTANCE['map_family']
-            url = '{}/field-level-maps/v4/season-fields/{}/coverage/{}/{}/{}/image.tiff.zip'.format(
+            url = '{}/field-level-maps/v5/season-fields/{}/coverage/{}/{}/{}/image.tiff.zip'.format(
                 bridge_server,
                 seasonfield_id,
                 image_id,
