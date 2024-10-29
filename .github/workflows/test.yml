@@ -42,7 +42,7 @@ jobs:
         with:
           submodules: recursive
       
-      - name: Preparing docker-compose environment
+      - name: Preparing docker compose environment
         env:
           QGIS_VERSION_TAG: ${{ matrix.qgis_version_tag }}
         run: |
@@ -60,7 +60,7 @@ jobs:
           pip install -U pip
           pip install -U pep257
           pip install -U flake8
-          docker-compose up -d
+          docker compose up -d
           sleep 10
       
       - name: Lint test
@@ -69,4 +69,4 @@ jobs:
       
       - name: Run test suite
         run: |
-          docker-compose exec -T qgis-testing-environment qgis_testrunner.sh test_suite.test_package
+          docker compose exec -T qgis-testing-environment qgis_testrunner.sh test_suite.test_package
