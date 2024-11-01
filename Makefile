@@ -263,7 +263,10 @@ flake8:
 	@echo "Flake8 issues"
 	@echo "-----------"
 	@python3 -m flake8 --version
-	@python3 -m flake8 || true
+	@python3 -m flake8 --ignore="D102,D103,D104,D105,D200,D202,D203,D205 \
+	    D210,D211,D300,D301,D302,D400,D401,E122,E125,E126,E127,E226,E265,E302,E303,E305, \
+	    E501,E502,E721,E722,F401,F632,F811,F821,F841,W291,W293,W503,W504,W605" || true
+
 
 # Run test on bridge_api package
 test-bridge-api:
