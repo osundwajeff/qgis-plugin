@@ -97,7 +97,7 @@ class BridgeAPIWrapperTest(unittest.TestCase):
             region='na',
             client_id='mapproduct_api',
             client_secret='mapproduct_api.secret',
-            use_testing_service=True)
+            use_testing_service=False)
         field_map = bridge_api.get_field_map(
             map_type_key, season_field_id, image_date, image_id
         )
@@ -117,7 +117,7 @@ class BridgeAPIWrapperTest(unittest.TestCase):
             region='na',
             client_id='mapproduct_api',
             client_secret='mapproduct_api.secret',
-            use_testing_service=True)
+            use_testing_service=False)
         field_map = bridge_api.get_difference_map(
             map_type_key, season_field_id,
             earliest_image_date, latest_image_date
@@ -142,7 +142,7 @@ class BridgeAPIWrapperTest(unittest.TestCase):
             region='na',
             client_id='mapproduct_api',
             client_secret='mapproduct_api.secret',
-            use_testing_service=True)
+            use_testing_service=False)
 
         # test SAMZ auto
         field_map = bridge_api.get_samz_map(
@@ -172,7 +172,7 @@ class BridgeAPIWrapperTest(unittest.TestCase):
             region='na',
             client_id='mapproduct_api',
             client_secret='mapproduct_api.secret',
-            use_testing_service=True)
+            use_testing_service=False)
 
         content = bridge_api.get_content(thumbnail_url)
 
