@@ -127,7 +127,7 @@ class BridgeAPIWrapperTest(unittest.TestCase):
 
     def test_get_samz_map(self):
         """Test we can successfully get the SAMZ map."""
-        season_field_id = 'lqlv9nb'
+        season_field_id = 'nja3zv9'
         params = {'zoneCount': 5}
         images_ids = [
             'IKc73hpUQ726BpoqhQpaU8SfYGFYTAL5hhyYZq4PwFY',
@@ -158,7 +158,7 @@ class BridgeAPIWrapperTest(unittest.TestCase):
     def test_get_content(self):
         """Test we can successfully get the content of png response."""
         image_id = 'IKc73hpUQ6t1tqdBqbWqEsD4IMwNnwN2zsF6EO4BM2e'
-        season_field = 'lqlv9nb'
+        season_field = 'nja3zv9'
 
         thumbnail_url = (
             f"https://api-pp.geosys-na.net:443/field-level-maps/v4/"
