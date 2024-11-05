@@ -76,6 +76,8 @@ class BridgeAPI(ApiClient):
             client_id,
             client_secret,
             use_testing_service=False,
+            identity_url=None,
+            server_url=None,
             proxies=None):
         """Wrapper implementation for bridge api.
 
@@ -115,10 +117,11 @@ class BridgeAPI(ApiClient):
         # create server url
         self.identity_server = (IDENTITY_URLS[self.region]['test']
                                 if self.use_testing_service
-                                else IDENTITY_URLS[self.region]['prod'])
-        self.bridge_server = (BRIDGE_URLS[self.region]['test']
+                                else identity_url or IDENTITY_URLS[self.region]['prod'])
+        self.bridge_server = (server_url or BRIDGE_URLS[self.region]['test']
                               if self.use_testing_service
-                              else BRIDGE_URLS[self.region]['prod'])
+                              else server_url or BRIDGE_URLS[self.region]['prod'])
+
 
         # authenticate user
         self.authenticated, self.authentication_message = self.authenticate()
