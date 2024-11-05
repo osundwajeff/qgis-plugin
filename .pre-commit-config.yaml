@@ -18,6 +18,7 @@ repos:
             E501,E502,E721,E722,F401,F632,F811,F821,
             F841,W291,W293,W503,W504,W605
         additional_dependencies: []
+        files: \.py$
 
   - repo: https://github.com/pre-commit/mirrors-autopep8
     rev: v1.6.0
