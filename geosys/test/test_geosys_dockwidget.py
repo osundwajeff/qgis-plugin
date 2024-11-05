@@ -65,9 +65,9 @@ class GeosysPluginDockWidgetTest(unittest.TestCase):
         key_us = 'geosys_region_na'
         us_option = setting(key_us, expected_type=bool, qsettings=self.dockwidget.settings)
         if us_option:  # Expected number of items for US (soil map included)
-            expected_count = 21
+            expected_count = 22
         else:  # Expected number of items for EU (soil map excluded)
-            expected_count = 20
+            expected_count = 21
 
         combobox = self.dockwidget.map_product_combo_box
         cb_count = combobox.count()

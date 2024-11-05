@@ -9,6 +9,7 @@
 """
 import os
 import unittest
+from dataclasses import field
 
 from geosys.bridge_api_wrapper import BridgeAPI
 
@@ -60,15 +61,16 @@ class BridgeAPIWrapperTest(unittest.TestCase):
 
     def test_get_coverage(self):
         """Test we can successfully get the coverage."""
-        geom = (
-            "POLYGON(("
-            "-86.86701653386694 41.331532756357426,"
-            "-86.86263916875464 41.331532756357426,"
-            "-86.86263916875464 41.32450729144166,"
-            "-86.86701653386694 41.32450729144166,"
-            "-86.86701653386694 41.331532756357426))")
+
+        geom = ("POLYGON(("
+         "1.5614669851321183 43.43877959480905,"
+         "1.5720241598147355 43.43877959480905,"
+         "1.5720241598147355 43.43323264029555,"
+         "1.5614669851321183 43.43323264029555,"
+         "1.5614669851321183 43.43877959480905))")
+
         crop_type = 'CORN'
-        sowing_date = '2018-04-15'
+        sowing_date = '2024-01-01'
 
         bridge_api = BridgeAPI(
             username=self.username,
@@ -76,7 +78,8 @@ class BridgeAPIWrapperTest(unittest.TestCase):
             region='na',
             client_id='mapproduct_api',
             client_secret='mapproduct_api.secret',
-            use_testing_service=True)
+            use_testing_service=False)
+
         coverages = bridge_api.get_coverage(
             geometry=geom, crop=crop_type, sowing_date=sowing_date)
         self.assertTrue(len(coverages) > 0)
@@ -84,8 +87,9 @@ class BridgeAPIWrapperTest(unittest.TestCase):
     def test_get_field_map(self):
         """Test we can successfully get the field map."""
         map_type_key = 'INSEASON_NDVI'
-        season_field_id = 'bg5bgq3'
-        image_date = '2021-11-30'
+        season_field_id = 'nja3zv9'
+        image_date = '2024-10-21'
+        image_id = 'IKc73hpUQ71zsw94i77UI1lwJh7dcYFoTFwjoPfYPAq'
 
         bridge_api = BridgeAPI(
             username=self.username,
@@ -93,22 +97,19 @@ class BridgeAPIWrapperTest(unittest.TestCase):
             region='na',
             client_id='mapproduct_api',
             client_secret='mapproduct_api.secret',
-            use_testing_service=True)
+            use_testing_service=False)
         field_map = bridge_api.get_field_map(
-            map_type_key, season_field_id, image_date,
-            # map creation parameters
-            NPlanned=48,
-            NMin=20,
-            NMax=70
+            map_type_key, season_field_id, image_date, image_id
         )
+
         self.assertTrue('seasonField' in field_map)
 
     def test_get_difference_map(self):
         """Test we can successfully get the difference map."""
         map_type_key = 'INSEASON_NDVI'
-        season_field_id = 'bg5bgq3'
-        earliest_image_date = '2021-09-18'
-        latest_image_date = '2021-11-30'
+        season_field_id = 'nja3zv9'
+        earliest_image_date = '2024-10-21'
+        latest_image_date = '2024-11-02'
 
         bridge_api = BridgeAPI(
             username=self.username,
@@ -116,17 +117,24 @@ class BridgeAPIWrapperTest(unittest.TestCase):
             region='na',
             client_id='mapproduct_api',
             client_secret='mapproduct_api.secret',
-            use_testing_service=True)
+            use_testing_service=False)
         field_map = bridge_api.get_difference_map(
             map_type_key, season_field_id,
             earliest_image_date, latest_image_date
         )
+
         self.assertTrue('seasonField' in field_map)
 
     def test_get_samz_map(self):
         """Test we can successfully get the SAMZ map."""
-        season_field_id = 'lqlv9nb'
+        season_field_id = 'nja3zv9'
         params = {'zoneCount': 5}
+        images_ids = [
+            'IKc73hpUQ726BpoqhQpaU8SfYGFYTAL5hhyYZq4PwFY',
+            'IKc73hpUQ7258rG71UeO1lSjNsyqKnIvs5u5uNwBDPw',
+            'IKc73hpUQ724bvftcz8VwUcNIu0zZd3Uh0ipmckxKHk',
+            'IKc73hpUQ7245vMfZRcmMZTisN0Oh5pObBmZzfW5D76'
+        ]
 
         bridge_api = BridgeAPI(
             username=self.username,
@@ -134,23 +142,23 @@ class BridgeAPIWrapperTest(unittest.TestCase):
             region='na',
             client_id='mapproduct_api',
             client_secret='mapproduct_api.secret',
-            use_testing_service=True)
+            use_testing_service=False)
 
         # test SAMZ auto
         field_map = bridge_api.get_samz_map(
-            season_field_id, params=params)
+            season_field_id, [], params=params)
+
         self.assertTrue('seasonField' in field_map)
 
         # test SAMZ custom
-        list_of_image_date = ['2018-10-13', '2018-10-18']
         field_map = bridge_api.get_samz_map(
-            season_field_id, list_of_image_date, params=params)
+            season_field_id, images_ids, params=params)
         self.assertTrue('seasonField' in field_map)
 
     def test_get_content(self):
         """Test we can successfully get the content of png response."""
         image_id = 'IKc73hpUQ6t1tqdBqbWqEsD4IMwNnwN2zsF6EO4BM2e'
-        season_field = 'lqlv9nb'
+        season_field = 'nja3zv9'
 
         thumbnail_url = (
             f"https://api-pp.geosys-na.net:443/field-level-maps/v4/"
@@ -164,7 +172,7 @@ class BridgeAPIWrapperTest(unittest.TestCase):
             region='na',
             client_id='mapproduct_api',
             client_secret='mapproduct_api.secret',
-            use_testing_service=True)
+            use_testing_service=False)
 
         content = bridge_api.get_content(thumbnail_url)
 
