@@ -10,12 +10,13 @@ on:
     branches:
       - develop
 
+permissions:
+  issues: write
+  pull-requests: write
+
 jobs:
   create-package:
     runs-on: ubuntu-22.04
-    permissions:
-      issues: write
-      pull-requests: write
     container:
       image: qgis/qgis:release-3_34
     steps:
