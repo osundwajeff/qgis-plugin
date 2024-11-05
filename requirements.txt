@@ -3,3 +3,4 @@ requests
 httpx > 0.20.0
 toml == 0.10.2
 typer > 0.4.0
+pre-commit
