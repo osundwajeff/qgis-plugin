@@ -9,4 +9,3 @@ ln -sf /tests_directory /usr/share/qgis/python/plugins/qgis-plugin
 
 pip3 install -r /tests_directory/requirements.txt
 pip3 install -r /tests_directory/requirements_testing.txt
-
