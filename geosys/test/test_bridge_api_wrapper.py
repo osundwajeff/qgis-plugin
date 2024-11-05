@@ -13,6 +13,10 @@ from dataclasses import field
 
 from geosys.bridge_api_wrapper import BridgeAPI
 
+from multiprocessing import Process
+
+from .mock.mock_http_server import MockApiServer
+
 __copyright__ = "Copyright 2019, Kartoza"
 __license__ = "GPL version 3"
 __email__ = "rohmat@kartoza.com"
@@ -24,18 +28,21 @@ class BridgeAPIWrapperTest(unittest.TestCase):
 
     def setUp(self):
         """Runs before each test."""
-        self.username = os.environ.get('BRIDGE_API_USERNAME', None)
-        self.password = os.environ.get('BRIDGE_API_PASSWORD', None)
+        # self.username = os.environ.get('BRIDGE_API_USERNAME', None)
+        # self.password = os.environ.get('BRIDGE_API_PASSWORD', None)
 
-        # we need to set the credentials as environment variables
-        message = ('BRIDGE_API_USERNAME and BRIDGE_API_PASSWORD need to be '
-                   'defined as environment variables')
-        self.assertIsNotNone(self.username, message)
-        self.assertIsNotNone(self.password, message)
+        self.username = 'test'
+        self.password = 'test'
 
-    def tearDown(self):
-        """Runs after each test."""
-        pass
+        self.app_server = MockApiServer()
+
+        self.server = Process(target=self.app_server.run)
+        self.server.start()
+
+        message = ('API test server and its url need to be defined and available')
+
+        self.assertIsNotNone(self.app_server, message)
+        self.assertIsNotNone(self.app_server.url, message)
 
     def test_get_crops(self):
         """Test we can get all available crops from definition"""
@@ -76,9 +83,12 @@ class BridgeAPIWrapperTest(unittest.TestCase):
             username=self.username,
             password=self.password,
             region='na',
-            client_id='mapproduct_api',
-            client_secret='mapproduct_api.secret',
-            use_testing_service=False)
+            client_id='test',
+            client_secret='test.secret',
+            use_testing_service=False,
+            identity_url=self.app_server.url,
+            server_url=self.app_server.url
+        )
 
         coverages = bridge_api.get_coverage(
             geometry=geom, crop=crop_type, sowing_date=sowing_date)
@@ -95,13 +105,15 @@ class BridgeAPIWrapperTest(unittest.TestCase):
             username=self.username,
             password=self.password,
             region='na',
-            client_id='mapproduct_api',
-            client_secret='mapproduct_api.secret',
-            use_testing_service=False)
+            client_id='test',
+            client_secret='test.secret',
+            use_testing_service=False,
+            identity_url=self.app_server.url,
+            server_url=self.app_server.url
+        )
         field_map = bridge_api.get_field_map(
             map_type_key, season_field_id, image_date, image_id
         )
-
         self.assertTrue('seasonField' in field_map)
 
     def test_get_difference_map(self):
@@ -115,9 +127,12 @@ class BridgeAPIWrapperTest(unittest.TestCase):
             username=self.username,
             password=self.password,
             region='na',
-            client_id='mapproduct_api',
-            client_secret='mapproduct_api.secret',
-            use_testing_service=False)
+            client_id='test',
+            client_secret='test.secret',
+            use_testing_service=False,
+            identity_url=self.app_server.url,
+            server_url=self.app_server.url
+        )
         field_map = bridge_api.get_difference_map(
             map_type_key, season_field_id,
             earliest_image_date, latest_image_date
@@ -140,9 +155,12 @@ class BridgeAPIWrapperTest(unittest.TestCase):
             username=self.username,
             password=self.password,
             region='na',
-            client_id='mapproduct_api',
-            client_secret='mapproduct_api.secret',
-            use_testing_service=False)
+            client_id='test',
+            client_secret='test.secret',
+            use_testing_service=False,
+            identity_url=self.app_server.url,
+            server_url=self.app_server.url
+        )
 
         # test SAMZ auto
         field_map = bridge_api.get_samz_map(
@@ -153,6 +171,7 @@ class BridgeAPIWrapperTest(unittest.TestCase):
         # test SAMZ custom
         field_map = bridge_api.get_samz_map(
             season_field_id, images_ids, params=params)
+
         self.assertTrue('seasonField' in field_map)
 
     def test_get_content(self):
@@ -170,13 +189,20 @@ class BridgeAPIWrapperTest(unittest.TestCase):
             username=self.username,
             password=self.password,
             region='na',
-            client_id='mapproduct_api',
-            client_secret='mapproduct_api.secret',
-            use_testing_service=False)
+            client_id='test',
+            client_secret='test.secret',
+            use_testing_service=False,
+            identity_url=self.app_server.url,
+            server_url=self.app_server.url
+        )
 
         content = bridge_api.get_content(thumbnail_url)
 
         self.assertTrue(isinstance(content, bytes))
+
+    def tearDown(self):
+        self.server.terminate()
+        self.server.join()
 
 
 if __name__ == "__main__":

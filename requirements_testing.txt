@@ -1,3 +1,5 @@
 # packages for tests execution:
 flake8
 pep257
+
+flask
