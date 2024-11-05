@@ -8,7 +8,7 @@ on:
       - reopened
       - synchronize
     branches:
-      - main
+      - develop
 
 jobs:
   create-package:
@@ -41,7 +41,7 @@ jobs:
         run: |
           
           python admin.py build --output-directory ${{ format(
-          'qgis-plugin_{0}_{1}/geosys_plugin/',
+          './qgis-plugin_{0}_{1}/geosys_plugin/',
           github.event.pull_request.head.ref,
           env.PACKAGE_ID) }}
           
