@@ -142,6 +142,8 @@ The following links will provide access to more information:
 
 If this project has been useful, that it helped you or your business to save precious time, don't hesitate to give it a star.
 
+Documentation about development setup can be found here https://github.com/earthdaily/qgis-plugin/docs/development.md
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- LICENSE -->
@@ -193,5 +195,3 @@ For any additonal information, please <a href="mailto: sales@earthdailyagro.com"
 [CITest-url]: https://img.shields.io/github/workflow/status/GEOSYS/qgis-plugin/Continous%20Integration
 [CIDocumentation]: https://github.com/earthdaily/QGIS-plugin/actions/workflows/pages/pages-build-deployment
 [Documentationstatus]: https://github.com/earthdaily/QGIS-plugin/actions/workflows/pages/pages-build-deployment/badge.svg?branch=gh-pages  
-
-
