@@ -52,7 +52,7 @@ from geosys.bridge_api.definitions import (
     SAMZ, SOIL, ELEVATION, REFLECTANCE, LANDSAT_8, LANDSAT_9, SENTINEL_2,
     INSEASONFIELD_AVERAGE_NDVI, INSEASONFIELD_AVERAGE_REVERSE_NDVI,
     INSEASONFIELD_AVERAGE_LAI, INSEASONFIELD_AVERAGE_REVERSE_LAI,
-    COLOR_COMPOSITION, SAMPLE_MAP, IGNORE_LAYER_FIELDS, WEATHER_TYPES,
+    COLOR_COMPOSITION, SAMPLE_MAP, IGNORE_LAYER_FIELDS, MASK_PARAMETERS,
     ALLOWED_FIELD_TYPES
 )
 from geosys.bridge_api.utilities import get_definition
@@ -102,7 +102,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.attributes = None
         self.map_product = None
         self.sensor_type = None
-        self.weather_type = None
+        self.mask_type = None
         self.start_date = None
         self.end_date = None
 
@@ -183,7 +183,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # Populate sensor combo box
         self.clear_combo_box(self.sensor_combo_box)
         self.populate_sensors()
-        self.populate_weather_types()
+        self.populate_mask_types()
 
         # Set default date value
         self.populate_date()
@@ -203,10 +203,15 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             add_ordered_combo_item(
                 self.sensor_combo_box, sensor['name'], sensor['key'])
 
-    def populate_weather_types(self):
-        """Populates the the Weather type combobox."""
-        for weather_type in WEATHER_TYPES:
-            self.cb_weather.addItem(weather_type)
+    def populate_mask_types(self):
+        """Populates the the Mask type combobox."""
+        for mask_type in MASK_PARAMETERS:
+            self.cb_mask.addItem(mask_type)
+            
+            # Set 'Auto' as the default selected option
+        index = self.cb_mask.findText('Auto')
+        if index != -1:
+            self.cb_mask.setCurrentIndex(index)
 
     def populate_map_products(self):
         """Obtain a list of map products from Bridge API definition.
@@ -670,11 +675,11 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if self.sensor_type == ALL_SENSORS['key']:
             self.sensor_type = None
 
-        # Get the weather type
-        self.weather_type = item_text_from_combo(self.cb_weather)
-        if not self.weather_type:
-            # Weather type invalid
-            return False, 'Weather type is invalid.'
+        # Get the mask type
+        self.mask_type = item_text_from_combo(self.cb_mask)
+        if not self.mask_type:
+            # Mask type invalid
+            return False, 'Mask type is invalid.'
 
         if self.map_product == SAMPLE_MAP['name'].lower():
             # These checks are only required for sample maps
@@ -976,7 +981,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             sowing_date=self.sowing_date,
             map_product=self.map_product,
             sensor_type=self.sensor_type,
-            weather_type=self.weather_type,
+            mask_type=self.mask_type,
             end_date=self.end_date,
             start_date=self.start_date,
             geometries_points=self.wkt_point_geometries,
@@ -1042,7 +1047,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 "image": {
                     "date": "2018-10-18",
                     "sensor": "SENTINEL_2",
-                    "weather": "HOT",
+                    "mask": "Auto",
                     "soilMaterial": "BARE"
                 },
                 "maps": [
@@ -1189,11 +1194,11 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.populate_sensors()
 
         if map_product == SOIL['name'] or map_product == ELEVATION['key'] or map_product == SAMPLE_MAP['name']:
-            # Weather type not required for soil, elevation, and sample maps
-            self.cb_weather.setEnabled(False)
+            # Mask type not required for soil, elevation, and sample maps
+            self.cb_mask.setEnabled(False)
         else:
-            # Other maps types makes use of the weather type
-            self.cb_weather.setEnabled(True)
+            # Other maps types makes use of the mask type
+            self.cb_mask.setEnabled(True)
 
         if map_product == SAMZ['name']:
             self.start_date_edit.setEnabled(False)
