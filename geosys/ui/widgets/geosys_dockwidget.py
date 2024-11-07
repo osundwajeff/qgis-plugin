@@ -45,7 +45,7 @@ from geosys.bridge_api.default import (
     ORGANIC_AVERAGE, POSITION, FILTER, SAMZ_ZONE, SAMZ_ZONING, HOTSPOT,
     ZONING_SEGMENTATION, MAX_FEATURE_NUMBERS, DEFAULT_ZONE_COUNT, GAIN,
     OFFSET, DEFAULT_N_PLANNED, DEFAULT_AVE_YIELD, DEFAULT_MIN_YIELD,
-    DEFAULT_MAX_YIELD, DEFAULT_ORGANIC_AVE, DEFAULT_GAIN, DEFAULT_OFFSET
+    DEFAULT_MAX_YIELD, DEFAULT_ORGANIC_AVE, DEFAULT_GAIN, DEFAULT_OFFSET, DEFAULT_COVERAGE_PERCENT
 )
 from geosys.bridge_api.definitions import (
     ARCHIVE_MAP_PRODUCTS, ALL_SENSORS, SENSORS, INSEASON_NDVI, INSEASON_EVI,
@@ -105,6 +105,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.weather_type = None
         self.start_date = None
         self.end_date = None
+        self.coverage_percent = None
 
         # Nitrogen map type parameter
         self.n_planned_value = DEFAULT_N_PLANNED
@@ -705,6 +706,9 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # Get the start and end date
         self.start_date = self.start_date_edit.date().toString('yyyy-MM-dd')
         self.end_date = self.end_date_edit.date().toString('yyyy-MM-dd')
+        
+        # Coverage percent
+        self.coverage_percent = self.coverage_percent_value_spinbox.value()
 
         self.n_planned_value = self.n_planned_value_spinbox.value()
 
@@ -983,6 +987,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             attributes_points=self.attributes,
             attribute_field=self.sample_map_field,
             mutex=self.one_process_work,
+            coverage_percent=self.coverage_percent,
             n_planned_value=self.n_planned_value,
             parent=self.iface.mainWindow())
         searcher.search_started.connect(self.coverage_search_started)

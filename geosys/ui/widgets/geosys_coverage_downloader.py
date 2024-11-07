@@ -11,6 +11,8 @@ from geosys.bridge_api.default import (
     MAPS_TYPE,
     IMAGE_SENSOR,
     IMAGE_DATE,
+    COVERAGE_PERCENT,
+    DEFAULT_COVERAGE_PERCENT,
     IMAGE_WEATHER,
     ZIPPED_FORMAT,
     PNG,
@@ -72,7 +74,7 @@ class CoverageSearchThread(QThread):
     def __init__(
             self, geometries, crop_type, sowing_date, map_product, sensor_type,
             weather_type, start_date, end_date, geometries_points, attributes_points, attribute_field,
-            mutex, n_planned_value=1.0, parent=None):
+            mutex, coverage_percent, n_planned_value=1.0, parent=None):
         """Thread object wrapper for coverage search.
 
         :param geometries: List of geometry filter in WKT format.
@@ -118,6 +120,7 @@ class CoverageSearchThread(QThread):
         self.attributes_points = attributes_points
         self.attribute_field = attribute_field
         self.mutex = mutex
+        self.coverage_percent = coverage_percent if coverage_percent is not None else DEFAULT_COVERAGE_PERCENT
         self.n_planned_value = n_planned_value
         self.parent = parent
 
@@ -128,6 +131,12 @@ class CoverageSearchThread(QThread):
                 self.start_date, self.end_date)
         elif self.end_date:
             date_filter = '$lte:{}'.format(self.end_date)
+        
+        # Set coverage percent filter
+        coverage_percent_filter = ''
+        if self.coverage_percent:  # Assuming `self.min_coverage_percent` holds the desired minimum coverage percent
+            coverage_percent_filter = f'$gte:{self.coverage_percent}'
+
 
         # Disable filter when map product is Elevation
         self.filters = {}
@@ -140,7 +149,8 @@ class CoverageSearchThread(QThread):
                     # Image.Weather not required
                     self.filters.update({
                         MAPS_TYPE: INSEASON_NDVI['key'],
-                        IMAGE_DATE: date_filter
+                        IMAGE_DATE: date_filter,
+                        COVERAGE_PERCENT: coverage_percent_filter
                     })
                     self.sensor_type and self.filters.update({
                         IMAGE_SENSOR: self.sensor_type
@@ -150,7 +160,8 @@ class CoverageSearchThread(QThread):
                     self.filters.update({
                         MAPS_TYPE: INSEASON_NDVI['key'],
                         IMAGE_DATE: date_filter,
-                        IMAGE_WEATHER: self.weather_type
+                        IMAGE_WEATHER: self.weather_type,
+                        COVERAGE_PERCENT: coverage_percent_filter
                     })
                     self.sensor_type and self.filters.update({
                         IMAGE_SENSOR: self.sensor_type
@@ -160,7 +171,8 @@ class CoverageSearchThread(QThread):
                 # This has been suggested by GeoSys
                 self.filters.update({
                     MAPS_TYPE: INSEASON_NDVI['key'],  # This is included for a shorter response
-                    IMAGE_DATE: date_filter
+                    IMAGE_DATE: date_filter,
+                        COVERAGE_PERCENT: coverage_percent_filter
                 })
                 self.sensor_type and self.filters.update({
                     IMAGE_SENSOR: self.sensor_type
@@ -169,13 +181,15 @@ class CoverageSearchThread(QThread):
                 if self.weather_type == 'ALL':
                     self.filters.update({
                         MAPS_TYPE: INSEASON_NDVI['key'],
-                        IMAGE_DATE: date_filter
+                        IMAGE_DATE: date_filter,
+                        COVERAGE_PERCENT: coverage_percent_filter
                     })
                 else:
                     self.filters.update({
                         MAPS_TYPE: INSEASON_NDVI['key'],
                         IMAGE_DATE: date_filter,
-                        IMAGE_WEATHER: self.weather_type
+                        IMAGE_WEATHER: self.weather_type,
+                        COVERAGE_PERCENT: coverage_percent_filter
                     })
                 self.sensor_type and self.filters.update({
                     IMAGE_SENSOR: self.sensor_type
@@ -188,6 +202,7 @@ class CoverageSearchThread(QThread):
                     self.filters.update({
                         MAPS_TYPE: self.map_product,
                         IMAGE_DATE: date_filter,
+                        COVERAGE_PERCENT: coverage_percent_filter
                     })
                     self.sensor_type and self.filters.update({
                         IMAGE_SENSOR: self.sensor_type
