@@ -11,7 +11,7 @@ from geosys.bridge_api.default import (
     MAPS_TYPE,
     IMAGE_SENSOR,
     IMAGE_DATE,
-    IMAGE_WEATHER,
+    MASK,
     ZIPPED_FORMAT,
     PNG,
     PNG_KMZ,
@@ -71,7 +71,7 @@ class CoverageSearchThread(QThread):
 
     def __init__(
             self, geometries, crop_type, sowing_date, map_product, sensor_type,
-            weather_type, start_date, end_date, geometries_points, attributes_points, attribute_field,
+            mask_type, start_date, end_date, geometries_points, attributes_points, attribute_field,
             mutex, n_planned_value=1.0, parent=None):
         """Thread object wrapper for coverage search.
 
@@ -111,7 +111,7 @@ class CoverageSearchThread(QThread):
         self.sowing_date = sowing_date
         self.map_product = map_product
         self.sensor_type = sensor_type
-        self.weather_type = weather_type
+        self.mask_type = mask_type
         self.start_date = start_date
         self.end_date = end_date
         self.geometries_points = geometries_points
@@ -136,8 +136,7 @@ class CoverageSearchThread(QThread):
                 # Catalog-imagery API call. Maps.Type will be set to INSEASON_NDVI
                 # This is a work-around provided by GeoSys, because reflectance results
                 # are not shown in the response from the API
-                if self.weather_type == 'ALL':
-                    # Image.Weather not required
+                if self.mask_type == 'All':
                     self.filters.update({
                         MAPS_TYPE: INSEASON_NDVI['key'],
                         IMAGE_DATE: date_filter
@@ -150,7 +149,7 @@ class CoverageSearchThread(QThread):
                     self.filters.update({
                         MAPS_TYPE: INSEASON_NDVI['key'],
                         IMAGE_DATE: date_filter,
-                        IMAGE_WEATHER: self.weather_type
+                        MASK: self.mask_type
                     })
                     self.sensor_type and self.filters.update({
                         IMAGE_SENSOR: self.sensor_type
@@ -166,7 +165,7 @@ class CoverageSearchThread(QThread):
                     IMAGE_SENSOR: self.sensor_type
                 })
             elif self.map_product == SAMPLE_MAP['key']:
-                if self.weather_type == 'ALL':
+                if self.mask_type == 'All':
                     self.filters.update({
                         MAPS_TYPE: INSEASON_NDVI['key'],
                         IMAGE_DATE: date_filter
@@ -175,7 +174,7 @@ class CoverageSearchThread(QThread):
                     self.filters.update({
                         MAPS_TYPE: INSEASON_NDVI['key'],
                         IMAGE_DATE: date_filter,
-                        IMAGE_WEATHER: self.weather_type
+                        MASK: self.mask_type
                     })
                 self.sensor_type and self.filters.update({
                     IMAGE_SENSOR: self.sensor_type
@@ -183,7 +182,7 @@ class CoverageSearchThread(QThread):
 
             else:
                 # Coverage API call. Maps.Type should be included
-                if self.weather_type == 'ALL':
+                if self.mask_type == 'All':
                     # Image.Weather not required
                     self.filters.update({
                         MAPS_TYPE: self.map_product,
@@ -197,7 +196,7 @@ class CoverageSearchThread(QThread):
                     self.filters.update({
                         MAPS_TYPE: self.map_product,
                         IMAGE_DATE: date_filter,
-                        IMAGE_WEATHER: self.weather_type
+                        MASK: self.mask_type
                     })
                     self.sensor_type and self.filters.update({
                         IMAGE_SENSOR: self.sensor_type
@@ -517,7 +516,6 @@ def create_map(
             "image": {
                 "date": "2018-10-18",
                 "sensor": "SENTINEL_2",
-                "weather": "HOT",
                 "soilMaterial": "BARE"
             }
             "type": "INSEASON_NDVI",
@@ -628,7 +626,6 @@ def create_difference_map(
             "image": {
                 "date": "2018-10-18",
                 "sensor": "SENTINEL_2",
-                "weather": "HOT",
                 "soilMaterial": "BARE"
             }
             "type": "INSEASON_NDVI",
@@ -798,7 +795,6 @@ def download_field_map(
             "image": {
                 "date": "2018-10-18",
                 "sensor": "SENTINEL_2",
-                "weather": "HOT",
                 "soilMaterial": "BARE"
             }
             "type": "INSEASON_NDVI",
