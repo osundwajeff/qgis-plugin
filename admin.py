@@ -279,7 +279,8 @@ def generate_plugin_repo_xml(
         prerelease: bool = False,
         prerelease_url: str = None,
         prerelease_time: str = None,
-        prerelease_filename: str =None,
+        prerelease_filename: str = None,
+        version: str = None
 ):
     """Generates the plugin repository xml file, from which users
         can use to install the plugin in QGIS.
@@ -298,6 +299,9 @@ def generate_plugin_repo_xml(
 
     :param prerelease_filename: The filename for the prerelease plugin package.
     :type prerelease_filename: str, optional
+
+    :param version: Plugin package version.
+    :type version: str, optional
 
     :return: Plugin repository context in xml
     :rtype: str
@@ -326,11 +330,14 @@ def generate_plugin_repo_xml(
                 </pyqgis_plugin>
         """.strip()
     contents = "<?xml version = '1.0' encoding = 'UTF-8'?>\n<plugins>"
+
+    version = metadata.get("version") if version is None else version
+
     if prerelease:
         all_releases = [
             {
                 "pre_release": prerelease,
-                "tag_name": metadata.get("version"),
+                "tag_name": f"v{version}",
                 "url": prerelease_url,
                 "published_at": dt.datetime.strptime(
                     prerelease_time, "%Y-%m-%dT%H:%M:%SZ"
@@ -348,7 +355,7 @@ def generate_plugin_repo_xml(
     for release in [r for r in target_releases if r is not None]:
         fragment = fragment_template.format(
             name=metadata.get("name"),
-            version=metadata.get("version"),
+            version=version,
             description=metadata.get("description"),
             about=metadata.get("about"),
             qgis_minimum_version=metadata.get("qgisMinimumVersion"),

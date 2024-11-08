@@ -25,8 +25,10 @@ jobs:
           python -m pip install -r requirements.txt
 
       - name: Build zipfile
+        env:
+          TAG_NAME: ${{ github.ref_name }}
         run: |
-          python admin.py generate-zip
+          python admin.py generate-zip --version "${TAG_NAME#v}"
 
       - name: get zip details
         id: get-zip-details
@@ -62,7 +64,7 @@ jobs:
           
           echo "$DOWNLOAD_URL"
           
-          python admin.py generate-plugin-repo-xml  --prerelease --prerelease-url "$DOWNLOAD_URL" --prerelease-time "$(date +'%Y-%m-%dT%H:%M:%SZ')" --prerelease-filename "$ZIP_NAME"
+          python admin.py generate-plugin-repo-xml  --prerelease --prerelease-url "$DOWNLOAD_URL" --prerelease-time "$(date +'%Y-%m-%dT%H:%M:%SZ')" --prerelease-filename "$ZIP_NAME" --version "${REF_NAME#v}"
           
           git config --global --add safe.directory /__w/qgis-plugin/qgis-plugin
           
