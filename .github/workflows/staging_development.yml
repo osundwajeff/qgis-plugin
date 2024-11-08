@@ -60,7 +60,7 @@ jobs:
         run: |          
           cp $GITHUB_WORKSPACE/dist/$ZIP_NAME $GITHUB_WORKSPACE/docs/repository/$REF_NAME
           
-          DOWNLOAD_URL=https://raw.githubusercontent.com/Samweli/qgis-plugin/refs/heads/release/docs/repository/$REF_NAME/$ZIP_NAME
+          DOWNLOAD_URL=https://raw.githubusercontent.com/earthdaily/qgis-plugin/refs/heads/release/docs/repository/$REF_NAME/$ZIP_NAME
           
           echo "$DOWNLOAD_URL"
           
