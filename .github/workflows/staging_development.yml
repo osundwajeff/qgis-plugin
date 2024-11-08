@@ -26,7 +26,6 @@ jobs:
 
       - name: Build zipfile
         run: |
-          python -c "import requests; print('requests is installed.')" || echo "requests is not installed."
           python admin.py generate-zip
 
       - name: get zip details
