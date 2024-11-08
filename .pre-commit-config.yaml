@@ -19,6 +19,13 @@ repos:
             F841,W291,W293,W503,W504,W605
         additional_dependencies: []
         files: \.py$
+        exclude: |
+          (?x)(
+            ^build/.*|
+            ^tests/.*|
+            ^admin.*|
+            .*_ignore\.py$
+          )
 
   - repo: https://github.com/pre-commit/mirrors-autopep8
     rev: v1.6.0

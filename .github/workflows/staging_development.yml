@@ -2,7 +2,8 @@ name: Update the staging repository with a new plugin version
 on:
   push:
     tags:
-      - "v*"
+      - 'v*.*.*dev'
+      - 'v*.*.*pre'
 
 jobs:
   staging_repository_update:
