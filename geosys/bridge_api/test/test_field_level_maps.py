@@ -75,8 +75,8 @@ class BridgeAPIFieldLevelMapsTest(unittest.TestCase):
         client = FieldLevelMapsAPIClient(
             self.access_token, endpoint_url=BRIDGE_URLS['na']['test'])
 
-        # Test INSEASONFIELD_AVERAGE_NDVI map creation
-        map_type_key = 'INSEASON_EVI'
+        # Test FIELD_AVERAGE_NDVI map creation
+        map_type_key = 'EVI'
         data = {
             "SeasonField": {
                 "Id": "vejnn6g"

@@ -48,10 +48,10 @@ from geosys.bridge_api.default import (
     DEFAULT_MAX_YIELD, DEFAULT_ORGANIC_AVE, DEFAULT_GAIN, DEFAULT_OFFSET
 )
 from geosys.bridge_api.definitions import (
-    ARCHIVE_MAP_PRODUCTS, ALL_SENSORS, SENSORS, INSEASON_NDVI, INSEASON_EVI,
+    ARCHIVE_MAP_PRODUCTS, ALL_SENSORS, SENSORS, NDVI, EVI,
     SAMZ, SOIL, ELEVATION, REFLECTANCE, LANDSAT_8, LANDSAT_9, SENTINEL_2,
-    INSEASONFIELD_AVERAGE_NDVI, INSEASONFIELD_AVERAGE_REVERSE_NDVI,
-    INSEASONFIELD_AVERAGE_LAI, INSEASONFIELD_AVERAGE_REVERSE_LAI,
+    FIELD_AVERAGE_NDVI, FIELD_AVERAGE_REVERSE_NDVI,
+    FIELD_AVERAGE_LAI, FIELD_AVERAGE_REVERSE_LAI,
     COLOR_COMPOSITION, SAMPLE_MAP, IGNORE_LAYER_FIELDS, WEATHER_TYPES,
     ALLOWED_FIELD_TYPES
 )
@@ -378,8 +378,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                         coverage_result['seasonField']['id'])
 
             if len(self.selected_coverage_results) == 2 and has_same_id and (
-                    self.map_product in [INSEASON_NDVI['key'],
-                                         INSEASON_EVI['key']]):
+                    self.map_product in [NDVI['key'],
+                                         EVI['key']]):
                 self.difference_map_push_button.setVisible(True)
             else:
                 self.difference_map_push_button.setVisible(False)
@@ -401,14 +401,14 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             elif self.map_product == ELEVATION['key']:
                 # For elevation map type
                 item_json['maps'][0]['type'] = ELEVATION['key']
-            elif self.map_product == INSEASONFIELD_AVERAGE_NDVI['key']:
-                item_json['maps'][0]['type'] = INSEASONFIELD_AVERAGE_NDVI['key']
-            elif self.map_product == INSEASONFIELD_AVERAGE_LAI['key']:
-                item_json['maps'][0]['type'] = INSEASONFIELD_AVERAGE_LAI['key']
-            elif self.map_product == INSEASONFIELD_AVERAGE_REVERSE_NDVI['key']:
-                item_json['maps'][0]['type'] = INSEASONFIELD_AVERAGE_REVERSE_NDVI['key']
-            elif self.map_product == INSEASONFIELD_AVERAGE_REVERSE_LAI['key']:
-                item_json['maps'][0]['type'] = INSEASONFIELD_AVERAGE_REVERSE_LAI['key']
+            elif self.map_product == FIELD_AVERAGE_NDVI['key']:
+                item_json['maps'][0]['type'] = FIELD_AVERAGE_NDVI['key']
+            elif self.map_product == FIELD_AVERAGE_LAI['key']:
+                item_json['maps'][0]['type'] = FIELD_AVERAGE_LAI['key']
+            elif self.map_product == FIELD_AVERAGE_REVERSE_NDVI['key']:
+                item_json['maps'][0]['type'] = FIELD_AVERAGE_REVERSE_NDVI['key']
+            elif self.map_product == FIELD_AVERAGE_REVERSE_LAI['key']:
+                item_json['maps'][0]['type'] = FIELD_AVERAGE_REVERSE_LAI['key']
             elif self.map_product == SAMPLE_MAP['key']:
                 item_json['maps'][0]['type'] = SAMPLE_MAP['key']
 
@@ -1047,7 +1047,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 },
                 "maps": [
                     {
-                        "type": "INSEASON_NDVI",
+                        "type": "NDVI",
                         "_links": {
                             "self": "the_url",
                             "worldFile": "the_url",
@@ -1203,10 +1203,10 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.end_date_edit.setEnabled(True)
 
         list_nitrogen_maps = [
-            INSEASONFIELD_AVERAGE_NDVI['name'],
-            INSEASONFIELD_AVERAGE_REVERSE_NDVI['name'],
-            INSEASONFIELD_AVERAGE_LAI['name'],
-            INSEASONFIELD_AVERAGE_REVERSE_LAI['name']
+            FIELD_AVERAGE_NDVI['name'],
+            FIELD_AVERAGE_REVERSE_NDVI['name'],
+            FIELD_AVERAGE_LAI['name'],
+            FIELD_AVERAGE_REVERSE_LAI['name']
         ]
 
         if map_product in list_nitrogen_maps:

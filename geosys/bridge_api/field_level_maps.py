@@ -7,11 +7,11 @@ from geosys.bridge_api.definitions import (
     COLOR_COMPOSITION,
     REFLECTANCE,
     SOIL,
-    INSEASONFIELD_AVERAGE_NDVI,
-    INSEASONFIELD_AVERAGE_LAI,
-    INSEASONFIELD_AVERAGE_REVERSE_NDVI,
-    INSEASONFIELD_AVERAGE_REVERSE_LAI,
-    INSEASON_S2REP,
+    FIELD_AVERAGE_NDVI,
+    FIELD_AVERAGE_LAI,
+    FIELD_AVERAGE_REVERSE_NDVI,
+    FIELD_AVERAGE_REVERSE_LAI,
+    S2REP,
     SAMZ,
     YVM,
     YGM,
@@ -201,10 +201,10 @@ class FieldLevelMapsAPIClient(ApiClient):
             })
             map_family = map_type['map_family']
             nitrogen_maps = [
-                INSEASONFIELD_AVERAGE_NDVI['key'],
-                INSEASONFIELD_AVERAGE_LAI['key'],
-                INSEASONFIELD_AVERAGE_REVERSE_NDVI['key'],
-                INSEASONFIELD_AVERAGE_REVERSE_LAI['key']
+                FIELD_AVERAGE_NDVI['key'],
+                FIELD_AVERAGE_LAI['key'],
+                FIELD_AVERAGE_REVERSE_NDVI['key'],
+                FIELD_AVERAGE_REVERSE_LAI['key']
             ]
 
             if data:
@@ -215,7 +215,7 @@ class FieldLevelMapsAPIClient(ApiClient):
                 seasonfield_id = None
 
             if (map_type['key'] == REFLECTANCE['key'] or
-                    map_type['key'] == INSEASON_S2REP['key']):
+                    map_type['key'] == S2REP['key']):
                 # Reflectance and S2REP maps needs to make use of the catalog-imagery API
                 full_url = self.full_url(
                     'season-fields',

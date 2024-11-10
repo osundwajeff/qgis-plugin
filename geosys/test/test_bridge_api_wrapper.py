@@ -96,7 +96,7 @@ class BridgeAPIWrapperTest(unittest.TestCase):
 
     def test_get_field_map(self):
         """Test we can successfully get the field map."""
-        map_type_key = 'INSEASON_NDVI'
+        map_type_key = 'NDVI'
         season_field_id = 'nja3zv9'
         image_date = '2024-10-21'
         image_id = 'IKc73hpUQ71zsw94i77UI1lwJh7dcYFoTFwjoPfYPAq'
@@ -118,7 +118,7 @@ class BridgeAPIWrapperTest(unittest.TestCase):
 
     def test_get_difference_map(self):
         """Test we can successfully get the difference map."""
-        map_type_key = 'INSEASON_NDVI'
+        map_type_key = 'NDVI'
         season_field_id = 'nja3zv9'
         earliest_image_date = '2024-10-21'
         latest_image_date = '2024-11-02'
@@ -182,7 +182,7 @@ class BridgeAPIWrapperTest(unittest.TestCase):
         thumbnail_url = (
             f"https://api-pp.geosys-na.net:443/field-level-maps/v4/"
             f"season-fields/{season_field}/coverage/{image_id}"
-            "/base-reference-map/INSEASONPARTIAL_NDVI/thumbnail.png"
+            "/base-reference-map/NDVI/thumbnail.png"
         )
 
         bridge_api = BridgeAPI(

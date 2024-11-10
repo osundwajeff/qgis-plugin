@@ -314,7 +314,7 @@ class MapCoverageDownloader(QgsProcessingAlgorithm):
                 },
                 "maps": [
                     {
-                        "type": "INSEASON_NDVI",
+                        "type": "NDVI",
                         "_links": {
                             "self": "the_url",
                             "worldFile": "the_url",
