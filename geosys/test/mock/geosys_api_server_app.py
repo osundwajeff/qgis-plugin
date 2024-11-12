@@ -35,7 +35,7 @@ def token():
         return jsonify({"error": "invalid_request"}), 400
 
 
-@app.route("/field-level-maps/v5/coverage", methods=["POST"])
+@app.route("/field-level-maps/v5/catalog-imagery", methods=["POST"])
 def field_level_maps_coverage():
     if request.headers.get("accept") != "application/json" or \
        request.headers.get("content-type") != "application/json":
