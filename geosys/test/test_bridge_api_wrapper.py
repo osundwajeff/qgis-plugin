@@ -48,11 +48,26 @@ class BridgeAPIWrapperTest(unittest.TestCase):
         """Test we can get all available crops from definition"""
         crops = BridgeAPI.get_crops()
         expected_crops = [
-            'SUGARCANE', 'CORN', 'MILLET', 'GRAPES', 'OTHERS', 'COTTON',
-            'SUNFLOWER', 'PEANUT', 'SOYBEANS', 'ORANGE', 'RICE', 'SORGHUM',
-            'WINTER_DURUM_WHEAT', 'WINTER_SOFT_WHEAT', 'SPRING_DURUM_WHEAT',
-            'SOFT_WHITE_SPRING_WHEAT', 'TRITICALE', 'WINTER_BARLEY', 'SPRING_BARLEY', 'WINTER_OSR'
-        ]
+            'SUGARCANE',
+            'CORN',
+            'MILLET',
+            'GRAPES',
+            'OTHERS',
+            'COTTON',
+            'SUNFLOWER',
+            'PEANUT',
+            'SOYBEANS',
+            'ORANGE',
+            'RICE',
+            'SORGHUM',
+            'WINTER_DURUM_WHEAT',
+            'WINTER_SOFT_WHEAT',
+            'SPRING_DURUM_WHEAT',
+            'SOFT_WHITE_SPRING_WHEAT',
+            'TRITICALE',
+            'WINTER_BARLEY',
+            'SPRING_BARLEY',
+            'WINTER_OSR']
         self.assertEqual(sorted(crops), sorted(expected_crops))
 
     def test_get_regions(self):
@@ -70,11 +85,11 @@ class BridgeAPIWrapperTest(unittest.TestCase):
         """Test we can successfully get the coverage."""
 
         geom = ("POLYGON(("
-         "1.5614669851321183 43.43877959480905,"
-         "1.5720241598147355 43.43877959480905,"
-         "1.5720241598147355 43.43323264029555,"
-         "1.5614669851321183 43.43323264029555,"
-         "1.5614669851321183 43.43877959480905))")
+                "1.5614669851321183 43.43877959480905,"
+                "1.5720241598147355 43.43877959480905,"
+                "1.5720241598147355 43.43323264029555,"
+                "1.5614669851321183 43.43323264029555,"
+                "1.5614669851321183 43.43877959480905))")
 
         crop_type = 'CORN'
         sowing_date = '2024-01-01'
@@ -90,7 +105,7 @@ class BridgeAPIWrapperTest(unittest.TestCase):
             server_url=self.app_server.url
         )
 
-        coverages = bridge_api.get_coverage(
+        coverages = bridge_api.get_catalog_imagery(
             geometry=geom, crop=crop_type, sowing_date=sowing_date)
         self.assertTrue(len(coverages) > 0)
 

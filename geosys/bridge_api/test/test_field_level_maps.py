@@ -67,7 +67,7 @@ class BridgeAPIFieldLevelMapsTest(unittest.TestCase):
 
         client = FieldLevelMapsAPIClient(
             self.access_token, endpoint_url=BRIDGE_URLS['na']['test'])
-        response = client.get_coverage(data=data, filters=filters)
+        response = client.get_catalog_imagery(data=data, filters=filters)
         self.assertIsInstance(response, list)
 
     def test_get_field_map(self):
@@ -83,8 +83,7 @@ class BridgeAPIFieldLevelMapsTest(unittest.TestCase):
             },
             "Image": {
                 "Date": "2018-09-23"
-            }
-            ,
+            },
             "NPlanned": 48,
             "NMin": 20,
             "NMax": 70

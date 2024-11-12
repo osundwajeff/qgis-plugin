@@ -5,6 +5,8 @@ import os
 
 from requests import get, post
 
+from geosys.utilities.utilities import log
+
 __copyright__ = "Copyright 2019, Kartoza"
 __license__ = "GPL version 3"
 __email__ = "rohmat@kartoza.com"
@@ -82,6 +84,7 @@ class ApiClient(object):
         full_url = self.base_url
         for item in args:
             full_url = os.path.join(full_url, item)
+        log(f"Full URL is {full_url}")
         return full_url
 
     def get(self, url, **kwargs):

@@ -59,6 +59,8 @@ DEFAULT_ZONE_COUNT = 0
 DEFAULT_GAIN = 0.0
 DEFAULT_OFFSET = 0.0
 
+FIELD_MAPS_API_VERSION = 5
+
 # Thumbnail URLs
 NDVI_THUMBNAIL_URL = (
     '{bridge_url}/field-level-maps/v5/season-fields/{id}/coverage/{date}'

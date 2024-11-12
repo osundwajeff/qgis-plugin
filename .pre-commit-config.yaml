@@ -10,14 +10,9 @@ repos:
     hooks:
       - id: flake8
         args:
-          - geosys
           - --max-line-length=88
-          - --ignore=D102,D103,D104,D105,D200,D202,D203,D205,
-            D210,D211,D300,D301,D302,D400,D401,E122,
-            E125,E126,E127,E226,E265,E302,E303,E305,
-            E501,E502,E721,E722,F401,F632,F811,F821,
-            F841,W291,W293,W503,W504,W605
-        additional_dependencies: []
+          - --ignore=D102,D103,D104,D105,D200,D202,D203,D205,D210,D211,D300,D301,D302,D400,D401,E122,E125,E126,E127,E226,E265,E302,E303,E305,E501,E502,E721,E722,F401,F632,F811,F821,F841,W291,W293,W503,W504,W605
+        additional_dependencies: [ ]
         files: \.py$
         exclude: |
           (?x)(
@@ -26,9 +21,4 @@ repos:
             ^admin.*|
             .*_ignore\.py$
           )
-
-  - repo: https://github.com/pre-commit/mirrors-autopep8
-    rev: v1.6.0
-    hooks:
-      - id: autopep8
-        args: [--recursive, --in-place, --aggressive, --aggressive]
+    
