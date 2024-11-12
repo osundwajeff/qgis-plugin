@@ -2,7 +2,7 @@ name: Create a release
 on:
   push:
     tags:
-      - "v*"
+      - "v[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
   create-release:
@@ -10,6 +10,12 @@ jobs:
     container:
       image: qgis/qgis:release-3_20
     steps:
+      - name: Validate Tag Version
+        run: |
+          if [[ ! $GITHUB_REF =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Tag doesn't follow semantic versioning (v1.2.3). Exiting workflow."
+            exit 1
+          fi
       - name: Checkout code
         uses: actions/checkout@v2
 

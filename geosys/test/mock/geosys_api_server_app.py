@@ -12,6 +12,7 @@ logging.basicConfig(
     ]
 )
 
+
 @app.route("/v2.1/connect/token", methods=["POST"])
 def token():
     if (
@@ -34,7 +35,7 @@ def token():
         return jsonify({"error": "invalid_request"}), 400
 
 
-@app.route("/field-level-maps/v4/coverage", methods=["POST"])
+@app.route("/field-level-maps/v5/catalog-imagery", methods=["POST"])
 def field_level_maps_coverage():
     if request.headers.get("accept") != "application/json" or \
        request.headers.get("content-type") != "application/json":
@@ -59,7 +60,9 @@ def field_level_maps_coverage():
     ]
     return jsonify(response)
 
-@app.route("/field-level-maps/v4/maps/base-reference-map/<string:string_id>", methods=["POST"])
+
+@app.route("/field-level-maps/v5/maps/base-reference-map/<string:string_id>",
+           methods=["POST"])
 def base_reference_map(string_id):
     if request.headers.get("accept") != "application/json" or \
        request.headers.get("content-type") != "application/json":
@@ -89,9 +92,12 @@ def base_reference_map(string_id):
     }
     return jsonify(response)
 
-@app.route("/field-level-maps/v4/maps/difference-map/<string:string_id>", methods=["POST"])
+
+@app.route("/field-level-maps/v5/maps/difference-map/<string:string_id>",
+           methods=["POST"])
 def difference_map(string_id):
-    if request.headers.get("accept") != "application/json" or request.headers.get("content-type") != "application/json":
+    if request.headers.get(
+            "accept") != "application/json" or request.headers.get("content-type") != "application/json":
         return jsonify({"error": "Invalid headers"}), 400
 
     data = request.get_json()
@@ -118,9 +124,12 @@ def difference_map(string_id):
     }
     return jsonify(response)
 
-@app.route("/field-level-maps/v4/maps/management-zones-map/<string:map_type>", methods=["POST"])
+
+@app.route("/field-level-maps/v5/maps/management-zones-map/<string:map_type>",
+           methods=["POST"])
 def management_zones_map(map_type):
-    if request.headers.get("accept") != "application/json" or request.headers.get("content-type") != "application/json":
+    if request.headers.get(
+            "accept") != "application/json" or request.headers.get("content-type") != "application/json":
 
         return jsonify({"error": "Invalid headers"}), 400
 
@@ -130,7 +139,8 @@ def management_zones_map(map_type):
 
     zone_count = data.get('params').get("zoneCount")
     if zone_count is None:
-        return jsonify({"error": "Invalid or missing query parameter 'zoneCount'"}), 400
+        return jsonify(
+            {"error": "Invalid or missing query parameter 'zoneCount'"}), 400
 
     response = {
         "id": "OPs0I035tUCMwrUOqPSi4g",

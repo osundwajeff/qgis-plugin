@@ -32,8 +32,8 @@ jobs:
       fail-fast: false
       matrix:
         qgis_version_tag:
-          - release-3_10
           - release-3_16
+          - release-3_22
           - final-3_26_0
 
     steps:

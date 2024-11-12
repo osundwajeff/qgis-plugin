@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" GEOSYS plugin release operations
+""" GEOSYS plugin admin operations
 
 """
 
@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
 
-import httpx
+import requests
 import typer
 
 LOCAL_ROOT_DIR = Path(__file__).parent.resolve()
@@ -104,11 +104,12 @@ def generate_zip(
 
 @app.command()
 def build(
-        context: typer.Context,
-        output_directory: typing.Optional[Path] = LOCAL_ROOT_DIR / "build" / SRC_NAME,
-        clean: bool = True,
-        tests: bool = False
-) -> Path:
+    context: typer.Context,
+    output_directory: typing.Optional[Path] = LOCAL_ROOT_DIR
+    / "build"
+    / SRC_NAME,
+    clean: bool = True,
+        tests: bool = False) -> Path:
     """ Builds plugin directory for use in QGIS application.
 
     :param context: Application context
@@ -141,7 +142,8 @@ def build(
 
 @app.command()
 def copy_icon(
-        output_directory: typing.Optional[Path] = LOCAL_ROOT_DIR / "build/temp",
+    output_directory: typing.Optional[Path] = LOCAL_ROOT_DIR
+    / "build/temp",
 ) -> Path:
     """ Copies the plugin intended icon to the specified output
         directory.
@@ -166,9 +168,9 @@ def copy_icon(
 
 @app.command()
 def copy_source_files(
-        output_directory: typing.Optional[Path] = LOCAL_ROOT_DIR / "build/temp",
-        tests: bool = False
-):
+    output_directory: typing.Optional[Path] = LOCAL_ROOT_DIR
+    / "build/temp",
+        tests: bool = False):
     """ Copies the plugin source files to the specified output
             directory.
 
@@ -208,8 +210,9 @@ def copy_source_files(
 
 @app.command()
 def compile_resources(
-        context: typer.Context,
-        output_directory: typing.Optional[Path] = LOCAL_ROOT_DIR / "build/temp",
+    context: typer.Context,
+    output_directory: typing.Optional[Path] = LOCAL_ROOT_DIR
+    / "build/temp",
 ):
     """ Compiles plugin resources using the pyrcc package
 
@@ -270,6 +273,148 @@ def _log(
         typer.echo(msg, *args, **kwargs)
 
 
+@app.command()
+def generate_plugin_repo_xml(
+        context: typer.Context,
+        prerelease: bool = False,
+        prerelease_url: str = None,
+        prerelease_time: str = None,
+        prerelease_filename: str = None,
+        version: str = None
+):
+    """Generates the plugin repository xml file, from which users
+        can use to install the plugin in QGIS.
+
+    :param context: The Typer application context containing command-line information.
+    :type context: typer.Context
+
+    :param prerelease: A flag indicating whether to include a prerelease version of the plugin.
+    :type prerelease: bool, optional
+
+    :param prerelease_url: The URL for the prerelease version of the plugin, if applicable.
+    :type prerelease_url: str, optional
+
+    :param prerelease_time: The timestamp for the prerelease version, used to differentiate versions.
+    :type prerelease_time: str, optional
+
+    :param prerelease_filename: The filename for the prerelease plugin package.
+    :type prerelease_filename: str, optional
+
+    :param version: Plugin package version.
+    :type version: str, optional
+
+    :return: Plugin repository context in xml
+    :rtype: str
+    """
+    repo_base_dir = LOCAL_ROOT_DIR / "docs" / "repository"
+    repo_base_dir.mkdir(parents=True, exist_ok=True)
+    metadata = _get_metadata(context)
+    fragment_template = """
+                <pyqgis_plugin name="{name}" version="{version}">
+                    <description><![CDATA[{description}]]></description>
+                    <about><![CDATA[{about}]]></about>
+                    <version>{version}</version>
+                    <qgis_minimum_version>{qgis_minimum_version}</qgis_minimum_version>
+                    <homepage><![CDATA[{homepage}]]></homepage>
+                    <file_name>{filename}</file_name>
+                    <icon>{icon}</icon>
+                    <author_name><![CDATA[{author}]]></author_name>
+                    <download_url>{download_url}</download_url>
+                    <update_date>{update_date}</update_date>
+                    <experimental>{experimental}</experimental>
+                    <deprecated>{deprecated}</deprecated>
+                    <tracker><![CDATA[{tracker}]]></tracker>
+                    <repository><![CDATA[{repository}]]></repository>
+                    <tags><![CDATA[{tags}]]></tags>
+                    <server>False</server>
+                </pyqgis_plugin>
+        """.strip()
+    contents = "<?xml version = '1.0' encoding = 'UTF-8'?>\n<plugins>"
+
+    version = metadata.get("version") if version is None else version
+
+    if prerelease:
+        all_releases = [
+            {
+                "pre_release": prerelease,
+                "tag_name": f"v{version}",
+                "url": prerelease_url,
+                "published_at": dt.datetime.strptime(
+                    prerelease_time, "%Y-%m-%dT%H:%M:%SZ"
+                ) if prerelease_time else dt.datetime.now(),
+            }
+        ]
+    else:
+        all_releases = _get_existing_releases(context)
+
+    if prerelease:
+        target_releases = all_releases
+    else:
+        target_releases = _get_latest_releases(all_releases)
+
+    for release in [r for r in target_releases if r is not None]:
+        fragment = fragment_template.format(
+            name=metadata.get("name"),
+            version=version,
+            description=metadata.get("description"),
+            about=metadata.get("about"),
+            qgis_minimum_version=metadata.get("qgisMinimumVersion"),
+            homepage=metadata.get("homepage"),
+            filename=release.get("url").rpartition("/")[-1]
+            if not prerelease_filename
+            else prerelease_filename,
+            icon=metadata.get("icon", ""),
+            author="test",
+            download_url=release.get("url"),
+            update_date=release.get("published_at"),
+            experimental=False,
+            deprecated=metadata.get("deprecated"),
+            tracker=metadata.get("tracker"),
+            repository=metadata.get("repository"),
+            tags=metadata.get("tags"),
+        )
+        contents = "\n".join((contents, fragment))
+    contents = "\n".join((contents, "</plugins>"))
+    repo_index = repo_base_dir / "plugins.xml"
+    repo_index.write_text(contents, encoding="utf-8")
+
+    return contents
+
+
+def _get_metadata(context: typer.Context,):
+    """Reads the metadata properties from the
+       project metadata file 'metadata.txt'.
+
+    :return: plugin metadata
+    :type: Dict
+    """
+    metadata = {}
+    metadata_path = LOCAL_ROOT_DIR / "metadata.txt"
+
+    with open(str(metadata_path), "r") as fh:
+        for line in fh:
+            # Skip empty lines
+            line = line.strip()
+            if not line:
+                continue
+
+            # Split key and value
+            if "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            metadata[key.strip()] = value.strip()
+
+    # Update metadata with additional derived fields
+    metadata.update(
+        {
+            "tags": metadata.get("tags", "").split(", ") if "tags" in metadata else [],
+            "changelog": metadata.get("changelog", ""),
+        }
+    )
+
+    return metadata
+
+
 def _get_existing_releases(
         context: typing.Optional = None,
 ) -> typing.List[GithubRelease]:
@@ -282,8 +427,11 @@ def _get_existing_releases(
     :rtype: List[GithubRelease]
     """
     base_url = "https://api.github.com/repos/" \
-               "GEOSYS/qgis-plugin/releases"
-    response = httpx.get(base_url)
+               "earthdaily/qgis-plugin/releases"
+
+    session = requests.Session()
+    response = session.get(base_url)
+
     result = []
     if response.status_code == 200:
         payload = response.json()
@@ -312,8 +460,8 @@ def _get_existing_releases(
 def _get_latest_releases(
         current_releases: typing.List[GithubRelease],
 ) -> typing.Tuple[
-    typing.Optional[GithubRelease],
-    typing.Optional[GithubRelease]]:
+        typing.Optional[GithubRelease],
+        typing.Optional[GithubRelease]]:
     """ Searches for the latest plugin releases from the Github plugin releases.
 
     :param current_releases: Existing plugin releases

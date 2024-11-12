@@ -5,6 +5,8 @@ import os
 
 from requests import get, post
 
+from geosys.utilities.utilities import log
+
 __copyright__ = "Copyright 2019, Kartoza"
 __license__ = "GPL version 3"
 __email__ = "rohmat@kartoza.com"
@@ -118,6 +120,7 @@ class ApiClient(object):
             kwargs['headers'].update(self.headers)
 
         response = post(url, proxies=self.proxy, **kwargs)
+
         return response
 
     def get_content(self, url, params=None):
