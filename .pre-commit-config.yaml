@@ -21,4 +21,9 @@ repos:
             ^admin.*|
             .*_ignore\.py$
           )
-    
+
+  - repo: https://github.com/pre-commit/mirrors-autopep8
+    rev: v1.6.0
+    hooks:
+      - id: autopep8
+        args: [--recursive, --in-place, --aggressive, --aggressive]
