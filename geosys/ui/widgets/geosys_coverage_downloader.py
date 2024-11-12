@@ -51,7 +51,7 @@ from geosys.utilities.downloader import fetch_data, extract_zip
 from geosys.utilities.qgis_settings import QGISSettings
 from geosys.utilities.settings import setting
 from geosys.utilities.gui_utilities import create_hotspot_layer
-from geosys.utilities.utilities import check_if_file_exists
+from geosys.utilities.utilities import check_if_file_exists, log
 
 __copyright__ = "Copyright 2019, Kartoza"
 __license__ = "GPL version 3"
@@ -246,7 +246,6 @@ class CoverageSearchThread(QThread):
                     results = searcher_client.get_coverage(
                         geometry, self.crop_type, self.sowing_date,
                         filters=self.filters)
-
                 if isinstance(results, dict) and results.get('message'):
                     # TODO handle model_validation_error
                     raise Exception(results['message'])
@@ -480,11 +479,14 @@ class CoverageSearchThread(QThread):
                 self.data_downloaded.emit(result['data'], result['thumbnail'])
 
             self.search_finished.emit()
-        except:
+        except Exception as e:
             error_text = (self.tr(
                 "Error of processing!\n{0}: {1}")).format(
                 unicode(sys.exc_info()[0].__name__), unicode(
                     sys.exc_info()[1]))
+
+            log(f"{error_text}, {e}")
+            error_text = f"{error_text},-- {e}"
             self.error_occurred.emit(error_text)
         finally:
             self.mutex.unlock()
@@ -845,7 +847,7 @@ def download_field_map(
                              else BRIDGE_URLS[region]['prod'])
 
             reflectance_map_family = REFLECTANCE['map_family']
-            url = '{}/field-level-maps/v4/season-fields/{}/coverage/{}/{}/{}/image.tiff.zip'.format(
+            url = '{}/field-level-maps/v5/season-fields/{}/coverage/{}/{}/{}/image.tiff.zip'.format(
                 bridge_server,
                 seasonfield_id,
                 image_id,

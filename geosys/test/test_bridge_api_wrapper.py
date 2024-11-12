@@ -180,7 +180,7 @@ class BridgeAPIWrapperTest(unittest.TestCase):
         season_field = 'nja3zv9'
 
         thumbnail_url = (
-            f"https://api-pp.geosys-na.net:443/field-level-maps/v4/"
+            f"https://api-pp.geosys-na.net:443/field-level-maps/v5/"
             f"season-fields/{season_field}/coverage/{image_id}"
             "/base-reference-map/INSEASONPARTIAL_NDVI/thumbnail.png"
         )
