@@ -30,12 +30,12 @@ def token():
         }
         return jsonify(response)
     else:
-        print(f"Problem in authentication {request.form}")
         app.logger.error(f"Problem in authentication {request.form}")
         return jsonify({"error": "invalid_request"}), 400
 
 
-@app.route("/field-level-maps/v5/catalog-imagery", methods=["POST"])
+@app.route("/field-level-maps/v5/season-fields/catalog-imagery",
+           methods=["POST"])
 def field_level_maps_coverage():
     if request.headers.get("accept") != "application/json" or \
        request.headers.get("content-type") != "application/json":
