@@ -120,6 +120,7 @@ class ApiClient(object):
             kwargs['headers'].update(self.headers)
 
         response = post(url, proxies=self.proxy, **kwargs)
+
         return response
 
     def get_content(self, url, params=None):

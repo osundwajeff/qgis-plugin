@@ -10,6 +10,8 @@ from geosys.bridge_api.utilities import get_definition
 
 from geosys.bridge_api.definitions import SAMPLE_MAP
 
+from geosys.utilities.utilities import log
+
 __copyright__ = "Copyright 2019, Kartoza"
 __license__ = "GPL version 3"
 __email__ = "rohmat@kartoza.com"
@@ -204,11 +206,13 @@ class BridgeAPI(ApiClient):
         # Construct parameter
 
         request_data = {
-            'Geometry': geometry,
-            'Crop': {
-                'ID': crop
-            },
-            'SowingDate': sowing_date
+            "seasonFields": [
+                {
+                    "geometry": geometry,
+                    "crop": crop,
+                    "sowingDate": sowing_date,
+                }
+            ]
         }
 
         api_client = FieldLevelMapsAPIClient(

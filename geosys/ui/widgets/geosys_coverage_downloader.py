@@ -224,6 +224,8 @@ class CoverageSearchThread(QThread):
         """Start thread job."""
         self.search_started.emit()
 
+        results = None
+
         # search
         try:
             self.mutex.lock()
@@ -231,20 +233,6 @@ class CoverageSearchThread(QThread):
             searcher_client = BridgeAPI(
                 *credentials_parameters_from_settings(),
                 proxies=QGISSettings.get_qgis_proxy())
-
-            catalog_imagery_api = [
-                INSEASON_S2REP['key'],
-                REFLECTANCE['key'],
-                INSEASON_CVIN['key'],
-                INSEASONFIELD_AVERAGE_NDVI['key'],
-                INSEASONFIELD_AVERAGE_LAI['key'],
-                INSEASONFIELD_AVERAGE_REVERSE_NDVI['key'],
-                INSEASONFIELD_AVERAGE_REVERSE_LAI['key'],
-                YGM['key'],
-                YVM['key'],
-                SAMZ['key'],
-                SAMPLE_MAP['key']
-            ]
 
             collected_results = []
             for geometry in self.geometries:
@@ -457,13 +445,7 @@ class CoverageSearchThread(QThread):
                                 id=json_id
                             ))
                     else:  # All other map types
-                        thumbnail_url = (
-                            requested_map['_links'].get('thumbnail') or (
-                                NDVI_THUMBNAIL_URL.format(
-                                    bridge_url=searcher_client.bridge_server,
-                                    id=result['seasonField']['id'],
-                                    date=result['image']['date']
-                                )))
+                        thumbnail_url = None
 
                     if thumbnail_url:
                         thumbnail_content = searcher_client.get_content(
@@ -495,6 +477,7 @@ class CoverageSearchThread(QThread):
                     sys.exc_info()[1]))
 
             log(f"{error_text}, {e}")
+
             error_text = f"{error_text},-- {e}"
             self.error_occurred.emit(error_text)
         finally:

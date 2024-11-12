@@ -1,6 +1,8 @@
 # coding=utf-8
 """Implementation of Bridge API field-level-maps endpoint.
 """
+import requests
+
 from geosys.bridge_api.api_abstract import ApiClient
 from geosys.bridge_api.default import BRIDGE_URLS, FIELD_MAPS_API_VERSION
 from geosys.bridge_api.definitions import (
@@ -18,6 +20,8 @@ from geosys.bridge_api.definitions import (
     SAMPLE_MAP
 )
 from geosys.bridge_api.utilities import get_definition
+
+from geosys.utilities.utilities import log
 
 __copyright__ = "Copyright 2019, Kartoza"
 __license__ = "GPL version 3"
@@ -93,7 +97,7 @@ class FieldLevelMapsAPIClient(ApiClient):
         }
 
         response = self.post(
-            self.full_url('catalog-imagery'),
+            self.full_url('season-fields', 'catalog-imagery'),
             headers=headers,
             params=filters,
             json=data)
