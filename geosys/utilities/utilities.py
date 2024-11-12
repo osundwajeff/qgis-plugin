@@ -20,6 +20,8 @@ from geosys.messaging import styles, Message
 from geosys.messaging.error_message import ErrorMessage
 from geosys.utilities.i18n import tr
 
+from qgis.core import Qgis, QgsMessageLog
+
 __copyright__ = "Copyright 2019, Kartoza"
 __license__ = "GPL version 3"
 __email__ = "rohmat@kartoza.com"
@@ -342,3 +344,36 @@ def check_if_file_exists(output_dir, file_name, extension):
             break
 
     return cur_file_name
+
+def log(
+    message: str,
+    name: str = "earthdaily",
+    info: bool = True,
+    notify: bool = True,
+):
+    """Logs the message into QGIS logs using qgis_cplus as the default
+    log instance.
+    If notify_user is True, user will be notified about the log.
+
+    :param message: The log message
+    :type message: str
+
+    :param name: Name of te log instance, qgis_cplus is the default
+    :type message: str
+
+    :param info: Whether the message is about info or a
+    warning
+    :type info: bool
+
+    :param notify: Whether to notify user about the log
+    :type notify: bool
+    """
+    level = Qgis.Info if info else Qgis.Warning
+
+    QgsMessageLog.logMessage(
+        message,
+        name,
+        level=level,
+        notifyUser=notify,
+    )
+

@@ -262,7 +262,8 @@ class MapCoverageDownloader(QgsProcessingAlgorithm):
         bridge_api = BridgeAPI(
             *credentials_parameters_from_settings(),
             proxies=QGISSettings.get_qgis_proxy())
-        results = bridge_api.get_coverage(
+
+        results = bridge_api.get_catalog_imagery(
             geom_wkt, self.crop_type, self.sowing_date,
             filters=filters)
 

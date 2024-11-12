@@ -10,6 +10,8 @@ from geosys.bridge_api.utilities import get_definition
 
 from geosys.bridge_api.definitions import SAMPLE_MAP
 
+from geosys.utilities.utilities import log
+
 __copyright__ = "Copyright 2019, Kartoza"
 __license__ = "GPL version 3"
 __email__ = "rohmat@kartoza.com"
@@ -122,7 +124,6 @@ class BridgeAPI(ApiClient):
                               if self.use_testing_service
                               else server_url or BRIDGE_URLS[self.region]['prod'])
 
-
         # authenticate user
         self.authenticated, self.authentication_message = self.authenticate()
 
@@ -179,44 +180,6 @@ class BridgeAPI(ApiClient):
             message = 'Please enter a correct region (NA or EU)'
             return False, message
 
-    def get_coverage(self, geometry, crop, sowing_date, filters=None):
-        """Get fields coverage for given parameters.
-
-        :param geometry: A geometry in WKT format.
-        :type geometry: str
-
-        :param crop: Crop type.
-        :type crop: str
-
-        :param sowing_date: Sowing date. YYYY-MM-DD
-        :type sowing_date: str
-
-        :param filters: Filter coverage results.
-            example: {
-                "Image.Date": "$gte:2010-01-01",
-                "coverageType": "CLEAR"
-            }
-        :type filters: dict
-
-        :return: JSON response.
-            List of maps data specification based on given criteria.
-        :rtype: list
-        """
-        # Construct parameter
-        request_data = {
-            'Geometry': geometry,
-            'Crop': {
-                'ID': crop
-            },
-            'SowingDate': sowing_date
-        }
-
-        api_client = FieldLevelMapsAPIClient(
-            self.access_token, self.bridge_server)
-        coverages_json = api_client.get_coverage(request_data, filters=filters)
-
-        return coverages_json
-
     def get_catalog_imagery(self, geometry, crop, sowing_date, filters=None):
         """Get catalog imagery for given parameters.
 
@@ -243,16 +206,19 @@ class BridgeAPI(ApiClient):
         # Construct parameter
 
         request_data = {
-            'Geometry': geometry,
-            'Crop': {
-                'ID': crop
-            },
-            'SowingDate': sowing_date
+            "seasonFields": [
+                {
+                    "geometry": geometry,
+                    "crop": crop,
+                    "sowingDate": sowing_date,
+                }
+            ]
         }
 
         api_client = FieldLevelMapsAPIClient(
             self.access_token, self.bridge_server)
-        coverages_json = api_client.get_catalog_imagery(request_data, filters=filters)
+        coverages_json = api_client.get_catalog_imagery(
+            request_data, filters=filters)
 
         return coverages_json
 
@@ -445,7 +411,12 @@ class BridgeAPI(ApiClient):
         return self._get_field_map(
             difference_map_definition['key'], request_data, params=params)
 
-    def get_samz_map(self, season_field_id, list_of_image_ids, list_of_image_date=None, **kwargs):
+    def get_samz_map(
+            self,
+            season_field_id,
+            list_of_image_ids,
+            list_of_image_date=None,
+            **kwargs):
         """Get requested SAMZ map.
 
         :param season_field_id: ID of the season field.

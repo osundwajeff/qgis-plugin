@@ -53,7 +53,7 @@ from geosys.utilities.downloader import fetch_data, extract_zip
 from geosys.utilities.qgis_settings import QGISSettings
 from geosys.utilities.settings import setting
 from geosys.utilities.gui_utilities import create_hotspot_layer
-from geosys.utilities.utilities import check_if_file_exists
+from geosys.utilities.utilities import check_if_file_exists, log
 
 __copyright__ = "Copyright 2019, Kartoza"
 __license__ = "GPL version 3"
@@ -72,9 +72,21 @@ class CoverageSearchThread(QThread):
     error_occurred = pyqtSignal(object)
 
     def __init__(
-            self, geometries, crop_type, sowing_date, map_product, sensor_type,
-            weather_type, start_date, end_date, geometries_points, attributes_points, attribute_field,
-            mutex, coverage_percent, n_planned_value=1.0, parent=None):
+            self,
+            geometries,
+            crop_type,
+            sowing_date,
+            map_product,
+            sensor_type,
+            weather_type,
+            start_date,
+            end_date,
+            geometries_points,
+            attributes_points,
+            attribute_field,
+            mutex,
+            n_planned_value=1.0,
+            parent=None):
         """Thread object wrapper for coverage search.
 
         :param geometries: List of geometry filter in WKT format.
@@ -226,6 +238,8 @@ class CoverageSearchThread(QThread):
         """Start thread job."""
         self.search_started.emit()
 
+        results = None
+
         # search
         try:
             self.mutex.lock()
@@ -234,33 +248,12 @@ class CoverageSearchThread(QThread):
                 *credentials_parameters_from_settings(),
                 proxies=QGISSettings.get_qgis_proxy())
 
-            catalog_imagery_api = [
-                INSEASON_S2REP['key'],
-                REFLECTANCE['key'],
-                INSEASON_CVIN['key'],
-                INSEASONFIELD_AVERAGE_NDVI['key'],
-                INSEASONFIELD_AVERAGE_LAI['key'],
-                INSEASONFIELD_AVERAGE_REVERSE_NDVI['key'],
-                INSEASONFIELD_AVERAGE_REVERSE_LAI['key'],
-                YGM['key'],
-                YVM['key'],
-                SAMZ['key'],
-                SAMPLE_MAP['key']
-            ]
-
             collected_results = []
             for geometry in self.geometries:
-                # Determines the approach required to do the coverage check
-                if self.map_product in catalog_imagery_api:
-                    results = searcher_client.get_catalog_imagery(
-                        geometry, self.crop_type, self.sowing_date,
-                        filters=self.filters
-                    )
-                else:
-                    # Makes use of the 'coverage' API calls
-                    results = searcher_client.get_coverage(
-                        geometry, self.crop_type, self.sowing_date,
-                        filters=self.filters)
+                results = searcher_client.get_catalog_imagery(
+                    geometry, self.crop_type, self.sowing_date,
+                    filters=self.filters
+                )
 
                 if isinstance(results, dict) and results.get('message'):
                     # TODO handle model_validation_error
@@ -294,7 +287,8 @@ class CoverageSearchThread(QThread):
 
                         data = []
                         i = 0
-                        # Create the request data from the points and its values
+                        # Create the request data from the points and its
+                        # values
                         for geom in self.geometries_points:
                             val = self.attributes_points[i]
                             data_item = {
@@ -353,7 +347,8 @@ class CoverageSearchThread(QThread):
                                     requested_map = map_result
                                     break
                             else:  # Other map types
-                                if map_result['type'] == self.map_product or (self.map_product == ELEVATION['key']):
+                                if map_result['type'] == self.map_product or (
+                                        self.map_product == ELEVATION['key']):
                                     requested_map = map_result
                                     break
 
@@ -373,18 +368,18 @@ class CoverageSearchThread(QThread):
                         # Reflectance map type should make use of the INSEASON_NDVI thumbnail
                         # This is a work-around provided by GeoSys
                         thumbnail_url = (
-                                NDVI_THUMBNAIL_URL.format(
-                                    bridge_url=searcher_client.bridge_server,
-                                    id=result['seasonField']['id'],
-                                    date=result['image']['date']
-                                ))
+                            NDVI_THUMBNAIL_URL.format(
+                                bridge_url=searcher_client.bridge_server,
+                                id=result['seasonField']['id'],
+                                date=result['image']['date']
+                            ))
                     elif self.map_product == INSEASON_CVIN['key']:
                         thumbnail_url = (
-                                CVIN_THUMBNAIL_URL.format(
-                                    bridge_url=searcher_client.bridge_server,
-                                    id=result['seasonField']['id'],
-                                    image=result['image']['id']
-                                ))
+                            CVIN_THUMBNAIL_URL.format(
+                                bridge_url=searcher_client.bridge_server,
+                                id=result['seasonField']['id'],
+                                image=result['image']['id']
+                            ))
                     elif self.map_product == INSEASON_S2REP['key']:
                         thumbnail_url = (
                             S2REP_THUMBNAIL_URL.format(
@@ -402,8 +397,8 @@ class CoverageSearchThread(QThread):
                                     id=result['seasonField']['id'],
                                     image=result['image']['id'],
                                     nitrogen_map_type=INSEASONFIELD_AVERAGE_NDVI['key'],
-                                    n_value=str(self.n_planned_value)
-                                ))
+                                    n_value=str(
+                                        self.n_planned_value)))
                         elif self.map_product == INSEASONFIELD_AVERAGE_LAI['key']:
                             # INSEASON AVERAGE LAI
                             thumbnail_url = (
@@ -412,8 +407,8 @@ class CoverageSearchThread(QThread):
                                     id=result['seasonField']['id'],
                                     image=result['image']['id'],
                                     nitrogen_map_type=INSEASONFIELD_AVERAGE_LAI['key'],
-                                    n_value=str(self.n_planned_value)
-                                ))
+                                    n_value=str(
+                                        self.n_planned_value)))
                         elif self.map_product == INSEASONFIELD_AVERAGE_REVERSE_NDVI['key']:
                             # INSEASON AVERAGE REVERSE NDVI
                             thumbnail_url = (
@@ -422,8 +417,8 @@ class CoverageSearchThread(QThread):
                                     id=result['seasonField']['id'],
                                     image=result['image']['id'],
                                     nitrogen_map_type=INSEASONFIELD_AVERAGE_REVERSE_NDVI['key'],
-                                    n_value=str(self.n_planned_value)
-                                ))
+                                    n_value=str(
+                                        self.n_planned_value)))
                         elif self.map_product == INSEASONFIELD_AVERAGE_REVERSE_LAI['key']:
                             # INSEASON AVERAGE REVERSE LAI
                             thumbnail_url = (
@@ -432,8 +427,8 @@ class CoverageSearchThread(QThread):
                                     id=result['seasonField']['id'],
                                     image=result['image']['id'],
                                     nitrogen_map_type=INSEASONFIELD_AVERAGE_REVERSE_LAI['key'],
-                                    n_value=str(self.n_planned_value)
-                                ))
+                                    n_value=str(
+                                        self.n_planned_value)))
                     elif self.map_product == YGM['key'] or self.map_product == YVM['key']:
                         if self.map_product == YGM['key']:
                             thumbnail_url = (
@@ -464,13 +459,7 @@ class CoverageSearchThread(QThread):
                                 id=json_id
                             ))
                     else:  # All other map types
-                        thumbnail_url = (
-                            requested_map['_links'].get('thumbnail') or (
-                                NDVI_THUMBNAIL_URL.format(
-                                    bridge_url=searcher_client.bridge_server,
-                                    id=result['seasonField']['id'],
-                                    date=result['image']['date']
-                                )))
+                        thumbnail_url = None
 
                     if thumbnail_url:
                         thumbnail_content = searcher_client.get_content(
@@ -495,11 +484,15 @@ class CoverageSearchThread(QThread):
                 self.data_downloaded.emit(result['data'], result['thumbnail'])
 
             self.search_finished.emit()
-        except:
+        except Exception as e:
             error_text = (self.tr(
                 "Error of processing!\n{0}: {1}")).format(
                 unicode(sys.exc_info()[0].__name__), unicode(
                     sys.exc_info()[1]))
+
+            log(f"{error_text}, {e}")
+
+            error_text = f"{error_text},-- {e}"
             self.error_occurred.emit(error_text)
         finally:
             self.mutex.unlock()
@@ -524,7 +517,7 @@ def create_map(
     """Create map based on given parameters.
 
     :param map_specification: Result of single map coverage specifications.
-        example: {   
+        example: {
             "seasonField": {
                 "id": "zgzmbrm",
                 "customerExternalId": "..."
@@ -552,25 +545,25 @@ def create_map(
 
     :param output_dir: Base directory of the output.
     :type output_dir: str
-    
+
     :param filename: Filename of the output.
     :type filename: str
-    
+
     :param output_map_format: Output map format.
     :type output_map_format: dict
-    
+
     :param n_planned_value: Value used for nitrogen map type
     :type n_planned_value: int
-    
+
     :param yield_val: Yield value
     :type yield_val: int
-    
+
     :param min_yield_val: Minimum yield value
     :type min_yield_val: int
-    
+
     :param max_yield_val: Maximum yield value
     :type max_yield_val: int
-    
+
     :param data: Map creation data.
         example: {
             "MinYieldGoal": 0,
@@ -578,10 +571,10 @@ def create_map(
             "HistoricalYieldAverage": 0
         }
     :type data: dict
-    
+
     :param sample_map_id: Sample map ID received from the API
     :type sample_map_id: str
-    
+
     :param params: Map creation parameters.
     :type params: dict
     """""
@@ -635,7 +628,7 @@ def create_difference_map(
     """Create map based on given parameters.
 
     :param map_specifications: List of map coverage specification.
-        example: [{   
+        example: [{
             "seasonField": {
                 "id": "zgzmbrm",
                 "customerExternalId": "..."
@@ -784,8 +777,14 @@ def create_samz_map(
 
 
 def download_field_map(
-        field_map_json, map_type_key, destination_base_path,
-        output_map_format, headers, map_specification=None, data=None, image_id=''):
+        field_map_json,
+        map_type_key,
+        destination_base_path,
+        output_map_format,
+        headers,
+        map_specification=None,
+        data=None,
+        image_id=''):
     """Download field map from requested field map json.
 
     :param field_map_json: JSON response from Bridge API field map request.
@@ -860,7 +859,7 @@ def download_field_map(
                              else BRIDGE_URLS[region]['prod'])
 
             reflectance_map_family = REFLECTANCE['map_family']
-            url = '{}/field-level-maps/v4/season-fields/{}/coverage/{}/{}/{}/image.tiff.zip'.format(
+            url = '{}/field-level-maps/v5/season-fields/{}/coverage/{}/{}/{}/image.tiff.zip'.format(
                 bridge_server,
                 seasonfield_id,
                 image_id,
@@ -894,15 +893,16 @@ def download_field_map(
             extract_zip(zip_path, destination_base_path)
         else:
             destination_filename = (
-                    destination_base_path + output_map_format['extension'])
+                destination_base_path + output_map_format['extension'])
             fetch_data(url, destination_filename, headers=headers)
             if output_map_format == PNG or output_map_format == PNG_KMZ:
                 # Download associated legend and world-file for geo-referencing
                 # the PNG file.
-                
+
                 # This step check if the map type is color composition
                 # If that is the case, legend will not be included to the items
-                # list as the API does not include a legend for color composition
+                # list as the API does not include a legend for color
+                # composition
                 if map_type_key == COLOR_COMPOSITION['key']:
                     # Color composition has no legend
                     list_items = [PGW]
@@ -914,7 +914,8 @@ def download_field_map(
                     url = field_map_json['_links'][item['api_key']]
 
                     char_question_mark = '?'  # Filtering char
-                    # Filtering, which starts with '?' has already been added, so appending with '&'
+                    # Filtering, which starts with '?' has already been added,
+                    # so appending with '&'
                     if char_question_mark in url:
                         url = '{}&zoning=true&zoneCount={}'.format(
                             url, data.get('zoneCount')) \
@@ -936,20 +937,20 @@ def download_field_map(
             hotspot_per_part = False
             if data.get('zoningSegmentation'):
                 hotspot_url = '{}?zoning=true&zoneCount={}&hotspot=true' \
-                              '&zoningSegmentation=polygon'.format( \
-                    field_map_json['_links']['self'], data.get('zoneCount'))
+                              '&zoningSegmentation=polygon'.format(
+                                  field_map_json['_links']['self'], data.get('zoneCount'))
 
                 hotspot_per_part = True
             else:
                 hotspot_url = '{}?zoning=true&zoneCount={}&hotspot=true'. \
-                    format(\
-                    field_map_json['_links']['self'],
-                    data.get('zoneCount'))
+                    format(
+                        field_map_json['_links']['self'],
+                        data.get('zoneCount'))
 
-            hotspot_url = '{}&hotSpotPosition={}'.format(hotspot_url, data.get('position')) \
-                if data.get('position') else hotspot_url
-            hotspot_url = '{}&hotSpotFilter={}'.format(hotspot_url, data.get('filter')) \
-                if data.get('filter') else hotspot_url
+            hotspot_url = '{}&hotSpotPosition={}'.format(
+                hotspot_url, data.get('position')) if data.get('position') else hotspot_url
+            hotspot_url = '{}&hotSpotFilter={}'.format(
+                hotspot_url, data.get('filter')) if data.get('filter') else hotspot_url
 
             map_json = bridge_api.get_hotspot(hotspot_url)
 
@@ -962,13 +963,15 @@ def download_field_map(
                             map_specification['seasonField']['id'],
                             map_specification['image']['date']
                         )
-                        hotspot_filename = check_if_file_exists(output_dir, hotspot_filename, SHP_EXT)
+                        hotspot_filename = check_if_file_exists(
+                            output_dir, hotspot_filename, SHP_EXT)
                     else:
                         hotspot_filename = 'HotspotsPerPolygon_{}_{}'.format(
                             map_specification['seasonField']['id'],
                             map_specification['image']['date']
                         )
-                        hotspot_filename = check_if_file_exists(output_dir, hotspot_filename, SHP_EXT)
+                        hotspot_filename = check_if_file_exists(
+                            output_dir, hotspot_filename, SHP_EXT)
                 create_hotspot_layer(
                     map_json.get('hotSpots'),
                     'hotspots',
@@ -982,13 +985,15 @@ def download_field_map(
                             map_specification['seasonField']['id'],
                             map_specification['image']['date']
                         )
-                        segment_filename = check_if_file_exists(output_dir, segment_filename, SHP_EXT)
+                        segment_filename = check_if_file_exists(
+                            output_dir, segment_filename, SHP_EXT)
                     else:
                         segment_filename = 'SegmentsPerPolygon_{}_{}'.format(
                             map_specification['seasonField']['id'],
                             map_specification['image']['date']
                         )
-                        segment_filename = check_if_file_exists(output_dir, segment_filename, SHP_EXT)
+                        segment_filename = check_if_file_exists(
+                            output_dir, segment_filename, SHP_EXT)
                 create_hotspot_layer(
                     map_json.get('zones'),
                     'segments',
