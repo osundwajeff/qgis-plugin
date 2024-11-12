@@ -84,7 +84,6 @@ class ApiClient(object):
         full_url = self.base_url
         for item in args:
             full_url = os.path.join(full_url, item)
-        log(f"Full URL is {full_url}")
         return full_url
 
     def get(self, url, **kwargs):
