@@ -192,6 +192,24 @@ class CoverageSearchThread(QThread):
                 self.sensor_type and self.filters.update({
                     IMAGE_SENSOR: self.sensor_type
                 })
+            elif self.map_product == SAMZ['key']:
+                if self.mask_type in {'All', 'None'}:
+                    self.filters.update({
+                        MAPS_TYPE: COLOR_COMPOSITION['key'],
+                        IMAGE_DATE: date_filter
+                    })
+                    self.sensor_type and self.filters.update({
+                        IMAGE_SENSOR: self.sensor_type
+                    })
+                else:
+                    self.filters.update({
+                        MAPS_TYPE: COLOR_COMPOSITION['key'],
+                        IMAGE_DATE: date_filter,
+                        MASK: self.mask_type
+                    })
+                    self.sensor_type and self.filters.update({
+                        IMAGE_SENSOR: self.sensor_type
+                    })
 
             else:
                 # Coverage API call. Maps.Type should be included
@@ -694,9 +712,10 @@ def create_difference_map(
 
 
 def create_samz_map(
-        season_field_id,
+        geometry,
         list_of_image_ids,
         list_of_image_date,
+        zone_count,
         output_dir,
         filename,
         output_map_format,
@@ -743,12 +762,15 @@ def create_samz_map(
     bridge_api = BridgeAPI(
         *credentials_parameters_from_settings(),
         proxies=QGISSettings.get_qgis_proxy())
+    log(f"bridge_api: {bridge_api}")
     samz_map_json = bridge_api.get_samz_map(
-        season_field_id,
+        geometry,
         list_of_image_ids,
         list_of_image_date,
+        zone_count=zone_count,
         **data
     )
+    log(f"Samz map json: {samz_map_json}")
 
     return download_field_map(
         field_map_json=samz_map_json,
