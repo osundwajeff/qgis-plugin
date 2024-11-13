@@ -413,9 +413,10 @@ class BridgeAPI(ApiClient):
 
     def get_samz_map(
             self,
-            season_field_id,
+            geometry,
             list_of_image_ids,
             list_of_image_date=None,
+            zone_count=0,
             **kwargs):
         """Get requested SAMZ map.
 
@@ -438,12 +439,15 @@ class BridgeAPI(ApiClient):
         # Construct map creation parameters
         request_data = {
             "SeasonField": {
-                "Id": season_field_id
+                "Id": None,
+                "geometry": geometry
             },
             "Images": [
                 {"id": image_id} for image_id in list_of_image_ids
-            ]
+            ],
+            "zoneCount": zone_count
         }
+        log('Request data: {}'.format(request_data))
         request_data.update(kwargs)
 
         # Get request parameters

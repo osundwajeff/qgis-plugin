@@ -69,7 +69,7 @@ from geosys.utilities.gui_utilities import (
 )
 from geosys.utilities.resources import get_ui_class
 from geosys.utilities.settings import setting, set_setting
-from geosys.utilities.utilities import check_if_file_exists
+from geosys.utilities.utilities import check_if_file_exists, log
 
 FORM_CLASS = get_ui_class('geosys_dockwidget_base.ui')
 
@@ -749,6 +749,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 break
 
         map_product_definition = get_definition(self.map_product)
+        log(f"Map product definition: {map_product_definition}")
         if gain_offset_allowed and \
                 (self.spinBox_gain.value() > 0 or
                  self.spinBox_offset.value() > 0):  # Gain and offset will be added to the data
@@ -771,6 +772,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 ORGANIC_AVERAGE: self.organic_average,
                 SAMZ_ZONE: self.samz_zone
             }
+            
+        log(f'Zone count: {SAMZ_ZONE}')
 
         if self.samz_zone > 0:
             self.samz_zoning = True
@@ -818,6 +821,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     )
 
         zone_cnt = self.samz_zone_form.value()
+        log(f"Zone Count: {zone_cnt}")
         if map_product_definition == SAMZ:
             image_dates = []
             image_ids = []
@@ -831,20 +835,38 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 return
             # Proceed with custom SAMZ using selected images
             season_field_id = map_specifications[0]['seasonField']['id']
-            for map_specification in map_specifications:
-                image_dates.append(map_specification['image']['date'])
-                image_ids.append(map_specification['image']['id'])
+            log(f"Season Field ID: {season_field_id}")
+            geometry = self.wkt_geometries[0]
+            log(f"Geometry: {geometry}")
+            if len(map_specifications) == 1:
+                # Log and use the single image provided
+                single_specification = map_specifications[0]
+                image_dates.append(single_specification['image']['date'])
+                log(f"Using single image. Image Date: {single_specification['image']['date']}")
+                image_ids.append(single_specification['image']['id'])
+                log(f"Using single image. Image ID: {single_specification['image']['id']}")
+            else:
+                # Iterate through multiple specifications
+                for map_specification in map_specifications:
+                    image_dates.append(map_specification['image']['date'])
+                    log(f"Image Date: {map_specification['image']['date']}")
+                    image_ids.append(map_specification['image']['id'])
+                    log(f"Image ID: {map_specification['image']['id']}")
 
-            filename = '{}_{}_zones_{}_{}'.format(
-                SAMZ['key'], str(zone_cnt), season_field_id)
+            filename = '{}_{}_zones'.format(
+                SAMZ['key'], str(zone_cnt))
             filename = check_if_file_exists(
                 self.output_directory,
                 filename,
                 self.output_map_format['extension']
             )
+            
+            log(f'Filename: {filename}')
+            
+            log((f'Data: {data}'))
 
             is_success, message = create_samz_map(
-                season_field_id, image_ids, image_dates, self.output_directory, filename,
+                geometry, image_ids, image_dates, zone_cnt, self.output_directory, filename,
                 output_map_format=self.output_map_format, params=data)
 
             if not is_success:
@@ -981,11 +1003,12 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.coverage_result_list.clear()
 
         # start search thread
+        map_product = COLOR_COMPOSITION['key'] if self.map_product == SAMZ['key'] else self.map_product
         searcher = CoverageSearchThread(
             geometries=self.wkt_geometries,
             crop_type=self.crop_type,
             sowing_date=self.sowing_date,
-            map_product=self.map_product,
+            map_product=map_product,
             sensor_type=self.sensor_type,
             mask_type=self.mask_type,
             end_date=self.end_date,
@@ -1079,6 +1102,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         :param thumbnail_ba: Thumbnail image data in byte array format.
         :type thumbnail_ba: QByteArray
         """
+        log(f"Received Map JSON: {coverage_map_json}")
         if coverage_map_json:
             custom_widget = CoverageSearchResultItemWidget(
                 coverage_map_json, thumbnail_ba, self.map_product)
