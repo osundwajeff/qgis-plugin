@@ -157,7 +157,7 @@ class CoverageSearchThread(QThread):
                         IMAGE_SENSOR: self.sensor_type
                     })
                 else:
-                    # Weather type required
+                    # Mask type required
                     self.filters.update({
                         MAPS_TYPE: INSEASON_NDVI['key'],
                         IMAGE_DATE: date_filter,
@@ -196,7 +196,7 @@ class CoverageSearchThread(QThread):
             else:
                 # Coverage API call. Maps.Type should be included
                 if self.mask_type in {'All', 'None'}:
-                    # Image.Weather not required
+                    # Mask not required
                     self.filters.update({
                         MAPS_TYPE: self.map_product,
                         IMAGE_DATE: date_filter,
@@ -205,7 +205,7 @@ class CoverageSearchThread(QThread):
                         IMAGE_SENSOR: self.sensor_type
                     })
                 else:
-                    # Weather type required
+                    # Mask type required
                     self.filters.update({
                         MAPS_TYPE: self.map_product,
                         IMAGE_DATE: date_filter,
