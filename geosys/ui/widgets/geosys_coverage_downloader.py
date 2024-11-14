@@ -887,7 +887,7 @@ def download_field_map(
             bridge_server = (BRIDGE_URLS[region]['test']
                                 if use_testing_service
                                 else BRIDGE_URLS[region]['prod'])
-            url = f"{bridge_server}/maps/management-zones-map/{map_type_key}/image{output_map_format['extension']}"
+            url = f"{bridge_server}/field-level-maps/v5/maps/management-zones-map/{map_type_key}/image{output_map_format['extension']}"
             log(f"URL: {url}")
         elif map_type_key == REFLECTANCE['key']:
             # This is only for reflectance map type
@@ -1045,9 +1045,9 @@ def download_field_map(
                     'segments',
                     segment_filename
                 )
-    except:
-        # zip extraction error
-        message = 'Failed to download file.'
+    except Exception as e:
+        log(f"Error during file download: {str(e)}")
+        message = f"Failed to download file. Error: {str(e)}"
         return False, message
     return True, message
 
