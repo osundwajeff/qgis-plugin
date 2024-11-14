@@ -52,7 +52,7 @@ def fetch_data(url, output_path, headers=None, progress_dialog=None):
         progress_dialog.setLabelText(label_text)
 
     # Download Process
-    downloader = FileDownloader(url, output_path, headers, progress_dialog)
+    downloader = FileDownloader(url, output_path, headers, progress_dialog, method='POST')
     try:
         result = downloader.download()
     except IOError as ex:
@@ -105,7 +105,7 @@ def extract_zip(zip_path, destination_base_path):
 class FileDownloader:
     """The blueprint for downloading file from url."""
 
-    def __init__(self, url, output_path, headers=None, progress_dialog=None):
+    def __init__(self, url, output_path, headers=None, progress_dialog=None, method='GET'):
         """Constructor of the class.
 
         :param url: URL of file.
@@ -123,6 +123,7 @@ class FileDownloader:
         self.output_path = output_path
         self.headers = headers if headers else {}
         self.progress_dialog = progress_dialog
+        self.method = method.upper()
         if self.progress_dialog:
             self.prefix_text = self.progress_dialog.labelText()
         self.output_file = None
@@ -160,7 +161,7 @@ class FileDownloader:
             #   request.setRawHeader(b'user-agent', userAgent)
             request.setRawHeader(
                 bytes(header_name, 'utf-8'), bytes(header_value, 'utf-8'))
-        self.reply = self.manager.get(request)
+        self.reply = self.manager.sendCustomRequest(request, self.method.encode())
         self.reply.readyRead.connect(self.get_buffer)
         self.reply.finished.connect(self.write_data)
         self.manager.requestTimedOut.connect(self.request_timeout)
@@ -248,6 +249,9 @@ class FileDownloader:
 
         elif result == QNetworkReply.ContentNotFoundError:
             LOGGER.exception('Path not found : %s' % self.url.path())
+            LOGGER.error(f"Content not found at URL: {self.url.toString()}")
+            LOGGER.error(f"Headers sent: {self.requestHeaders().toRawHeaders()}")
+            LOGGER.error(f"Server response: {self.reply.readAll().data()}")
             return False, 'Sorry, the content was not found on the server.'
 
         else:
