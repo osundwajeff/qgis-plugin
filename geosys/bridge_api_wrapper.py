@@ -262,6 +262,8 @@ class BridgeAPI(ApiClient):
             max_yield_val,
             sample_field_id,
             params)
+        
+        log('Field map json: {}'.format(field_map_json))
 
         return field_map_json
 
@@ -447,10 +449,10 @@ class BridgeAPI(ApiClient):
             ],
             "zoneCount": zone_count
         }
-        log('Request data: {}'.format(request_data))
         request_data.update(kwargs)
 
         # Get request parameters
         params = kwargs.get('params')
+        log('Request data: {}'.format(request_data))
 
         return self._get_field_map(SAMZ['key'], request_data, params=params)

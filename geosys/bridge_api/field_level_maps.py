@@ -262,6 +262,7 @@ class FieldLevelMapsAPIClient(ApiClient):
                     'management-zones-map',
                     'SAMZ'
                 )
+                log(f"Full URL: {full_url}")
 
                 response = self.post(
                     full_url,

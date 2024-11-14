@@ -852,15 +852,23 @@ def download_field_map(
     map_extension = output_map_format['extension']
     try:
         seasonfield_id = field_map_json['seasonField']['id']
-        if map_type_key == REFLECTANCE['key']:
-            # This is only for reflectance map type
-            # Also, reflectance can ONLY make use of tiff.zip format
-
+        if map_type_key == "SAMZ":  # Handle SAMZ-specific URL construction
             # Retrieve the bridge server URL
             username, password, region, client_id, client_secret, use_testing_service = credentials_parameters_from_settings()
             bridge_server = (BRIDGE_URLS[region]['test']
-                             if use_testing_service
-                             else BRIDGE_URLS[region]['prod'])
+                                if use_testing_service
+                                else BRIDGE_URLS[region]['prod'])
+            url = f"{bridge_server}/maps/management-zones-map/{map_type_key}/image{output_map_format['extension']}"
+            log(f"URL: {url}")
+        elif map_type_key == REFLECTANCE['key']:
+            # This is only for reflectance map type
+            # Also, reflectance can ONLY make use of tiff.zip format
+            
+            # Retrieve the bridge server URL
+            username, password, region, client_id, client_secret, use_testing_service = credentials_parameters_from_settings()
+            bridge_server = (BRIDGE_URLS[region]['test']
+                                if use_testing_service
+                                else BRIDGE_URLS[region]['prod'])
 
             reflectance_map_family = REFLECTANCE['map_family']
             url = '{}/field-level-maps/v5/season-fields/{}/coverage/{}/{}/{}/image.tiff.zip'.format(
@@ -898,6 +906,7 @@ def download_field_map(
         else:
             destination_filename = (
                 destination_base_path + output_map_format['extension'])
+            log('destination_filename: {}, headers: {}'.format(destination_filename, headers))
             fetch_data(url, destination_filename, headers=headers)
             if output_map_format == PNG or output_map_format == PNG_KMZ:
                 # Download associated legend and world-file for geo-referencing
@@ -915,7 +924,10 @@ def download_field_map(
                     list_items = [PGW, LEGEND]
 
                 for item in list_items:
+                    log('Here: {}'.format(item))
                     url = field_map_json['_links'][item['api_key']]
+                    
+                    log('Here is the url: {}'.format(url))
 
                     char_question_mark = '?'  # Filtering char
                     # Filtering, which starts with '?' has already been added,
@@ -931,6 +943,7 @@ def download_field_map(
 
                     destination_filename = '{}{}'.format(
                         destination_base_path, item['extension'])
+                    log('destination_filename: {}, headers: {}'.format(destination_filename, headers))
                     fetch_data(url, destination_filename, headers=headers)
         # Get hotspots for zones if they have been requested by user.
         bridge_api = BridgeAPI(
