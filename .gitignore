@@ -44,3 +44,7 @@ scripts/build.nsi
 htmlcov/
 dist/
 pydev/
+.direnv/
+.venv/
+.vscode-extensions/
+.env
