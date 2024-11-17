@@ -14,13 +14,25 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>GEOSYS About</string>
+   <string>EarthDaily About</string>
   </property>
   <property name="modal">
    <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="0">
+    <widget class="QWebView" name="about_web_view" native="true">
+     <property name="styleSheet">
+      <string notr="true">background:transparent;</string>
+     </property>
+     <property name="url" stdset="0">
+      <url>
+       <string>https://earthdailyagro.com</string>
+      </url>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
     <widget class="QDialogButtonBox" name="button_box">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -31,14 +43,17 @@
     </widget>
    </item>
    <item row="0" column="0">
-    <widget class="QWebView" name="about_web_view">
-     <property name="styleSheet">
-      <string notr="true">background:transparent;</string>
+    <widget class="QGroupBox" name="about_view">
+     <property name="font">
+      <font>
+       <pointsize>16</pointsize>
+      </font>
      </property>
-     <property name="url">
-      <url>
-       <string>about:blank</string>
-      </url>
+     <property name="title">
+      <string>About EarthDaily Agro</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
      </property>
     </widget>
    </item>
