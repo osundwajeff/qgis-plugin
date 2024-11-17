@@ -105,6 +105,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.mask_type = None
         self.start_date = None
         self.end_date = None
+        self.limit = setting(
+            'bridge_api_page_limit', expected_type=str, qsettings=self.settings)
 
         # Nitrogen map type parameter
         self.n_planned_value = DEFAULT_N_PLANNED
@@ -988,6 +990,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             attributes_points=self.attributes,
             attribute_field=self.sample_map_field,
             mutex=self.one_process_work,
+            limit=self.limit,
             n_planned_value=self.n_planned_value,
             parent=self.iface.mainWindow())
         searcher.search_started.connect(self.coverage_search_started)

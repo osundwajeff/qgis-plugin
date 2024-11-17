@@ -18,6 +18,7 @@ from geosys.bridge_api.default import (
     PGW,
     PGW2,
     LEGEND,
+    MAP_LIMIT,
     SHP_EXT,
     BRIDGE_URLS,
     NDVI_THUMBNAIL_URL,
@@ -83,6 +84,7 @@ class CoverageSearchThread(QThread):
             attributes_points,
             attribute_field,
             mutex,
+            limit,
             n_planned_value=1.0,
             parent=None):
         """Thread object wrapper for coverage search.
@@ -130,6 +132,7 @@ class CoverageSearchThread(QThread):
         self.attributes_points = attributes_points
         self.attribute_field = attribute_field
         self.mutex = mutex
+        self.limit = limit
         self.n_planned_value = n_planned_value
         self.parent = parent
 
@@ -151,7 +154,8 @@ class CoverageSearchThread(QThread):
                 if self.mask_type in {'All', 'None'}:
                     self.filters.update({
                         MAPS_TYPE: INSEASON_NDVI['key'],
-                        IMAGE_DATE: date_filter
+                        IMAGE_DATE: date_filter,
+                        MAP_LIMIT: self.limit,
                     })
                     self.sensor_type and self.filters.update({
                         IMAGE_SENSOR: self.sensor_type
@@ -161,7 +165,8 @@ class CoverageSearchThread(QThread):
                     self.filters.update({
                         MAPS_TYPE: INSEASON_NDVI['key'],
                         IMAGE_DATE: date_filter,
-                        MASK: self.mask_type
+                        MASK: self.mask_type,
+                        MAP_LIMIT: self.limit,
                     })
                     self.sensor_type and self.filters.update({
                         IMAGE_SENSOR: self.sensor_type
@@ -172,7 +177,8 @@ class CoverageSearchThread(QThread):
                 self.filters.update({
                     # This is included for a shorter response
                     MAPS_TYPE: INSEASON_NDVI['key'],
-                    IMAGE_DATE: date_filter
+                    IMAGE_DATE: date_filter,
+                    MAP_LIMIT: self.limit,
                 })
                 self.sensor_type and self.filters.update({
                     IMAGE_SENSOR: self.sensor_type
@@ -181,13 +187,15 @@ class CoverageSearchThread(QThread):
                 if self.mask_type in {'All', 'None'}:
                     self.filters.update({
                         MAPS_TYPE: INSEASON_NDVI['key'],
-                        IMAGE_DATE: date_filter
+                        IMAGE_DATE: date_filter,
+                        MAP_LIMIT: self.limit,
                     })
                 else:
                     self.filters.update({
                         MAPS_TYPE: INSEASON_NDVI['key'],
                         IMAGE_DATE: date_filter,
-                        MASK: self.mask_type
+                        MASK: self.mask_type,
+                        MAP_LIMIT: self.limit,
                     })
                 self.sensor_type and self.filters.update({
                     IMAGE_SENSOR: self.sensor_type
@@ -200,6 +208,7 @@ class CoverageSearchThread(QThread):
                     self.filters.update({
                         MAPS_TYPE: self.map_product,
                         IMAGE_DATE: date_filter,
+                        MAP_LIMIT: self.limit,
                     })
                     self.sensor_type and self.filters.update({
                         IMAGE_SENSOR: self.sensor_type
@@ -209,7 +218,8 @@ class CoverageSearchThread(QThread):
                     self.filters.update({
                         MAPS_TYPE: self.map_product,
                         IMAGE_DATE: date_filter,
-                        MASK: self.mask_type
+                        MASK: self.mask_type,
+                        MAP_LIMIT: self.limit,
                     })
                     self.sensor_type and self.filters.update({
                         IMAGE_SENSOR: self.sensor_type
