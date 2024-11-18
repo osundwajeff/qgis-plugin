@@ -449,10 +449,10 @@ class BridgeAPI(ApiClient):
             ],
             "zoneCount": zone_count
         }
-        request_data.update(kwargs)
+        #request_data.update(kwargs)
 
         # Get request parameters
-        params = kwargs.get('params')
+        #params = kwargs.get('params')
         log('Request data: {}'.format(request_data))
 
-        return self._get_field_map(SAMZ['key'], request_data, params=params)
+        return self._get_field_map(SAMZ['key'], request_data)
