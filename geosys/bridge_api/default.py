@@ -94,7 +94,7 @@ COVERAGE_PERCENT = 'coveragePercent'
 IMAGE_DATE = 'Image.Date'
 IMAGE_SENSOR = 'Image.Sensor'
 IMAGE_SOIL_MATERIAL = 'Image.SoilMaterial'
-IMAGE_WEATHER = 'Image.Weather'
+MASK = 'Mask'
 MAPS_TYPE = 'Maps.Type'
 MAP_LIMIT = '$limit'
 

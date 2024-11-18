@@ -148,14 +148,14 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="lbl_weather">
+            <widget class="QLabel" name="lbl_mask">
              <property name="text">
-              <string>Select weather type</string>
+              <string>Select mask</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="cb_weather"/>
+            <widget class="QComboBox" name="cb_mask"/>
            </item>
            <item>
             <widget class="QLabel" name="start_date_label">

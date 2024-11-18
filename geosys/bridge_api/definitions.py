@@ -31,13 +31,13 @@ CROPS = {
     'winter_osr': 'WINTER_OSR'
 }
 
-# Weather types for coverage searches`
-WEATHER_TYPES = [
-    'ALL',
-    'COLD',
-    'DRY',
-    'HOT',
-    'WET',
+# Mask types for coverage searches`
+MASK_PARAMETERS = [
+    'ACM',
+    'All',
+    'Auto',
+    'Native',
+    'None'
 ]
 
 # Map type families definition
