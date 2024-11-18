@@ -105,7 +105,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.mask_type = None
         self.start_date = None
         self.end_date = None
-        self.coverage_percent = None
+        self.coverage_percent = DEFAULT_COVERAGE_PERCENT
+        self.coverage_percent_value_spinbox.setValue(self.coverage_percent)
 
         # Nitrogen map type parameter
         self.n_planned_value = DEFAULT_N_PLANNED

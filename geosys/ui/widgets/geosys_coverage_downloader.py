@@ -85,6 +85,7 @@ class CoverageSearchThread(QThread):
             attributes_points,
             attribute_field,
             mutex,
+            coverage_percent,
             n_planned_value=1.0,
             parent=None):
         """Thread object wrapper for coverage search.
@@ -146,7 +147,7 @@ class CoverageSearchThread(QThread):
         
         # Set coverage percent filter
         coverage_percent_filter = ''
-        if self.coverage_percent:  # Assuming `self.min_coverage_percent` holds the desired minimum coverage percent
+        if self.coverage_percent:
             coverage_percent_filter = f'$gte:{self.coverage_percent}'
 
 
@@ -171,7 +172,7 @@ class CoverageSearchThread(QThread):
                     self.filters.update({
                         MAPS_TYPE: INSEASON_NDVI['key'],
                         IMAGE_DATE: date_filter,
-                        COVERAGE_PERCENT: coverage_percent_filter
+                        COVERAGE_PERCENT: coverage_percent_filter,
                         MASK: self.mask_type
                     })
                     self.sensor_type and self.filters.update({
@@ -199,7 +200,7 @@ class CoverageSearchThread(QThread):
                     self.filters.update({
                         MAPS_TYPE: INSEASON_NDVI['key'],
                         IMAGE_DATE: date_filter,
-                        COVERAGE_PERCENT: coverage_percent_filter
+                        COVERAGE_PERCENT: coverage_percent_filter,
                         MASK: self.mask_type
                     })
                 self.sensor_type and self.filters.update({
@@ -253,6 +254,7 @@ class CoverageSearchThread(QThread):
                     geometry, self.crop_type, self.sowing_date,
                     filters=self.filters
                 )
+                log(f"Results: {results}")
 
                 if isinstance(results, dict) and results.get('message'):
                     # TODO handle model_validation_error
