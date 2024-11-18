@@ -762,15 +762,25 @@ def create_samz_map(
     bridge_api = BridgeAPI(
         *credentials_parameters_from_settings(),
         proxies=QGISSettings.get_qgis_proxy())
-    log(f"bridge_api: {bridge_api}")
+    log(f"bridge_api: {bridge_api.headers}")
     samz_map_json = bridge_api.get_samz_map(
         geometry,
         list_of_image_ids,
         list_of_image_date,
         zone_count=zone_count,
-        **data
     )
-    log(f"Samz map json: {samz_map_json}")
+    # Construct map creation parameters
+    request_data = {
+        "SeasonField": {
+            "Id": None,
+            "geometry": geometry
+        },
+        "Images": [
+            {"id": image_id} for image_id in list_of_image_ids
+        ],
+        "zoneCount": zone_count
+    }
+    log(f"Samz map json: geometry: {geometry}, list_of_image_ids: {list_of_image_ids}, zone_count: {zone_count}")
 
     return download_field_map(
         field_map_json=samz_map_json,
@@ -778,7 +788,8 @@ def create_samz_map(
         destination_base_path=destination_base_path,
         output_map_format=output_map_format,
         headers=bridge_api.headers,
-        data=data)
+        data=request_data
+        )
 
 
 def download_field_map(
@@ -882,14 +893,14 @@ def download_field_map(
             url = field_map_json['_links'][output_map_format['api_key']]
 
         char_question_mark = '?'  # Filtering char
-        if char_question_mark in url:  # Filtering, which starts with '?' has already been added, so appending with '&'
-            url = '{}&zoning=true&zoneCount={}'.format(
-                url, data.get('zoneCount')) \
-                if data.get('zoning') else url
-        else:  # No filtering added yet, so appending with '?'
-            url = '{}?zoning=true&zoneCount={}'.format(
-                url, data.get('zoneCount')) \
-                if data.get('zoning') else url
+        #if char_question_mark in url:  # Filtering, which starts with '?' has already been added, so appending with '&'
+        #    url = '{}&zoning=true&zoneCount={}'.format(
+        #        url, data.get('zoneCount')) \
+        #        if data.get('zoning') else url
+        #else:  # No filtering added yet, so appending with '?'
+        #    url = '{}?zoning=true&zoneCount={}'.format(
+        #        url, data.get('zoneCount')) \
+        #        if data.get('zoning') else url
     except KeyError:
         # requested map format not found
         message = (
@@ -901,13 +912,15 @@ def download_field_map(
     try:
         if output_map_format in ZIPPED_FORMAT:
             zip_path = tempfile.mktemp('{}.zip'.format(map_extension))
-            fetch_data(url, zip_path, headers=headers)
+            url = '{}.zip'.format(url)
+            log('URL: {}, zip_path: {}'.format(url, zip_path))
+            fetch_data(url, zip_path, headers=headers, payload=data)
             extract_zip(zip_path, destination_base_path)
         else:
             destination_filename = (
                 destination_base_path + output_map_format['extension'])
-            log('destination_filename: {}, headers: {}'.format(destination_filename, headers))
-            fetch_data(url, destination_filename, headers=headers)
+            log('URL: {}, destination_filename: {}, headers: {}'.format(url, destination_filename, headers))
+            fetch_data(url, destination_filename, headers=headers, payload=data)
             if output_map_format == PNG or output_map_format == PNG_KMZ:
                 # Download associated legend and world-file for geo-referencing
                 # the PNG file.
@@ -925,26 +938,25 @@ def download_field_map(
 
                 for item in list_items:
                     log('Here: {}'.format(item))
-                    url = field_map_json['_links'][item['api_key']]
+                    #url = field_map_json['_links'][item['api_key']]
                     
-                    log('Here is the url: {}'.format(url))
-
+                    # TODO: Check the significance of this section on other map types
                     char_question_mark = '?'  # Filtering char
                     # Filtering, which starts with '?' has already been added,
                     # so appending with '&'
-                    if char_question_mark in url:
-                        url = '{}&zoning=true&zoneCount={}'.format(
-                            url, data.get('zoneCount')) \
-                            if data.get('zoning') else url
-                    else:  # No filtering added yet, so appending with '?'
-                        url = '{}?zoning=true&zoneCount={}'.format(
-                            url, data.get('zoneCount')) \
-                            if data.get('zoning') else url
+                    #if char_question_mark in url:
+                    #    url = '{}&zoning=true&zoneCount={}'.format(
+                    #        url, data.get('zoneCount')) \
+                    #        if data.get('zoning') else url
+                    #else:  # No filtering added yet, so appending with '?'
+                    #    url = '{}?zoning=true&zoneCount={}'.format(
+                    #        url, data.get('zoneCount')) \
+                    #        if data.get('zoning') else url
 
                     destination_filename = '{}{}'.format(
                         destination_base_path, item['extension'])
                     log('destination_filename: {}, headers: {}'.format(destination_filename, headers))
-                    fetch_data(url, destination_filename, headers=headers)
+                    fetch_data(url, destination_filename, headers=headers, payload=data)
         # Get hotspots for zones if they have been requested by user.
         bridge_api = BridgeAPI(
             *credentials_parameters_from_settings(),
