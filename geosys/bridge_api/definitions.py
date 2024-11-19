@@ -244,9 +244,8 @@ INSEASON_S2REP = {
     'name': 'INSEASON_S2REP',
     'map_family': base_reference_map,
     'description': 'Provides the in-season Sentinel-2 Red-Edge Position Index. '
-                   'Generates a map according to the amount '
-                   'of chlorophyll content per unit of leaf (LCC).'
-}
+    'Generates a map according to the amount '
+    'of chlorophyll content per unit of leaf (LCC).'}
 
 # Chlorophyll vegetation index
 INSEASON_CVIN = {
@@ -331,17 +330,32 @@ SOIL = {
     'name': 'SOILMAP',
     'map_family': sample,
     'description': 'Provides the in-season Soil type map. Can be generate only in'
-                   'the USA, contains information about soil as collected by the'
-                   'National Cooperative Soil Survey.'
-}
+    'the USA, contains information about soil as collected by the'
+    'National Cooperative Soil Survey.'}
 
 # Sample map
 SAMPLE_MAP = {
     'key': 'samplemap',
     'name': 'SAMPLEMAP',
     'map_family': sample,
-    'description': ''
+    'description': 'Provides a zoning map based on sample points provided by the user'
 }
+
+NDMI = {
+    'key': 'ndmi',
+    'name': 'NDMI',
+    'map_family': base_reference_map,
+    'description': 'Provides the in-season Normalized Difference Moisture Index.'
+}
+
+
+NDWI = {
+    'key': 'ndwi',
+    'name': 'NDWI',
+    'map_family': base_reference_map,
+    'description': 'Provides the in-season Normalized Difference Water Index.'
+}
+
 
 ARCHIVE_MAP_PRODUCTS = [
     INSEASON_NDVI,
@@ -357,6 +371,8 @@ ARCHIVE_MAP_PRODUCTS = [
     INSEASONFIELD_AVERAGE_REVERSE_LAI,
     INSEASON_S2REP,
     INSEASON_CVIN,
+    NDMI,
+    NDWI,
     REFLECTANCE,
     COLOR_COMPOSITION,
     ELEVATION,
@@ -365,7 +381,8 @@ ARCHIVE_MAP_PRODUCTS = [
     YGM,
     YVM,
     SAMZ,
-    SAMPLE_MAP
+    SAMPLE_MAP,
+    SLOPE
 ]
 
 BASIC_INSEASON_MAP_PRODUCTS = [
@@ -453,8 +470,7 @@ ALSAT_1B = {
     'key': 'ALSAT_1B',
     'name': 'ALSAT_1B',
     'description': 'Algeria Satellite-1B with a spatial resolution at 24 m ground '
-                   'resolution, up to 3 days of revisit.'
-}
+    'resolution, up to 3 days of revisit.'}
 
 GAOFEN = {
     'key': 'GAOFEN',
