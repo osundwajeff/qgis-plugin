@@ -43,6 +43,7 @@
       </property>
       <property name="currentIndex">
        <number>2</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="coverage_form_page">
        <property name="minimumSize">
@@ -1044,7 +1045,7 @@
         <item>
          <widget class="QGroupBox" name="map_format_group_2">
           <property name="title">
-           <string>Map Format</string>
+           <string>Fetch Rx map</string>
           </property>
           <property name="checkable">
            <bool>false</bool>
@@ -1106,9 +1107,12 @@
            <item row="1" column="3">
             <widget class="QRadioButton" name="kmz_radio_button_2">
              <property name="text">
-              <string>KMZ</string>
+              <string>Number of Zones</string>
              </property>
             </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QDoubleSpinBox" name="fetch_rx_sb"/>
            </item>
           </layout>
          </widget>
