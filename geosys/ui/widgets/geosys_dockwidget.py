@@ -146,6 +146,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             ORGANIC_AVERAGE: self.organic_average_form,
             SAMZ_ZONE: self.samz_zone_form
         }
+        self.fetch_rx_map = None
 
         self.selected_coverage_results = []
 
@@ -166,6 +167,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         # Set connectors
         self.setup_connectors()
+        self.update_button_states()  # Ensure buttons are correctly initialized
 
         # Populate layer combo box
         self.connect_layer_listener()
@@ -280,6 +282,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # This will be used to keep this layer selected for use in the widget display
             self.current_selected_layer = self.geometry_combo_box.currentText()
 
+        # Default behavior when fetch_rx_group is not checked
         # If current page is coverage results page, prepare map creation
         # parameters.
         if self.current_stacked_widget_index == 1:
@@ -320,6 +323,22 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.set_gain_offset_state()  # Disabled gain and offset for some map product types
             self.set_parameter_values_as_default()
             # self.restore_parameter_values_from_setting()
+        
+        # Handle the case when fetch_rx_group is checked
+        if self.fetch_rx_group.isChecked():
+            # If on the first page, go to the next page
+            if self.current_stacked_widget_index == self.max_stacked_widget_index:
+                # If on the last page, perform the map creation task
+                self.start_map_creation()
+                return
+            else:
+                # Otherwise, proceed to the next page
+                self.current_stacked_widget_index += 1
+                self.stacked_widget.setCurrentIndex(
+                    self.current_stacked_widget_index
+                )
+                self.set_next_button_text(self.current_stacked_widget_index)
+                return
 
         # If current page is map creation parameters page, create map without
         # increasing index.
@@ -358,13 +377,20 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.spinBox_offset.show()
 
     def set_next_button_text(self, index):
-        """Programmatically changed next button text based on current page."""
+        """Programmatically change next button text based on current page."""
         text_rule = {
             0: 'Search Map',
             1: 'Next',
             2: 'Create Map'
         }
-        self.next_push_button.setText(text_rule[index])
+        if self.fetch_rx_group.isChecked():
+            # When fetch_rx_group is active, set "Next" or "Create Map"
+            if index == self.max_stacked_widget_index:
+                self.next_push_button.setText("Create Map")
+            else:
+                self.next_push_button.setText("Next")
+        else:
+            self.next_push_button.setText(text_rule[index])
 
     def handle_difference_map_button(self):
         """Handle difference map button behavior."""
@@ -1271,6 +1297,20 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 if field_name not in IGNORE_LAYER_FIELDS \
                         and field_type in ALLOWED_FIELD_TYPES:
                     self.cb_column_name.addItem(field_name)
+                    
+    def update_button_states(self):
+        """Update button states dynamically based on fetch_rx_group state."""
+        if self.fetch_rx_group.isChecked():
+            # Enable the Next button, disable Create Map button
+            self.next_push_button.setEnabled(True)
+            self.next_push_button.setVisible(True)
+            self.set_next_button_text(1)  # Set "Next" as the button text
+        else:
+            # Revert to default behavior when fetch_rx_group is not checked
+            self.next_push_button.setEnabled(
+                self.current_stacked_widget_index < self.max_stacked_widget_index
+            )
+            self.set_next_button_text(self.current_stacked_widget_index)
 
     def setup_connectors(self):
         """Setup signal/slot mechanisms for dock elements."""
@@ -1283,6 +1323,9 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         # Product type has changed
         self.map_product_combo_box.currentIndexChanged.connect(self.product_type_change)
+        
+        # Fetch RX Group state toggled
+        self.fetch_rx_group.toggled.connect(self.update_button_states)
 
         # Stacked widget connector
         self.stacked_widget.currentChanged.connect(self.set_next_button_text)
