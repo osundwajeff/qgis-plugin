@@ -69,7 +69,7 @@ from geosys.utilities.gui_utilities import (
 )
 from geosys.utilities.resources import get_ui_class
 from geosys.utilities.settings import setting, set_setting
-from geosys.utilities.utilities import check_if_file_exists
+from geosys.utilities.utilities import check_if_file_exists, log
 
 FORM_CLASS = get_ui_class('geosys_dockwidget_base.ui')
 
@@ -209,7 +209,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         """Populates the the Mask type combobox."""
         for mask_type in MASK_PARAMETERS:
             self.cb_mask.addItem(mask_type)
-            
+
             # Set 'Auto' as the default selected option
         index = self.cb_mask.findText('Auto')
         if index != -1:
@@ -228,10 +228,16 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         for map_product in ARCHIVE_MAP_PRODUCTS:
             product_name = map_product['name']
             if us_option:  # If US zone is selected the SOILMAP option will be added
-                add_ordered_combo_item(self.map_product_combo_box, map_product['name'], map_product['key'])
+                add_ordered_combo_item(
+                    self.map_product_combo_box,
+                    map_product['name'],
+                    map_product['key'])
             else:  # If EU area is selected the SOILMAP option will not be added
                 if product_name != SOIL['name']:
-                    add_ordered_combo_item(self.map_product_combo_box, map_product['name'], map_product['key'])
+                    add_ordered_combo_item(
+                        self.map_product_combo_box,
+                        map_product['name'],
+                        map_product['key'])
 
     def populate_date(self):
         """Set default value of start and end date to last week."""
@@ -252,9 +258,9 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # If the current map type is elevation or soil map and the
             # widget is on the map creation page, the back button should
             # take the user to the coverage parameters page
-            if ((self.map_product == ELEVATION['key'] or
-                 self.map_product == SOIL['key']) and
-                    self.current_stacked_widget_index == 2):
+            if ((self.map_product == ELEVATION['key']
+                 or self.map_product == SOIL['key'])
+                    and self.current_stacked_widget_index == 2):
                 self.current_stacked_widget_index -= 2
             else:
                 self.current_stacked_widget_index -= 1
@@ -279,7 +285,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.next_push_button.setEnabled(False)
 
             # Stores the current selected layer name
-            # This will be used to keep this layer selected for use in the widget display
+            # This will be used to keep this layer selected for use in the
+            # widget display
             self.current_selected_layer = self.geometry_combo_box.currentText()
 
         # If current page is coverage results page, prepare map creation
@@ -326,6 +333,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # If current page is map creation parameters page, create map without
         # increasing index.
         if self.current_stacked_widget_index == 2:
+            log("Creating map")
             self.start_map_creation()
             return
 
@@ -342,7 +350,14 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         OM, SOILMAP, SAMZ, YGM, and YPM map product types.
         """
         selected_map_product = self.map_product  # Map product type selected by the user
-        list_products_to_exclude = ['COLORCOMPOSITION', 'ELEVATION', 'OM', 'SOILMAP', 'SAMZ', 'YGM', 'YPM']
+        list_products_to_exclude = [
+            'COLORCOMPOSITION',
+            'ELEVATION',
+            'OM',
+            'SOILMAP',
+            'SAMZ',
+            'YGM',
+            'YPM']
 
         for map_product_to_exclude in list_products_to_exclude:
             if selected_map_product == map_product_to_exclude:
@@ -400,10 +415,12 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         for item in self.coverage_result_list.selectedItems():
             item_json = item.data(Qt.UserRole)
             if self.map_product == REFLECTANCE['key']:
-                # NDVI used for coverage. This is a workaround suggested by GeoSys
+                # NDVI used for coverage. This is a workaround suggested by
+                # GeoSys
                 item_json['maps'][0]['type'] = REFLECTANCE['key']
             elif self.map_product == SOIL['key']:
-                # Used when soilmap type. This is a workaround suggested by GeoSys
+                # Used when soilmap type. This is a workaround suggested by
+                # GeoSys
                 item_json['maps'][0]['type'] = SOIL['key']
             elif self.map_product == ELEVATION['key']:
                 # For elevation map type
@@ -465,7 +482,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             add_ordered_combo_item(
                 self.geometry_combo_box, title, layer_id, icon=icon)
 
-        current_index = self.geometry_combo_box.findText(self.current_selected_layer)
+        current_index = self.geometry_combo_box.findText(
+            self.current_selected_layer)
         if current_index >= 0:
             # Current text/previous selection, is in the list of active layers
             # The previous selection will still be selected
@@ -644,7 +662,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # layer is not selected
             return False, 'Layer is not selected.'
         use_selected_features = (
-                self.selected_features_checkbox.isChecked() and (
+            self.selected_features_checkbox.isChecked() and (
                 layer.selectedFeatureCount() > 0))
         use_single_geometry = self.single_geometry_checkbox.isChecked()
 
@@ -685,7 +703,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         if self.map_product == SAMPLE_MAP['name'].lower():
             # These checks are only required for sample maps
-            self.sample_map_point_layer = item_data_from_combo(self.cb_point_layer)
+            self.sample_map_point_layer = item_data_from_combo(
+                self.cb_point_layer)
             if not self.sample_map_point_layer:
                 # Point layer
                 return False, 'Sample point layer has not been selected.'
@@ -707,7 +726,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.wkt_point_geometries = wkt_geometries_from_feature_iterator(
                 feature_points_iterator, MAX_FEATURE_NUMBERS, use_single_geometry)
 
-            self.attributes = attribute_from_feature_iterator(feature_points_iterator2, self.sample_map_field)
+            self.attributes = attribute_from_feature_iterator(
+                feature_points_iterator2, self.sample_map_field)
 
         # Get the start and end date
         self.start_date = self.start_date_edit.date().toString('yyyy-MM-dd')
@@ -728,10 +748,12 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         """
         # Checks whether the gain and offset values are allowed
 
+        log(f"map specifications {map_specifications}")
         self.output_directory = setting(
             'output_directory', expected_type=str, qsettings=self.settings)
 
-        selected_map_product = self.map_product  # Map product type selected by the user
+        # Map product type selected by the user
+        selected_map_product = self.map_product
         list_products_to_exclude = [
             'COLORCOMPOSITION',
             'ELEVATION',
@@ -750,8 +772,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         map_product_definition = get_definition(self.map_product)
         if gain_offset_allowed and \
-                (self.spinBox_gain.value() > 0 or
-                 self.spinBox_offset.value() > 0):  # Gain and offset will be added to the data
+                (self.spinBox_gain.value() > 0
+                 or self.spinBox_offset.value() > 0):  # Gain and offset will be added to the data
             self.gain = self.spinBox_gain.value()  # Gain set by user
             self.offset = self.spinBox_offset.value()  # Offset set by user
             data = {
@@ -915,17 +937,17 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     'Error validating map creation parameters. {}'.format(
                         message))
                 return
-
             # store parameters value as qsettings
             self.save_parameter_values_as_setting()
 
             # start map creation job
             self._start_map_creation(self.selected_coverage_results)
-        except:
+        except Exception as e:
             error_text = "{0}: {1}".format(
                 unicode(sys.exc_info()[0].__name__),
                 unicode(sys.exc_info()[1]))
             QMessageBox.critical(self, message_title, error_text)
+            log(f"Problem {e}, {error_text}")
         finally:
             QApplication.restoreOverrideCursor()
 
@@ -1159,8 +1181,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         project.layersAdded.connect(self.get_sample_map_point_layers)
         project.layersRemoved.connect(self.get_sample_map_point_layers)
 
-        self.iface.mapCanvas().layersChanged.connect(self.get_sample_map_point_layers) \
-            if self.iface is not None else None
+        self.iface.mapCanvas().layersChanged.connect(
+            self.get_sample_map_point_layers) if self.iface is not None else None
 
     # pylint: disable=W0702
     def disconnect_point_layer_listener(self):
@@ -1169,7 +1191,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         ..seealso:: connect_point_layer_listener
         """
         project = QgsProject.instance()
-        project.layersWillBeRemoved.disconnect(self.get_sample_map_point_layers)
+        project.layersWillBeRemoved.disconnect(
+            self.get_sample_map_point_layers)
         project.layersAdded.disconnect(self.get_sample_map_point_layers)
         project.layersRemoved.disconnect(self.get_sample_map_point_layers)
 
@@ -1184,7 +1207,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             if sensor_name == LANDSAT_8['name'] or \
                     sensor_name == LANDSAT_9['name'] or \
                     sensor_name == SENTINEL_2['name']:
-                add_ordered_combo_item(self.sensor_combo_box, sensor_name, sensor['key'])
+                add_ordered_combo_item(
+                    self.sensor_combo_box, sensor_name, sensor['key'])
 
     def clear_combo_box(self, combo_box):
         """Clears/removes all the entries in the provided combo_box
@@ -1298,7 +1322,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.start_difference_map_creation)
 
         # Product type has changed
-        self.map_product_combo_box.currentIndexChanged.connect(self.product_type_change)
+        self.map_product_combo_box.currentIndexChanged.connect(
+            self.product_type_change)
 
         # Stacked widget connector
         self.stacked_widget.currentChanged.connect(self.set_next_button_text)
@@ -1308,7 +1333,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.update_selection_data)
 
         # If the selected point layer for the Sample maps changes
-        self.cb_point_layer.currentIndexChanged.connect(self.point_layer_changed)
+        self.cb_point_layer.currentIndexChanged.connect(
+            self.point_layer_changed)
 
     def unblock_signals(self):
         """Let the combos listen for event changes again."""

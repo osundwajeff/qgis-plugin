@@ -22,6 +22,7 @@ from geosys.bridge_api.default import (
     LEGEND,
     SHP_EXT,
     BRIDGE_URLS,
+    COLOR_COMPOSITION_THUMBNAIL_URL,
     NDVI_THUMBNAIL_URL,
     NITROGEN_THUMBNAIL_URL,
     S2REP_THUMBNAIL_URL,
@@ -292,6 +293,9 @@ class CoverageSearchThread(QThread):
 
                 sample_map_ids = []
                 for result in results:
+                    data = None
+                    params = None
+                    result['seasonField']['geometry'] = geometry
                     # Get thumbnail content
                     if self.need_stop:
                         break
@@ -489,12 +493,34 @@ class CoverageSearchThread(QThread):
                                 bridge_url=searcher_client.bridge_server,
                                 id=json_id
                             ))
+                    elif self.map_product == COLOR_COMPOSITION['key']:
+                        # Sample maps
+                        thumbnail_url = (
+                            COLOR_COMPOSITION_THUMBNAIL_URL.format(
+                                bridge_url=searcher_client.bridge_server,
+                            ))
+                        image = result['image']
+                        image_id = image['id']
+
+                        data = {
+                            "image": {
+                                "id": image_id
+                            },
+                            "seasonField":
+                                {
+                                    "geometry": geometry
+                            }
+                        }
+                        params = {
+                            "epsg-out": 3857,
+                            "clipping": "bbox"
+                        }
                     else:  # All other map types
                         thumbnail_url = None
 
                     if thumbnail_url:
                         thumbnail_content = searcher_client.get_content(
-                            thumbnail_url)
+                            thumbnail_url, params=params, data=data)
                         thumbnail_ba = QByteArray(thumbnail_content)
                     else:
                         thumbnail_ba = bytes('', 'utf-8')
@@ -610,6 +636,7 @@ def create_map(
     map_specification.update(map_specification['maps'][0])
     map_type_key = map_specification['type']
     season_field_id = map_specification['seasonField']['id']
+    geometry = map_specification['seasonField']['geometry']
     image_date = map_specification['image']['date']
     image_id = map_specification['image']['id']
     destination_base_path = os.path.join(output_dir, filename)
@@ -623,6 +650,7 @@ def create_map(
     field_map_json = bridge_api.get_field_map(
         map_type_key,
         season_field_id,
+        geometry,
         image_date,
         image_id,
         n_planned_value,

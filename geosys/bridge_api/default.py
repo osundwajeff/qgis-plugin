@@ -63,6 +63,10 @@ DEFAULT_OFFSET = 0.0
 FIELD_MAPS_API_VERSION = 5
 
 # Thumbnail URLs
+COLOR_COMPOSITION_THUMBNAIL_URL = (
+    '{bridge_url}/field-level-maps/v5/maps/base-reference-map/'
+    'COLORCOMPOSITION/thumbnail.png')
+
 NDVI_THUMBNAIL_URL = (
     '{bridge_url}/field-level-maps/v5/season-fields/{id}/coverage/{date}'
     '/base-reference-map/NDVI/thumbnail.png')

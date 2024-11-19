@@ -283,7 +283,7 @@ class BridgeAPI(ApiClient):
             self,
             map_type_key,
             season_field_id,
-            image_date,
+            geometry,
             image_id=None,
             n_planned=1.0,
             yield_val=0,
@@ -340,12 +340,13 @@ class BridgeAPI(ApiClient):
                 request_data = None
         else:
             request_data = {
-                'SeasonField': {
-                    'Id': season_field_id
+                "image": {
+                    "id": image_id
                 },
-                'Image': {
-                    'Date': image_date,
-                    'Id': image_id
+                "offset": 0,
+                "gain": 0,
+                "seasonField": {
+                    "geometry": geometry,
                 }
             }
             request_data.update(kwargs)
