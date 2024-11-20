@@ -833,8 +833,71 @@ def create_samz_map(
         destination_base_path=destination_base_path,
         output_map_format=output_map_format,
         headers=bridge_api.headers,
-        data=request_data
-        )
+        data=data)
+    
+def create_rx_map(
+        source_map_id,
+        list_of_image_ids,
+        list_of_image_date,
+        output_dir,
+        filename,
+        output_map_format,
+        data=None,
+        params=None):
+    """Create map based on given parameters.
+
+    :param source_map_id: ID of the season field.
+    :param source_map_id: str
+
+    :param list_of_image_ids: List of selected image IDs
+    :param list_of_image_ids: list
+
+    :param list_of_image_date: List of image date indicating the maps
+        which are going to be compiled.
+    :type list_of_image_date: list
+
+    :param output_dir: Base directory of the output.
+    :type output_dir: str
+
+    :param filename: Filename of the output.
+    :type filename: str
+
+    :param output_map_format: Output map format.
+    :type output_map_format: dict
+
+    :param data: Map creation data.
+        example: {
+            "MinYieldGoal": 0,
+            "MaxYieldGoal": 0,
+            "HistoricalYieldAverage": 0
+        }
+    :type data: dict
+
+    :param params: Map creation parameters.
+    :type params: dict
+    """""
+    map_type_key = "rx_map"
+    destination_base_path = os.path.join(output_dir, filename)
+    data = data if data else {}
+    params = params if params else {}
+    data.update({'params': params})
+
+    bridge_api = BridgeAPI(
+        *credentials_parameters_from_settings(),
+        proxies=QGISSettings.get_qgis_proxy())
+    rx_map_json = bridge_api.get_rx_map(
+        source_map_id,
+        list_of_image_ids,
+        list_of_image_date,
+    )
+
+    return download_field_map(
+        field_map_json=rx_map_json,
+        map_type_key=map_type_key,
+        destination_base_path=destination_base_path,
+        output_map_format=output_map_format,
+        headers=bridge_api.headers,
+        data=data)
 
 
 def download_field_map(
@@ -960,13 +1023,12 @@ def download_field_map(
     try:
         if output_map_format in ZIPPED_FORMAT:
             zip_path = tempfile.mktemp('{}.zip'.format(map_extension))
-            url = '{}.zip'.format(url)
-            fetch_data(url, zip_path, headers=headers, method=method, payload=data)
+            fetch_data(url, zip_path, headers=headers, payload=data)
             extract_zip(zip_path, destination_base_path)
         else:
             destination_filename = (
                 destination_base_path + output_map_format['extension'])
-            fetch_data(url, destination_filename, headers=headers)
+            fetch_data(url, zip_path, headers=headers, payload=data)
             if output_map_format == PNG or output_map_format == PNG_KMZ:
                 # Download associated legend and world-file for geo-referencing
                 # the PNG file.
