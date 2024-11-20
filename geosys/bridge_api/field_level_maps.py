@@ -9,10 +9,10 @@ from geosys.bridge_api.definitions import (
     COLOR_COMPOSITION,
     REFLECTANCE,
     SOIL,
-    FIELD_AVERAGE_NDVI,
-    FIELD_AVERAGE_LAI,
-    FIELD_AVERAGE_REVERSE_NDVI,
-    FIELD_AVERAGE_REVERSE_LAI,
+    INSEASONFIELD_AVERAGE_NDVI,
+    INSEASONFIELD_AVERAGE_LAI,
+    INSEASONFIELD_AVERAGE_REVERSE_NDVI,
+    INSEASONFIELD_AVERAGE_REVERSE_LAI,
     S2REP,
     SAMZ,
     YVM,
@@ -162,10 +162,10 @@ class FieldLevelMapsAPIClient(ApiClient):
             })
             map_family = map_type['map_family']
             nitrogen_maps = [
-                FIELD_AVERAGE_NDVI['key'],
-                FIELD_AVERAGE_LAI['key'],
-                FIELD_AVERAGE_REVERSE_NDVI['key'],
-                FIELD_AVERAGE_REVERSE_LAI['key']
+                INSEASONFIELD_AVERAGE_NDVI['key'],
+                INSEASONFIELD_AVERAGE_LAI['key'],
+                INSEASONFIELD_AVERAGE_REVERSE_NDVI['key'],
+                INSEASONFIELD_AVERAGE_REVERSE_LAI['key']
             ]
 
             if data:

@@ -39,10 +39,10 @@ from geosys.bridge_api.definitions import (
     REFLECTANCE,
     NDVI,
     SOIL,
-    FIELD_AVERAGE_NDVI,
-    FIELD_AVERAGE_LAI,
-    FIELD_AVERAGE_REVERSE_NDVI,
-    FIELD_AVERAGE_REVERSE_LAI,
+    INSEASONFIELD_AVERAGE_NDVI,
+    INSEASONFIELD_AVERAGE_LAI,
+    INSEASONFIELD_AVERAGE_REVERSE_NDVI,
+    INSEASONFIELD_AVERAGE_REVERSE_LAI,
     CVIN,
     YGM,
     YVM,
@@ -252,10 +252,10 @@ class CoverageSearchThread(QThread):
                 S2REP['key'],
                 REFLECTANCE['key'],
                 CVIN['key'],
-                FIELD_AVERAGE_NDVI['key'],
-                FIELD_AVERAGE_LAI['key'],
-                FIELD_AVERAGE_REVERSE_NDVI['key'],
-                FIELD_AVERAGE_REVERSE_LAI['key'],
+                INSEASONFIELD_AVERAGE_NDVI['key'],
+                INSEASONFIELD_AVERAGE_LAI['key'],
+                INSEASONFIELD_AVERAGE_REVERSE_NDVI['key'],
+                INSEASONFIELD_AVERAGE_REVERSE_LAI['key'],
                 YGM['key'],
                 YVM['key'],
                 SAMZ['key'],
@@ -371,10 +371,10 @@ class CoverageSearchThread(QThread):
                         continue
 
                     nitrogen_products = [
-                        FIELD_AVERAGE_NDVI['key'],
-                        FIELD_AVERAGE_LAI['key'],
-                        FIELD_AVERAGE_REVERSE_NDVI['key'],
-                        FIELD_AVERAGE_REVERSE_LAI['key']
+                        INSEASONFIELD_AVERAGE_NDVI['key'],
+                        INSEASONFIELD_AVERAGE_LAI['key'],
+                        INSEASONFIELD_AVERAGE_REVERSE_NDVI['key'],
+                        INSEASONFIELD_AVERAGE_REVERSE_LAI['key']
                     ]
 
                     thumbnail_url = None
@@ -403,44 +403,44 @@ class CoverageSearchThread(QThread):
                             ))
                     elif self.map_product in nitrogen_products:
                         # Nitrogen map type
-                        if self.map_product == FIELD_AVERAGE_NDVI['key']:
+                        if self.map_product == INSEASONFIELD_AVERAGE_NDVI['key']:
                             #  AVERAGE NDVI
                             thumbnail_url = (
                                 NITROGEN_THUMBNAIL_URL.format(
                                     bridge_url=searcher_client.bridge_server,
                                     id=result['seasonField']['id'],
                                     image=result['image']['id'],
-                                    nitrogen_map_type=FIELD_AVERAGE_NDVI['key'],
+                                    nitrogen_map_type=INSEASONFIELD_AVERAGE_NDVI['key'],
                                     n_value=str(self.n_planned_value)
                                 ))
-                        elif self.map_product == FIELD_AVERAGE_LAI['key']:
+                        elif self.map_product == INSEASONFIELD_AVERAGE_LAI['key']:
                             #  AVERAGE LAI
                             thumbnail_url = (
                                 NITROGEN_THUMBNAIL_URL.format(
                                     bridge_url=searcher_client.bridge_server,
                                     id=result['seasonField']['id'],
                                     image=result['image']['id'],
-                                    nitrogen_map_type=FIELD_AVERAGE_LAI['key'],
+                                    nitrogen_map_type=INSEASONFIELD_AVERAGE_LAI['key'],
                                     n_value=str(self.n_planned_value)
                                 ))
-                        elif self.map_product == FIELD_AVERAGE_REVERSE_NDVI['key']:
+                        elif self.map_product == INSEASONFIELD_AVERAGE_REVERSE_NDVI['key']:
                             #  AVERAGE REVERSE NDVI
                             thumbnail_url = (
                                 NITROGEN_THUMBNAIL_URL.format(
                                     bridge_url=searcher_client.bridge_server,
                                     id=result['seasonField']['id'],
                                     image=result['image']['id'],
-                                    nitrogen_map_type=FIELD_AVERAGE_REVERSE_NDVI['key'],
+                                    nitrogen_map_type=INSEASONFIELD_AVERAGE_REVERSE_NDVI['key'],
                                     n_value=str(self.n_planned_value)
                                 ))
-                        elif self.map_product == FIELD_AVERAGE_REVERSE_LAI['key']:
+                        elif self.map_product == INSEASONFIELD_AVERAGE_REVERSE_LAI['key']:
                             #  AVERAGE REVERSE LAI
                             thumbnail_url = (
                                 NITROGEN_THUMBNAIL_URL.format(
                                     bridge_url=searcher_client.bridge_server,
                                     id=result['seasonField']['id'],
                                     image=result['image']['id'],
-                                    nitrogen_map_type=FIELD_AVERAGE_REVERSE_LAI['key'],
+                                    nitrogen_map_type=INSEASONFIELD_AVERAGE_REVERSE_LAI['key'],
                                     n_value=str(self.n_planned_value)
                                 ))
                     elif self.map_product == YGM['key'] or self.map_product == YVM['key']:

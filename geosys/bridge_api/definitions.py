@@ -125,16 +125,16 @@ NDVI = {
     'description': 'Provides the partial Normalized Difference '
                    'Vegetation Index.'
 }
-FIELD_AVERAGE_NDVI = {
-    'key': 'FIELD_AVERAGE_NDVI',
-    'name': 'FIELD_AVERAGE_NDVI',
+INSEASONFIELD_AVERAGE_NDVI = {
+    'key': 'INSEASONFIELD_AVERAGE_NDVI',
+    'name': 'INSEASONFIELD_AVERAGE_NDVI',
     'map_family': model_map,
     'description': 'Provides the input map and the variable-rate application '
                    'map based on NDVI map to better inform input placement.'
 }
-FIELD_AVERAGE_REVERSE_NDVI = {
-    'key': 'FIELD_AVERAGE_REVERSE_NDVI',
-    'name': 'FIELD_AVERAGE_REVERSE_NDVI',
+INSEASONFIELD_AVERAGE_REVERSE_NDVI = {
+    'key': 'INSEASONFIELD_AVERAGE_REVERSE_NDVI',
+    'name': 'INSEASONFIELD_AVERAGE_REVERSE_NDVI',
     'map_family': model_map,
     'description': 'Provides the input map and the variable-rate application '
                    'map based on NDVI map to better inform input placement.'
@@ -208,16 +208,16 @@ CANOPY_N_REVERSE_LAI = {
     'map_family': model_map,
     'description': ''
 }
-FIELD_AVERAGE_LAI = {
-    'key': 'FIELD_AVERAGE_LAI',
-    'name': 'FIELD_AVERAGE_LAI',
+INSEASONFIELD_AVERAGE_LAI = {
+    'key': 'INSEASONFIELD_AVERAGE_LAI',
+    'name': 'INSEASONFIELD_AVERAGE_LAI',
     'map_family': model_map,
     'description': 'Provides the input map and the variable-rate application '
                    'map based on LAI map to better inform input placement.'
 }
-FIELD_AVERAGE_REVERSE_LAI = {
-    'key': 'FIELD_AVERAGE_REVERSE_LAI',
-    'name': 'FIELD_AVERAGE_REVERSE_LAI',
+INSEASONFIELD_AVERAGE_REVERSE_LAI = {
+    'key': 'INSEASONFIELD_AVERAGE_REVERSE_LAI',
+    'name': 'INSEASONFIELD_AVERAGE_REVERSE_LAI',
     'map_family': model_map,
     'description': 'Provides the input map and the variable-rate application '
                    'map based on LAI map to better inform input placement.'
@@ -367,8 +367,8 @@ ARCHIVE_MAP_PRODUCTS = [
     INSEASONFIELD_AVERAGE_LAI,
     INSEASONFIELD_AVERAGE_REVERSE_NDVI,
     INSEASONFIELD_AVERAGE_REVERSE_LAI,
-    INSEASON_S2REP,
-    INSEASON_CVIN,
+    S2REP,
+    CVIN,
     NDMI,
     NDWI,
     REFLECTANCE,
@@ -393,17 +393,17 @@ BASIC_MAP_PRODUCTS = [
 ]
 
 NITROGEN = [
-    FIELD_AVERAGE_NDVI,
-    FIELD_AVERAGE_LAI,
-    FIELD_AVERAGE_REVERSE_NDVI,
-    FIELD_AVERAGE_REVERSE_LAI
+    INSEASONFIELD_AVERAGE_NDVI,
+    INSEASONFIELD_AVERAGE_LAI,
+    INSEASONFIELD_AVERAGE_REVERSE_NDVI,
+    INSEASONFIELD_AVERAGE_REVERSE_LAI
 ]
 
 MAP_PRODUCTS = BASIC_MAP_PRODUCTS + [
-    FIELD_AVERAGE_NDVI,
-    FIELD_AVERAGE_REVERSE_NDVI,
-    FIELD_AVERAGE_LAI,
-    FIELD_AVERAGE_REVERSE_LAI,
+    INSEASONFIELD_AVERAGE_NDVI,
+    INSEASONFIELD_AVERAGE_REVERSE_NDVI,
+    INSEASONFIELD_AVERAGE_LAI,
+    INSEASONFIELD_AVERAGE_REVERSE_LAI,
     NDVI,
     EVI,
 ]
