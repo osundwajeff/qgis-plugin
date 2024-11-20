@@ -488,8 +488,16 @@ CBERS_4 = {
                    'Geosys virtual constellation.'
 }
 
+HUANJING = {
+    'key': 'HJ',
+    'name': 'HUANJING',
+    'description': 'Provides imagery with a ground resolution of 16 meters'
+                   'and a revisit interval of approximately 4 days.'
+                   'Suitable for environmental and disaster monitoring.'
+}
+
 SENSORS = [
-    DEIMOS, DMC, ALSAT_1B, GAOFEN, CBERS_4,
+    DEIMOS, DMC, ALSAT_1B, GAOFEN, CBERS_4, HUANJING,
     LANDSAT_8, LANDSAT_9, RESOURCESAT2, SENTINEL_2
 ]
 
