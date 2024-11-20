@@ -445,8 +445,44 @@ class BridgeAPI(ApiClient):
             },
             "Images": [
                 {"id": image_id} for image_id in list_of_image_ids
-            ],
-            "zoneCount": zone_count
+            ]
         }
 
         return self._get_field_map(SAMZ['key'], request_data)
+    
+    def get_rx_map(
+            self,
+            source_map_id,
+            list_of_image_ids,
+            list_of_image_date=None,
+            **kwargs):
+        """Get requested SAMZ map.
+
+        :param source_map_id: ID of the season field.
+        :param source_map_id: str
+
+        :param list_of_image_ids: IDs of selected images.
+        :param list_of_image_ids: list
+
+        :param list_of_image_date: List of image date indicating the maps
+            which are going to be compiled.
+        :type list_of_image_date: list
+
+        :param kwargs: Other map creation and request parameters.
+
+        :return: JSON response.
+            Map data specification based on given criteria.
+        :rtype: dict
+        """
+        # Construct map creation parameters
+        request_data = {
+            "SourceMap": {
+                "Id": source_map_id
+            },
+            "Images": [
+                {"id": image_id} for image_id in list_of_image_ids
+            ]
+        }
+        request_data.update(kwargs)
+
+        return self._get_field_map("rx_map", request_data)
