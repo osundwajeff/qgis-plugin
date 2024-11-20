@@ -477,7 +477,7 @@ class BridgeAPI(ApiClient):
         """
         # Construct map creation parameters
         request_data = {
-            "SeasonField": {
+            "SourceMap": {
                 "Id": source_map_id
             },
             "Images": [
@@ -486,4 +486,4 @@ class BridgeAPI(ApiClient):
         }
         request_data.update(kwargs)
 
-        return self._get_field_map("rx-map", request_data)
+        return self._get_field_map("rx_map", request_data)
