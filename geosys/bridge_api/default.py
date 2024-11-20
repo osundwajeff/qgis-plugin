@@ -49,6 +49,7 @@ GRANT_TYPE = 'password'
 SCOPE = 'openid offline_access'
 MAX_FEATURE_NUMBERS = 10
 DEFAULT_N_PLANNED = 0.01
+DEFAULT_COVERAGE_PERCENT = 100
 
 # Default parameters for map creation
 DEFAULT_AVE_YIELD = 1.0
@@ -89,6 +90,7 @@ SAMPLEMAP_THUMBNAIL_URL = (
 
 # coverage filters
 COVERAGE_TYPE = 'CoverageType'
+COVERAGE_PERCENT = 'coveragePercent'
 IMAGE_DATE = 'Image.Date'
 IMAGE_SENSOR = 'Image.Sensor'
 IMAGE_SOIL_MATERIAL = 'Image.SoilMaterial'
