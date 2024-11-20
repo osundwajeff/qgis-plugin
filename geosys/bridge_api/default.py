@@ -49,6 +49,7 @@ GRANT_TYPE = 'password'
 SCOPE = 'openid offline_access'
 MAX_FEATURE_NUMBERS = 10
 DEFAULT_N_PLANNED = 0.01
+DEFAULT_COVERAGE_PERCENT = 100
 
 # Default parameters for map creation
 DEFAULT_AVE_YIELD = 1.0
@@ -59,38 +60,41 @@ DEFAULT_ZONE_COUNT = 0
 DEFAULT_GAIN = 0.0
 DEFAULT_OFFSET = 0.0
 
+FIELD_MAPS_API_VERSION = 5
+
 # Thumbnail URLs
 NDVI_THUMBNAIL_URL = (
-    '{bridge_url}/field-level-maps/v4/season-fields/{id}/coverage/{date}'
-    '/base-reference-map/NDVI/thumbnail.png')
+    '{bridge_url}/field-level-maps/v5/season-fields/{id}/coverage/{date}'
+    '/base-reference-map/INSEASON_NDVI/thumbnail.png')
 NITROGEN_THUMBNAIL_URL = (
-    '{bridge_url}/field-level-maps/v4/season-fields/{id}/coverage/{image}'
+    '{bridge_url}/field-level-maps/v5/season-fields/{id}/coverage/{image}'
     '/model-map/{nitrogen_map_type}/n-planned/{n_value}/thumbnail.png')
 S2REP_THUMBNAIL_URL = (
-    '{bridge_url}/field-level-maps/v4/season-fields/{id}/coverage/{image}'
-    '/base-reference-map/S2REP/thumbnail.png')
+    '{bridge_url}/field-level-maps/v5/season-fields/{id}/coverage/{image}'
+    '/base-reference-map/INSEASON_S2REP/thumbnail.png')
 CVIN_THUMBNAIL_URL = (
-    '{bridge_url}/field-level-maps/v4/season-fields/{id}/coverage/{image}'
-    '/base-reference-map/CVIN/thumbnail.png')
+    '{bridge_url}/field-level-maps/v5/season-fields/{id}/coverage/{image}'
+    '/base-reference-map/INSEASON_CVIN/thumbnail.png')
 YGM_THUMBNAIL_URL = (
-    '{bridge_url}/field-level-maps/v4/season-fields/{id}/coverage/{image}'
+    '{bridge_url}/field-level-maps/v5/season-fields/{id}/coverage/{image}'
     '/yield-goal-map/YGM/historical-yield-average/80/max-yield-Goal/100/min-yield-Goal/10/thumbnail.png')
 YPM_THUMBNAIL_URL = (
-    '{bridge_url}/field-level-maps/v4/season-fields/{id}/coverage/{image}'
+    '{bridge_url}/field-level-maps/v5/season-fields/{id}/coverage/{image}'
     '/yield-variability-map/YPM/historical-yield-average/80/thumbnail.png')
 SAMZ_THUMBNAIL_URL = (
-    '{bridge_url}/field-level-maps/v4/season-fields/{id}/'
+    '{bridge_url}/field-level-maps/v5/season-fields/{id}/'
     '/management-zones-map/SAMZ/thumbnail.png')
 SAMPLEMAP_THUMBNAIL_URL = (
-    '{bridge_url}/field-level-maps/v4/maps/{id}/'
+    '{bridge_url}/field-level-maps/v5/maps/{id}/'
     '/thumbnail.png')
 
 # coverage filters
 COVERAGE_TYPE = 'CoverageType'
+COVERAGE_PERCENT = 'coveragePercent'
 IMAGE_DATE = 'Image.Date'
 IMAGE_SENSOR = 'Image.Sensor'
 IMAGE_SOIL_MATERIAL = 'Image.SoilMaterial'
-IMAGE_WEATHER = 'Image.Weather'
+MASK = 'Mask'
 MAPS_TYPE = 'Maps.Type'
 MAP_LIMIT = '$limit'
 

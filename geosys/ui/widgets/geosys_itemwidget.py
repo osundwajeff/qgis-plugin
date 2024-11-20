@@ -29,7 +29,6 @@ class CoverageSearchResultItemWidget(QWidget):
                 "image": {
                     "date": "2018-10-18",
                     "sensor": "SENTINEL_2",
-                    "weather": "HOT",
                     "soilMaterial": "BARE"
                 },
                 "maps": [
@@ -106,12 +105,6 @@ class CoverageSearchResultItemWidget(QWidget):
             self.coverage_type.setText(coverage_map_json.get('coverageType', ''))
             self.map_description_layout.addWidget(self.coverage_type, 3, 0)
 
-            self.weather_type = QLabel(self)
-            self.weather_type.setTextFormat(Qt.RichText)
-            self.weather_type.setWordWrap(True)
-            image = coverage_map_json.get('image', '')
-            self.weather_type.setText(image.get('weather', ''))
-            self.map_description_layout.addWidget(self.weather_type, 4, 0)
         else:
             # Add "SAMPLEMAP" to the coverage results item
             self.image_date = QLabel(self)

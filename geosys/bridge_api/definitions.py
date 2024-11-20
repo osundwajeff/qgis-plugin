@@ -31,13 +31,13 @@ CROPS = {
     'winter_osr': 'WINTER_OSR'
 }
 
-# Weather types for coverage searches`
-WEATHER_TYPES = [
-    'ALL',
-    'COLD',
-    'DRY',
-    'HOT',
-    'WET',
+# Mask types for coverage searches`
+MASK_PARAMETERS = [
+    'ACM',
+    'All',
+    'Auto',
+    'Native',
+    'None'
 ]
 
 # Map type families definition
@@ -244,9 +244,8 @@ S2REP = {
     'name': 'S2REP',
     'map_family': base_reference_map,
     'description': 'Provides the in-season Sentinel-2 Red-Edge Position Index. '
-                   'Generates a map according to the amount '
-                   'of chlorophyll content per unit of leaf (LCC).'
-}
+    'Generates a map according to the amount '
+    'of chlorophyll content per unit of leaf (LCC).'}
 
 # Chlorophyll vegetation index
 CVIN = {
@@ -331,17 +330,32 @@ SOIL = {
     'name': 'SOILMAP',
     'map_family': sample,
     'description': 'Provides the in-season Soil type map. Can be generate only in'
-                   'the USA, contains information about soil as collected by the'
-                   'National Cooperative Soil Survey.'
-}
+    'the USA, contains information about soil as collected by the'
+    'National Cooperative Soil Survey.'}
 
 # Sample map
 SAMPLE_MAP = {
     'key': 'samplemap',
     'name': 'SAMPLEMAP',
     'map_family': sample,
-    'description': ''
+    'description': 'Provides a zoning map based on sample points provided by the user'
 }
+
+NDMI = {
+    'key': 'ndmi',
+    'name': 'NDMI',
+    'map_family': base_reference_map,
+    'description': 'Provides the in-season Normalized Difference Moisture Index.'
+}
+
+
+NDWI = {
+    'key': 'ndwi',
+    'name': 'NDWI',
+    'map_family': base_reference_map,
+    'description': 'Provides the in-season Normalized Difference Water Index.'
+}
+
 
 ARCHIVE_MAP_PRODUCTS = [
     NDVI,
@@ -349,12 +363,14 @@ ARCHIVE_MAP_PRODUCTS = [
     EVI,
     CVI,
     LAI,
-    FIELD_AVERAGE_NDVI,
-    FIELD_AVERAGE_LAI,
-    FIELD_AVERAGE_REVERSE_NDVI,
-    FIELD_AVERAGE_REVERSE_LAI,
-    S2REP,
-    CVIN,
+    INSEASONFIELD_AVERAGE_NDVI,
+    INSEASONFIELD_AVERAGE_LAI,
+    INSEASONFIELD_AVERAGE_REVERSE_NDVI,
+    INSEASONFIELD_AVERAGE_REVERSE_LAI,
+    INSEASON_S2REP,
+    INSEASON_CVIN,
+    NDMI,
+    NDWI,
     REFLECTANCE,
     COLOR_COMPOSITION,
     ELEVATION,
@@ -363,7 +379,8 @@ ARCHIVE_MAP_PRODUCTS = [
     YGM,
     YVM,
     SAMZ,
-    SAMPLE_MAP
+    SAMPLE_MAP,
+    SLOPE
 ]
 
 BASIC_MAP_PRODUCTS = [
@@ -451,8 +468,7 @@ ALSAT_1B = {
     'key': 'ALSAT_1B',
     'name': 'ALSAT_1B',
     'description': 'Algeria Satellite-1B with a spatial resolution at 24 m ground '
-                   'resolution, up to 3 days of revisit.'
-}
+    'resolution, up to 3 days of revisit.'}
 
 GAOFEN = {
     'key': 'GAOFEN',
@@ -470,8 +486,16 @@ CBERS_4 = {
                    'Geosys virtual constellation.'
 }
 
+HUANJING = {
+    'key': 'HJ',
+    'name': 'HUANJING',
+    'description': 'Provides imagery with a ground resolution of 16 meters'
+                   'and a revisit interval of approximately 4 days.'
+                   'Suitable for environmental and disaster monitoring.'
+}
+
 SENSORS = [
-    DEIMOS, DMC, ALSAT_1B, GAOFEN, CBERS_4,
+    DEIMOS, DMC, ALSAT_1B, GAOFEN, CBERS_4, HUANJING,
     LANDSAT_8, LANDSAT_9, RESOURCESAT2, SENTINEL_2
 ]
 

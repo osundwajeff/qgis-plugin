@@ -1,0 +1,80 @@
+name: Update the staging repository with a new plugin version
+on:
+  push:
+    tags:
+      - 'v*.*.*dev'
+      - 'v*.*.*pre'
+
+jobs:
+  staging_repository_update:
+    name: Staging repository update
+    runs-on: ubuntu-latest
+    container:
+      image: qgis/qgis:release-3_34
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Setup python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.9"
+          architecture: "x64"
+
+      - name: Install build requirements
+        run: |
+          python -m pip install -r requirements.txt
+
+      - name: Build zipfile
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          python admin.py generate-zip --version "${TAG_NAME#v}"
+
+      - name: get zip details
+        id: get-zip-details
+        run: |
+          echo "ZIP_PATH=dist/$(ls dist)\n" > $GITHUB_ENV
+          echo "ZIP_NAME=$(ls dist)" > $GITHUB_ENV
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: release
+          clean: false
+
+      - name: Make directory
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          
+          echo "REF_NAME=$REF_NAME" >> $GITHUB_ENV
+          mkdir -p $GITHUB_WORKSPACE/docs/repository/$REF_NAME
+
+      - name: Update custom plugin repository to include latest plugin version
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+          ARTIFACT_URL: ${{ steps.artifact-upload-step.outputs.artifact-url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REF_NAME: ${{ github.ref_name }}
+
+        run: |          
+          cp $GITHUB_WORKSPACE/dist/$ZIP_NAME $GITHUB_WORKSPACE/docs/repository/$REF_NAME
+          
+          DOWNLOAD_URL=https://raw.githubusercontent.com/earthdaily/qgis-plugin/refs/heads/release/docs/repository/$REF_NAME/$ZIP_NAME
+          
+          echo "$DOWNLOAD_URL"
+          
+          python admin.py generate-plugin-repo-xml  --prerelease --prerelease-url "$DOWNLOAD_URL" --prerelease-time "$(date +'%Y-%m-%dT%H:%M:%SZ')" --prerelease-filename "$ZIP_NAME" --version "${REF_NAME#v}"
+          
+          git config --global --add safe.directory /__w/qgis-plugin/qgis-plugin
+          
+          echo " " >> docs/repository/plugins.xml
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global --add safe.directory /__w/qgis-plugin/qgis-plugin
+          
+          
+          git add docs/repository
+          git add -f docs/repository/$REF_NAME/$ZIP_NAME
+          git commit -m "Update on the staging repository"
+          git push origin release
