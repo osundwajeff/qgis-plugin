@@ -58,7 +58,8 @@ from geosys.bridge_api.definitions import (
 from geosys.bridge_api.utilities import get_definition
 from geosys.ui.help.help_dialog import HelpDialog
 from geosys.ui.widgets.geosys_coverage_downloader import (
-    CoverageSearchThread, create_map, create_difference_map, create_samz_map
+    CoverageSearchThread, create_map, create_difference_map, create_samz_map,
+    create_rx_map
 )
 from geosys.ui.widgets.geosys_itemwidget import CoverageSearchResultItemWidget
 from geosys.utilities.gui_utilities import (
@@ -146,7 +147,10 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             ORGANIC_AVERAGE: self.organic_average_form,
             SAMZ_ZONE: self.samz_zone_form
         }
+        # For rx zone
         self.fetch_rx_map = None
+        self.rx_zone = None # TODO: Handle the RX zone creation parameters similarly to the SAMZ zone
+        # TODO: Need to add the RX map creation parameters settings
 
         self.selected_coverage_results = []
 
@@ -876,6 +880,48 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
             # Add map to qgis canvas
             self.load_layer(os.path.join(self.output_directory, filename))
+        elif self.fetch_rx_group and self.fetch_rx_group.isChecked(): # RX Map Logic
+            if not map_specifications:
+                QMessageBox.critical(
+                    self,
+                    'Map Creation Error',
+                    'No coverage results available for RX Map creation.'
+                )
+                return
+
+            # Extract season field and image IDs
+            source_map_id = map_specifications[0]['SourceMap']['id']
+            image_ids = [spec['image']['id'] for spec in map_specifications]
+            image_dates = [spec['image']['date'] for spec in map_specifications]
+
+            filename = f"RX_{source_map_id}_zones_{self.rx_zone}_{len(image_ids)}"
+            filename = check_if_file_exists(
+                self.output_directory,
+                filename,
+                self.output_map_format['extension']
+            )
+
+            is_success, message = create_rx_map(
+                source_map_id=source_map_id,
+                list_of_image_ids=image_ids,
+                list_of_image_date=image_dates,
+                output_dir=self.output_directory,
+                filename=filename,
+                output_map_format=self.output_map_format,
+                data=data,
+            )
+
+            if not is_success:
+                QMessageBox.critical(
+                    self,
+                    'RX Map Creation Error',
+                    f'Error creating RX Map: {message}'
+                )
+                return
+
+            # Load the RX map into the QGIS canvas
+            self.load_layer(os.path.join(self.output_directory, filename))
+            return
         else:
             for map_specification in map_specifications:
                 filename = '{}_{}_zones_{}_{}'.format(
