@@ -364,6 +364,10 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # If on the first page, go to the next page
             if self.current_stacked_widget_index == self.max_stacked_widget_index:
                 # If on the last page, perform the map creation task
+                self.png_radio_button_2.setEnabled(True)
+                self.tiff_radio_button_2.setEnabled(True)
+                self.shp_radio_button_2.setEnabled(True)
+                self.kmz_radio_button_2.setEnabled(True)
                 self.start_map_creation()
                 return
             else:
@@ -939,6 +943,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # Add map to qgis canvas
             self.load_layer(os.path.join(self.output_directory, filename))
         elif self.fetch_rx_group and self.fetch_rx_group.isChecked(): # RX Map Logic
+            rx_zone_count = self.fetch_rx_zones.value()
             if not map_specifications:
                 QMessageBox.critical(
                     self,
@@ -963,6 +968,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 source_map_id=source_map_id,
                 list_of_image_ids=image_ids,
                 list_of_image_date=image_dates,
+                zone_count=rx_zone_count,
                 output_dir=self.output_directory,
                 filename=filename,
                 output_map_format=self.output_map_format,

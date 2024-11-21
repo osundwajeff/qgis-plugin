@@ -839,6 +839,7 @@ def create_rx_map(
         source_map_id,
         list_of_image_ids,
         list_of_image_date,
+        zone_count,
         output_dir,
         filename,
         output_map_format,
@@ -876,7 +877,7 @@ def create_rx_map(
     :param params: Map creation parameters.
     :type params: dict
     """""
-    map_type_key = "rx_map"
+    map_type_key = "rx-map"
     destination_base_path = os.path.join(output_dir, filename)
     data = data if data else {}
     params = params if params else {}
@@ -886,10 +887,11 @@ def create_rx_map(
         *credentials_parameters_from_settings(),
         proxies=QGISSettings.get_qgis_proxy())
     rx_map_json = bridge_api.get_rx_map(
-        bridge_api.bridge_server,
-        source_map_id,
-        list_of_image_ids,
-        list_of_image_date,
+        url=bridge_api.bridge_server,
+        source_map_id=source_map_id,
+        list_of_image_ids=list_of_image_ids,
+        list_of_image_date=list_of_image_date,
+        zone_count=zone_count,
     )
 
     return download_field_map(
@@ -1001,6 +1003,14 @@ def download_field_map(
                 reflectance_map_family['endpoint'],
                 REFLECTANCE['key']
             )
+        elif map_type_key == "rx_map":
+            # Special handling for RX maps
+             # Retrieve the bridge server URL
+            username, password, region, client_id, client_secret, use_testing_service = credentials_parameters_from_settings()
+            bridge_server = (BRIDGE_URLS[region]['test']
+                             if use_testing_service
+                             else BRIDGE_URLS[region]['prod'])
+            url = f"{bridge_server}/field-level-maps/v5/maps/rx-map/image{output_map_format['extension']}"
         else:  # Other map types
             url = field_map_json['_links'][output_map_format['api_key']]
 
@@ -1048,7 +1058,7 @@ def download_field_map(
                 for item in list_items:
                     destination_filename = '{}{}'.format(
                         destination_base_path, item['extension'])
-                    fetch_data(url, destination_filename, headers=headers)
+                    fetch_data(url, destination_filename, headers=headers, payload=data)
         # Get hotspots for zones if they have been requested by user.
         bridge_api = BridgeAPI(
             *credentials_parameters_from_settings(),

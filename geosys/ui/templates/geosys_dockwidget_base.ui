@@ -42,7 +42,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="coverage_form_page">
        <property name="minimumSize">
@@ -803,7 +803,7 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QDoubleSpinBox" name="fetch_rx_sb"/>
+            <widget class="QDoubleSpinBox" name="fetch_rx_zones"/>
            </item>
           </layout>
          </widget>
@@ -819,7 +819,7 @@
           </property>
           <layout class="QGridLayout" name="gridLayout_6">
            <item row="1" column="2">
-            <widget class="QDoubleSpinBox" name="yield_average_form_2">
+            <widget class="QDoubleSpinBox" name="zone_x_1_form">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -841,7 +841,7 @@
             </widget>
            </item>
            <item row="2" column="0">
-            <widget class="QLabel" name="yield_minimum_label_2">
+            <widget class="QLabel" name="zone_x_2">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -857,14 +857,14 @@
             <widget class="QLineEdit" name="lineEdit"/>
            </item>
            <item row="6" column="0">
-            <widget class="QLabel" name="gain_label_2">
+            <widget class="QLabel" name="zone_x_6">
              <property name="text">
               <string>Zone X</string>
              </property>
             </widget>
            </item>
            <item row="5" column="2">
-            <widget class="QSpinBox" name="samz_zone_form_2">
+            <widget class="QSpinBox" name="zonex_5_form">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -886,7 +886,7 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="yield_average_label_2">
+            <widget class="QLabel" name="zone_x_1">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -899,14 +899,14 @@
             </widget>
            </item>
            <item row="4" column="0">
-            <widget class="QLabel" name="organic_average_label_2">
+            <widget class="QLabel" name="zone_x_4">
              <property name="text">
               <string>Zone X</string>
              </property>
             </widget>
            </item>
            <item row="6" column="2">
-            <widget class="QDoubleSpinBox" name="spinBox_gain_2">
+            <widget class="QDoubleSpinBox" name="zone_x_6_form">
              <property name="decimals">
               <number>2</number>
              </property>
@@ -916,7 +916,7 @@
             </widget>
            </item>
            <item row="2" column="2">
-            <widget class="QDoubleSpinBox" name="yield_minimum_form_2">
+            <widget class="QDoubleSpinBox" name="zone_x_2_form">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -938,35 +938,35 @@
             </widget>
            </item>
            <item row="7" column="0">
-            <widget class="QLabel" name="offset_label_2">
+            <widget class="QLabel" name="zone_x_7">
              <property name="text">
               <string>Zone X</string>
              </property>
             </widget>
            </item>
            <item row="3" column="0">
-            <widget class="QLabel" name="yield_maximum_label_2">
+            <widget class="QLabel" name="zone_x_3">
              <property name="text">
               <string>Zone X</string>
              </property>
             </widget>
            </item>
            <item row="7" column="2">
-            <widget class="QDoubleSpinBox" name="spinBox_offset_2">
+            <widget class="QDoubleSpinBox" name="zone_x_7_form">
              <property name="singleStep">
               <double>0.100000000000000</double>
              </property>
             </widget>
            </item>
            <item row="5" column="0">
-            <widget class="QLabel" name="samz_zone_label_2">
+            <widget class="QLabel" name="zone_x_5">
              <property name="text">
               <string>Zone X</string>
              </property>
             </widget>
            </item>
            <item row="3" column="2">
-            <widget class="QDoubleSpinBox" name="yield_maximum_form_2">
+            <widget class="QDoubleSpinBox" name="zone_x_3_form">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -988,7 +988,7 @@
             </widget>
            </item>
            <item row="4" column="2">
-            <widget class="QDoubleSpinBox" name="organic_average_form_2">
+            <widget class="QDoubleSpinBox" name="zone_x_4_form">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>0</horstretch>
