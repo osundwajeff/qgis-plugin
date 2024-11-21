@@ -42,7 +42,8 @@ class GeosysPluginDockWidgetTest(unittest.TestCase):
     def test_clear_combo_box(self):
         """Test if the clear_combo_box method works as it should."""
 
-        test_list = ['First', 'Second', 'Third']  # A list of items which will be added to the combobox
+        # A list of items which will be added to the combobox
+        test_list = ['First', 'Second', 'Third']
         test_cb = QComboBox()
         test_cb.addItems(test_list)
 
@@ -52,7 +53,8 @@ class GeosysPluginDockWidgetTest(unittest.TestCase):
         expected_count = 0  # The combobox should now be empty
         cb_count = test_cb.count()
 
-        message = 'Expected %s items in the combobox, but got %s' % (str(expected_count), str(cb_count))
+        message = 'Expected %s items in the combobox, but got %s' % (
+            str(expected_count), str(cb_count))
         self.assertEqual(str(expected_count), str(cb_count), message)
 
     def test_populate_map_products(self):
@@ -65,6 +67,7 @@ class GeosysPluginDockWidgetTest(unittest.TestCase):
         GeosysPluginDockWidget.populate_map_products(self.dockwidget)
 
         key_us = 'geosys_region_na'
+
         us_option = setting(key_us, expected_type=bool, qsettings=self.dockwidget.settings)
         self.assertIsInstance(us_option, bool)
         self.assertTrue(us_option)
