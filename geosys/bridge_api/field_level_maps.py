@@ -346,3 +346,49 @@ class FieldLevelMapsAPIClient(ApiClient):
             return response.json()
 
         return {}
+
+    def get_rx_map(
+        self,
+        url,
+        request_data,
+        params=None):
+        """
+        Get RX Map data from the server.
+
+        :param source_map_id: ID of the season field.
+        :type source_map_id: str
+
+        :param list_of_image_ids: List of image IDs for the RX map.
+        :type list_of_image_ids: list
+
+        :param list_of_image_date: List of image dates.
+        :type list_of_image_date: list
+
+        :param params: Additional parameters for RX Map creation.
+        :type params: dict
+
+        :return: JSON response.
+        :rtype: dict
+        """
+        params = params if params else {}
+        headers = {
+            'accept': 'application/json',
+            'content-type': 'application/json'
+        }
+
+        # Construct the full URL for the RX Map endpoint
+        full_url = self.full_url(
+            url,
+            'maps',
+            'rx-map'
+        )
+
+        # Send the request to the server
+        response = self.post(
+            full_url,
+            headers=headers,
+            params=params,
+            json=request_data
+        )
+
+        return response.json()
