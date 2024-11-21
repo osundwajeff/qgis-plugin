@@ -453,11 +453,13 @@ class BridgeAPI(ApiClient):
     
     def get_rx_map(
             self,
+            url,
             source_map_id,
             list_of_image_ids,
             list_of_image_date=None,
+            zone_count=0,
             **kwargs):
-        """Get requested SAMZ map.
+        """Get requested RX map.
 
         :param source_map_id: ID of the season field.
         :param source_map_id: str
@@ -476,14 +478,19 @@ class BridgeAPI(ApiClient):
         :rtype: dict
         """
         # Construct map creation parameters
+        api_client = FieldLevelMapsAPIClient(
+            self.access_token, self.bridge_server)
         request_data = {
             "SourceMap": {
                 "Id": source_map_id
             },
             "Images": [
                 {"id": image_id} for image_id in list_of_image_ids
-            ]
+            ],
+            "zoneCount": zone_count
         }
         request_data.update(kwargs)
+        
+        rx_json = api_client.get_rx_map(url, request_data)
 
-        return self._get_field_map("rx_map", request_data)
+        return rx_json

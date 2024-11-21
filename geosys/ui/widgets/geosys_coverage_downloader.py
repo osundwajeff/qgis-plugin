@@ -809,6 +809,7 @@ def create_rx_map(
         *credentials_parameters_from_settings(),
         proxies=QGISSettings.get_qgis_proxy())
     rx_map_json = bridge_api.get_rx_map(
+        bridge_api.bridge_server,
         source_map_id,
         list_of_image_ids,
         list_of_image_date,
