@@ -60,18 +60,18 @@ class GeosysPluginDockWidgetTest(unittest.TestCase):
         If the zone is set to US, the soil map type can be included.
         If the zone is set to EU, the soil map type should be excluded.
         """
-
-        GeosysPluginDockWidget.populate_map_products(self.dockwidget)
         self.dockwidget.settings.setValue("geosys/geosys_region_na", True)
 
+        GeosysPluginDockWidget.populate_map_products(self.dockwidget)
 
         key_us = 'geosys_region_na'
         us_option = setting(key_us, expected_type=bool, qsettings=self.dockwidget.settings)
         self.assertIsInstance(us_option, bool)
+        self.assertTrue(us_option)
         if us_option:  # Expected number of items for US (soil map included)
-            expected_count = 22
+            expected_count = 23
         else:  # Expected number of items for EU (soil map excluded)
-            expected_count = 21
+            expected_count = 22
 
         combobox = self.dockwidget.map_product_combo_box
         cb_count = combobox.count()
