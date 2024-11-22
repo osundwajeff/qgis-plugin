@@ -21,6 +21,7 @@ __email__ = "rohmat@kartoza.com"
 __revision__ = "$Format:%H$"
 
 QGIS_APP = get_qgis_app()
+APPLICATION_NAME = 'geosys'
 
 
 class GeosysPluginDockWidgetTest(unittest.TestCase):
@@ -61,25 +62,24 @@ class GeosysPluginDockWidgetTest(unittest.TestCase):
         If the zone is set to US, the soil map type can be included.
         If the zone is set to EU, the soil map type should be excluded.
         """
+        self.dockwidget.settings.setValue("geosys/geosys_region_na", True)
 
         GeosysPluginDockWidget.populate_map_products(self.dockwidget)
 
         key_us = 'geosys_region_na'
-        us_option = setting(
-            key_us,
-            expected_type=bool,
-            qsettings=self.dockwidget.settings)
+
+        us_option = setting(key_us, expected_type=bool, qsettings=self.dockwidget.settings)
+        self.assertIsInstance(us_option, bool)
+        self.assertTrue(us_option)
         if us_option:  # Expected number of items for US (soil map included)
-            expected_count = 25
+            expected_count = 23
         else:  # Expected number of items for EU (soil map excluded)
-            expected_count = 24
+            expected_count = 22
 
         combobox = self.dockwidget.map_product_combo_box
         cb_count = combobox.count()
-
-        message = 'Expected %s items in the combobox, but got %s' % (
-            str(expected_count), str(cb_count))
-        self.assertEqual(str(expected_count), str(cb_count), message)
+        message = 'Expected %s items in the combobox, but got %s' % (str(expected_count), str(cb_count))
+        self.assertEqual(expected_count, cb_count, message)
 
 
 if __name__ == "__main__":

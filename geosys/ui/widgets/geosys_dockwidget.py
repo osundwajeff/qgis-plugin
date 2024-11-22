@@ -48,7 +48,7 @@ from geosys.bridge_api.default import (
     DEFAULT_MAX_YIELD, DEFAULT_ORGANIC_AVE, DEFAULT_GAIN, DEFAULT_OFFSET, DEFAULT_COVERAGE_PERCENT
 )
 from geosys.bridge_api.definitions import (
-    ARCHIVE_MAP_PRODUCTS, ALL_SENSORS, SENSORS, INSEASON_NDVI, INSEASON_EVI,
+    ARCHIVE_MAP_PRODUCTS, ALL_SENSORS, SENSORS, NDVI, EVI,
     SAMZ, SOIL, ELEVATION, REFLECTANCE, LANDSAT_8, LANDSAT_9, SENTINEL_2,
     INSEASONFIELD_AVERAGE_NDVI, INSEASONFIELD_AVERAGE_REVERSE_NDVI,
     INSEASONFIELD_AVERAGE_LAI, INSEASONFIELD_AVERAGE_REVERSE_LAI,
@@ -385,8 +385,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                         coverage_result['seasonField']['id'])
 
             if len(self.selected_coverage_results) == 2 and has_same_id and (
-                    self.map_product in [INSEASON_NDVI['key'],
-                                         INSEASON_EVI['key']]):
+                    self.map_product in [NDVI['key'],
+                                         EVI['key']]):
                 self.difference_map_push_button.setVisible(True)
             else:
                 self.difference_map_push_button.setVisible(False)
@@ -1058,7 +1058,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 },
                 "maps": [
                     {
-                        "type": "INSEASON_NDVI",
+                        "type": "NDVI",
                         "_links": {
                             "self": "the_url",
                             "worldFile": "the_url",
