@@ -4,7 +4,7 @@
 # This import is to enable SIP API V2
 # noinspection PyUnresolvedReferences
 import qgis  # NOQA pylint: disable=unused-import
-from qgis.PyQt import QtGui, QtWidgets, QtWebKitWidgets
+from qgis.PyQt import QtGui, QtWidgets
 from qgis.PyQt.QtCore import Qt
 
 from geosys.utilities.about import get_about_html
@@ -40,12 +40,15 @@ class AboutDialog(QtWidgets.QDialog, FORM_CLASS):
 
         # Make the html links open on the default browser instead
         # of opening the current about dialog.
-        self.about_web_view.page().setLinkDelegationPolicy(
-            QtWebKitWidgets.QWebPage.DelegateAllLinks
-        )
-        self.about_web_view.linkClicked.connect(self.link_clicked)
+        self.about_text_browser = QtWidgets.QTextBrowser(self)
+        self.layout().addWidget(self.about_text_browser)
 
-        self.about_web_view.setHtml(get_about_html(message))
+        # Load the HTML content
+        self.about_text_browser.setHtml(get_about_html(message))
+
+        # Connect link handling to the slot
+        self.about_text_browser.anchorClicked.connect(self.link_clicked)
+
 
 
     def link_clicked(self, url):
