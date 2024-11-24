@@ -309,12 +309,11 @@ class MapCoverageDownloader(QgsProcessingAlgorithm):
                 "image": {
                     "date": "2018-10-18",
                     "sensor": "SENTINEL_2",
-                    "weather": "HOT",
                     "soilMaterial": "BARE"
                 },
                 "maps": [
                     {
-                        "type": "INSEASON_NDVI",
+                        "type": "NDVI",
                         "_links": {
                             "self": "the_url",
                             "worldFile": "the_url",

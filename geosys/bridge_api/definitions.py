@@ -31,13 +31,13 @@ CROPS = {
     'winter_osr': 'WINTER_OSR'
 }
 
-# Weather types for coverage searches`
-WEATHER_TYPES = [
-    'ALL',
-    'COLD',
-    'DRY',
-    'HOT',
-    'WET',
+# Mask types for coverage searches`
+MASK_PARAMETERS = [
+    'ACM',
+    'All',
+    'Auto',
+    'Native',
+    'None'
 ]
 
 # Map type families definition
@@ -97,30 +97,30 @@ samplemap = {
 # Map types definition
 
 # Difference map
-DIFFERENCE_INSEASON_NDVI = {
-    'key': 'DIFFERENCE_INSEASON_NDVI',
-    'name': 'DIFFERENCE_INSEASON_NDVI',
+DIFFERENCE_NDVI = {
+    'key': 'DIFFERENCE_NDVI',
+    'name': 'DIFFERENCE_NDVI',
     'map_family': difference_map
 }
-DIFFERENCE_INSEASON_EVI = {
-    'key': 'DIFFERENCE_INSEASON_EVI',
-    'name': 'DIFFERENCE_INSEASON_EVI',
+DIFFERENCE_EVI = {
+    'key': 'DIFFERENCE_EVI',
+    'name': 'DIFFERENCE_EVI',
     'map_family': difference_map
 }
 
 # NDVI (Normalized Difference Vegetation Index)
 # https://en.wikipedia.org/wiki/Normalized_difference_vegetation_index
-INSEASON_NDVI = {
-    'key': 'INSEASON_NDVI',
-    'name': 'INSEASON_NDVI',
+NDVI = {
+    'key': 'NDVI',
+    'name': 'NDVI',
     'map_family': base_reference_map,
     'description': 'Provides the in-season Normalized Difference '
                    'Vegetation Index.',
-    'difference_map': DIFFERENCE_INSEASON_NDVI
+    'difference_map': DIFFERENCE_NDVI
 }
-INSEASONPARTIAL_NDVI = {
-    'key': 'INSEASONPARTIAL_NDVI',
-    'name': 'INSEASONPARTIAL_NDVI',
+NDVI = {
+    'key': 'NDVI',
+    'name': 'NDVI',
     'map_family': base_reference_map,
     'description': 'Provides the partial Normalized Difference '
                    'Vegetation Index.'
@@ -148,16 +148,16 @@ EVI = {
     'map_family': base_reference_map,
     'description': ''
 }
-INSEASON_EVI = {
-    'key': 'INSEASON_EVI',
-    'name': 'INSEASON_EVI',
+EVI = {
+    'key': 'EVI',
+    'name': 'EVI',
     'map_family': base_reference_map,
     'description': 'Provides the in-season Enhanced Vegetation Index.',
-    'difference_map': DIFFERENCE_INSEASON_EVI
+    'difference_map': DIFFERENCE_EVI
 }
-INSEASONPARTIAL_EVI = {
-    'key': 'INSEASONPARTIAL_EVI',
-    'name': 'INSEASONPARTIAL_EVI',
+EVI = {
+    'key': 'EVI',
+    'name': 'EVI',
     'map_family': base_reference_map,
     'description': 'Provides the partial Enhanced Vegetation Index.'
 }
@@ -169,9 +169,9 @@ CVI = {
     'map_family': base_reference_map,
     'description': ''
 }
-INSEASON_CVI = {
-    'key': 'INSEASON_CVI',
-    'name': 'INSEASON_CVI',
+CVI = {
+    'key': 'CVI',
+    'name': 'CVI',
     'map_family': base_reference_map,
     'description': 'Provides the in-season Chlorophyll Vegetation Index. '
                    'It is used as an indicator of photosynthetic energy '
@@ -185,26 +185,26 @@ GNDVI = {
     'map_family': base_reference_map,
     'description': ''
 }
-INSEASON_GNDVI = {
-    'key': 'INSEASON_GNDVI',
-    'name': 'INSEASON_GNDVI',
+GNDVI = {
+    'key': 'GNDVI',
+    'name': 'GNDVI',
     'map_family': base_reference_map,
     'description': 'Provides the in-season Green Normalized Difference '
                    'Vegetation Index.'
 }
 
 # LAI (Leaf Area Index)
-INSEASON_LAI = {
-    'key': 'INSEASON_LAI',
-    'name': 'INSEASON_LAI',
+LAI = {
+    'key': 'LAI',
+    'name': 'LAI',
     'map_family': base_reference_map,
     'description': 'Provides the in-season Leave Area Index. '
                    'The LAI is a dimensionless ranging from 0 (bare ground) '
                    'to over 10 (dense conifer forests).'
 }
-INSEASONCANOPY_N_REVERSE_LAI = {
-    'key': 'INSEASONCANOPY_N_REVERSE_LAI',
-    'name': 'INSEASONCANOPY_N_REVERSE_LAI',
+CANOPY_N_REVERSE_LAI = {
+    'key': 'CANOPY_N_REVERSE_LAI',
+    'name': 'CANOPY_N_REVERSE_LAI',
     'map_family': model_map,
     'description': ''
 }
@@ -239,19 +239,18 @@ ALLOWED_FIELD_TYPES = [
 ]
 
 # Sentinel-2 Red-edge position index (S2REP)
-INSEASON_S2REP = {
-    'key': 'INSEASON_S2REP',
-    'name': 'INSEASON_S2REP',
+S2REP = {
+    'key': 'S2REP',
+    'name': 'S2REP',
     'map_family': base_reference_map,
     'description': 'Provides the in-season Sentinel-2 Red-Edge Position Index. '
-                   'Generates a map according to the amount '
-                   'of chlorophyll content per unit of leaf (LCC).'
-}
+    'Generates a map according to the amount '
+    'of chlorophyll content per unit of leaf (LCC).'}
 
 # Chlorophyll vegetation index
-INSEASON_CVIN = {
-    'key': 'INSEASON_CVIN',
-    'name': 'INSEASON_CVIN',
+CVIN = {
+    'key': 'CVIN',
+    'name': 'CVIN',
     'map_family': base_reference_map,
     'description': 'Provides the in-season Chlorophyll Vegetation Index normalized.'
 }
@@ -331,32 +330,47 @@ SOIL = {
     'name': 'SOILMAP',
     'map_family': sample,
     'description': 'Provides the in-season Soil type map. Can be generate only in'
-                   'the USA, contains information about soil as collected by the'
-                   'National Cooperative Soil Survey.'
-}
+    'the USA, contains information about soil as collected by the'
+    'National Cooperative Soil Survey.'}
 
 # Sample map
 SAMPLE_MAP = {
     'key': 'samplemap',
     'name': 'SAMPLEMAP',
     'map_family': sample,
-    'description': ''
+    'description': 'Provides a zoning map based on sample points provided by the user'
 }
 
+NDMI = {
+    'key': 'ndmi',
+    'name': 'NDMI',
+    'map_family': base_reference_map,
+    'description': 'Provides the in-season Normalized Difference Moisture Index.'
+}
+
+
+NDWI = {
+    'key': 'ndwi',
+    'name': 'NDWI',
+    'map_family': base_reference_map,
+    'description': 'Provides the in-season Normalized Difference Water Index.'
+}
+
+
 ARCHIVE_MAP_PRODUCTS = [
-    INSEASON_NDVI,
-    INSEASON_GNDVI,
-    INSEASON_EVI,
-    INSEASON_CVI,
-    INSEASONPARTIAL_NDVI,
-    INSEASONPARTIAL_EVI,
-    INSEASON_LAI,
+    NDVI,
+    GNDVI,
+    EVI,
+    CVI,
+    LAI,
     INSEASONFIELD_AVERAGE_NDVI,
     INSEASONFIELD_AVERAGE_LAI,
     INSEASONFIELD_AVERAGE_REVERSE_NDVI,
     INSEASONFIELD_AVERAGE_REVERSE_LAI,
-    INSEASON_S2REP,
-    INSEASON_CVIN,
+    S2REP,
+    CVIN,
+    NDMI,
+    NDWI,
     REFLECTANCE,
     COLOR_COMPOSITION,
     ELEVATION,
@@ -365,37 +379,38 @@ ARCHIVE_MAP_PRODUCTS = [
     YGM,
     YVM,
     SAMZ,
-    SAMPLE_MAP
+    SAMPLE_MAP,
+    SLOPE
 ]
 
-BASIC_INSEASON_MAP_PRODUCTS = [
-    INSEASON_NDVI,
-    INSEASON_EVI,
-    INSEASON_CVI,
-    INSEASON_GNDVI,
-    INSEASON_LAI,
-    INSEASON_S2REP
+BASIC_MAP_PRODUCTS = [
+    NDVI,
+    EVI,
+    CVI,
+    GNDVI,
+    LAI,
+    S2REP
 ]
 
-INSEASON_NITROGEN = [
+NITROGEN = [
     INSEASONFIELD_AVERAGE_NDVI,
     INSEASONFIELD_AVERAGE_LAI,
     INSEASONFIELD_AVERAGE_REVERSE_NDVI,
     INSEASONFIELD_AVERAGE_REVERSE_LAI
 ]
 
-INSEASON_MAP_PRODUCTS = BASIC_INSEASON_MAP_PRODUCTS + [
+MAP_PRODUCTS = BASIC_MAP_PRODUCTS + [
     INSEASONFIELD_AVERAGE_NDVI,
     INSEASONFIELD_AVERAGE_REVERSE_NDVI,
     INSEASONFIELD_AVERAGE_LAI,
     INSEASONFIELD_AVERAGE_REVERSE_LAI,
-    INSEASONPARTIAL_NDVI,
-    INSEASONPARTIAL_EVI,
+    NDVI,
+    EVI,
 ]
 
 DIFFERENCE_MAPS = [
-    DIFFERENCE_INSEASON_NDVI,
-    DIFFERENCE_INSEASON_EVI
+    DIFFERENCE_NDVI,
+    DIFFERENCE_EVI
 ]
 
 # Sensor definition
@@ -453,8 +468,7 @@ ALSAT_1B = {
     'key': 'ALSAT_1B',
     'name': 'ALSAT_1B',
     'description': 'Algeria Satellite-1B with a spatial resolution at 24 m ground '
-                   'resolution, up to 3 days of revisit.'
-}
+    'resolution, up to 3 days of revisit.'}
 
 GAOFEN = {
     'key': 'GAOFEN',
@@ -472,8 +486,16 @@ CBERS_4 = {
                    'Geosys virtual constellation.'
 }
 
+HUANJING = {
+    'key': 'HJ',
+    'name': 'HUANJING',
+    'description': 'Provides imagery with a ground resolution of 16 meters'
+                   'and a revisit interval of approximately 4 days.'
+                   'Suitable for environmental and disaster monitoring.'
+}
+
 SENSORS = [
-    DEIMOS, DMC, ALSAT_1B, GAOFEN, CBERS_4,
+    DEIMOS, DMC, ALSAT_1B, GAOFEN, CBERS_4, HUANJING,
     LANDSAT_8, LANDSAT_9, RESOURCESAT2, SENTINEL_2
 ]
 

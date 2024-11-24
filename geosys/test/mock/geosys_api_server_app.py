@@ -52,7 +52,7 @@ def field_level_maps_coverage():
                 "id": "IKc73hpUQ726BpoqhQpaU8SfYGFYTAL5hhyYZq4PwFY",
                 "sensor": "SENTINEL_2",
                 "soilMaterial": "BARE",
-                "weather": "COLD",
+                "mask": "All",
                 "date": "2024-11-02"
             },
             "maps": [{}]
