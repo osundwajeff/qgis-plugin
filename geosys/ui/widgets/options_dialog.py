@@ -61,7 +61,6 @@ class GeosysOptionsDialog(QtWidgets.QDialog, FORM_CLASS):
             'bridge_api_client_secret': self.client_secret_form
         }
         self.text_settings = {
-            'bridge_api_page_limit': self.page_limit_form,
             'output_directory': self.output_directory_form
         }
         self.text_settings.update(self.credentials_settings)

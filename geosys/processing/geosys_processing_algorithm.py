@@ -40,7 +40,7 @@ from qgis.core import (
     QgsProcessingParameterNumber)
 
 from geosys.bridge_api.default import (
-    ZIPPED_TIFF_KEY, TIFF_EXT, MAPS_TYPE, IMAGE_SENSOR, IMAGE_DATE, MAP_LIMIT,
+    ZIPPED_TIFF_KEY, TIFF_EXT, MAPS_TYPE, IMAGE_SENSOR, IMAGE_DATE,
     ZIPPED_TIFF, YIELD_AVERAGE, YIELD_MINIMUM, YIELD_MAXIMUM, ORGANIC_AVERAGE,
     SAMZ_ZONE)
 from geosys.bridge_api.definitions import ARCHIVE_MAP_PRODUCTS, SENSORS, \
@@ -252,7 +252,6 @@ class MapCoverageDownloader(QgsProcessingAlgorithm):
         filters = {
             MAPS_TYPE: map_product,
             IMAGE_DATE: '$lte:{}'.format(coverage_date),
-            MAP_LIMIT: 1  # only get the recent one
         }
         sensor_type and filters.update({
             IMAGE_SENSOR: sensor_type
