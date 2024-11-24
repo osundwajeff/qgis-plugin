@@ -552,6 +552,7 @@ class CoverageSearchThread(QThread):
 
 def create_map(
         map_specification,
+        geometry,
         output_dir,
         filename,
         output_map_format,
@@ -627,13 +628,26 @@ def create_map(
     """""
     # Construct map creation parameters
     map_specification.update(map_specification['maps'][0])
+    map_specification.update(map_specification['seasonField'])
     map_type_key = map_specification['type']
     season_field_id = map_specification['seasonField']['id']
+<<<<<<< HEAD
     geometry = map_specification['seasonField']['geometry']
+=======
+    season_field_geom = geometry
+>>>>>>> 038988d (WIP: Fetch rx-map for selected ndvi image)
     image_date = map_specification['image']['date']
     image_id = map_specification['image']['id']
     destination_base_path = os.path.join(output_dir, filename)
-    data = data if data else {}
+    request_data = {
+                'SeasonField': {
+                    'Id': season_field_id,
+                    'geometry': season_field_geom
+                },
+                'Image': {
+                    'Id': image_id
+                }
+            }
     params = params if params else {}
     data.update({'params': params})
 
@@ -643,7 +657,11 @@ def create_map(
     field_map_json = bridge_api.get_field_map(
         map_type_key,
         season_field_id,
+<<<<<<< HEAD
         geometry,
+=======
+        season_field_geom,
+>>>>>>> 038988d (WIP: Fetch rx-map for selected ndvi image)
         image_date,
         image_id,
         n_planned_value,
@@ -655,6 +673,8 @@ def create_map(
 
     if map_type_key == SAMPLE_MAP['key']:
         field_map_json = map_specification
+        
+    log(f"Field map json: {field_map_json}")
 
     return download_field_map(
         field_map_json=field_map_json,
@@ -663,7 +683,7 @@ def create_map(
         output_map_format=output_map_format,
         headers=bridge_api.headers,
         map_specification=map_specification,
-        data=data,
+        data=request_data,
         image_id=image_id)
 
 
@@ -879,7 +899,14 @@ def create_rx_map(
     """""
     map_type_key = "rx-map"
     destination_base_path = os.path.join(output_dir, filename)
-    data = data if data else {}
+    data = {
+        "name": "MyRx MPv5",
+        "tags": [
+            "RX_MAP"
+            ],
+        "sourceMapId": source_map_id,
+        "zoneCount": 5
+    }
     params = params if params else {}
     data.update({'params': params})
 
@@ -1003,7 +1030,7 @@ def download_field_map(
                 reflectance_map_family['endpoint'],
                 REFLECTANCE['key']
             )
-        elif map_type_key == "rx_map":
+        elif map_type_key == "rx-map":
             # Special handling for RX maps
              # Retrieve the bridge server URL
             username, password, region, client_id, client_secret, use_testing_service = credentials_parameters_from_settings()
@@ -1039,6 +1066,7 @@ def download_field_map(
         else:
             destination_filename = (
                 destination_base_path + output_map_format['extension'])
+            log("url: {}, headers: {}, data: {}".format(url, headers, data))
             fetch_data(url, zip_path, headers=headers, payload=data)
             if output_map_format == PNG or output_map_format == PNG_KMZ:
                 # Download associated legend and world-file for geo-referencing
@@ -1134,6 +1162,45 @@ def download_field_map(
         message = f"Failed to download file. Error: {str(e)}"
         return False, message
     return True, message
+
+def fetch_ndvi_map(geometry, image_id):
+    """Fetch NDVI map for a given image and geometry.
+
+    :param bridge_api: Instance of the BridgeAPI.
+    :type bridge_api: BridgeAPI
+
+    :param geometry: Geometry in WKT format.
+    :type geometry: str
+
+    :param season_field_id: Season field ID.
+    :type season_field_id: str
+
+    :param image_id: ID of the image to fetch.
+    :type image_id: str
+
+    :return: JSON response containing NDVI map details.
+    :rtype: dict
+    """
+    
+    request_data = {
+        "SeasonField": {
+            "geometry": geometry
+        },
+        "Image": {
+            "Id": image_id
+        }
+    }
+    bridge_api = BridgeAPI(
+        *credentials_parameters_from_settings(),
+        proxies=QGISSettings.get_qgis_proxy())
+    ndvi_map_json = bridge_api.get_field_map(
+        map_type_key="NDVI",
+        season_field_id=None,
+        season_field_geom=geometry,
+        image_date=None,  # Optional if already filtered
+        image_id=image_id
+    )
+    return ndvi_map_json
 
 
 def credentials_parameters_from_settings():

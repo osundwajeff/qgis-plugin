@@ -283,7 +283,12 @@ class BridgeAPI(ApiClient):
             self,
             map_type_key,
             season_field_id,
+<<<<<<< HEAD
             geometry,
+=======
+            season_field_geom,
+            image_date,
+>>>>>>> 038988d (WIP: Fetch rx-map for selected ndvi image)
             image_id=None,
             n_planned=1.0,
             yield_val=0,
@@ -340,8 +345,14 @@ class BridgeAPI(ApiClient):
                 request_data = None
         else:
             request_data = {
+<<<<<<< HEAD
                 "image": {
                     "id": image_id
+=======
+                'SeasonField': {
+                    'Id': season_field_id,
+                    'geometry': season_field_geom
+>>>>>>> 038988d (WIP: Fetch rx-map for selected ndvi image)
                 },
                 "offset": 0,
                 "gain": 0,
@@ -353,6 +364,7 @@ class BridgeAPI(ApiClient):
 
         # Get request parameters
         params = kwargs.get('params')
+        log('Request data: {}'.format(request_data))
 
         return self._get_field_map(
             map_type_key,
@@ -483,9 +495,6 @@ class BridgeAPI(ApiClient):
             "SourceMap": {
                 "Id": source_map_id
             },
-            "Images": [
-                {"id": image_id} for image_id in list_of_image_ids
-            ],
             "zoneCount": zone_count
         }
         request_data.update(kwargs)

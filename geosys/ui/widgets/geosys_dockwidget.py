@@ -81,7 +81,7 @@ from geosys.bridge_api.utilities import get_definition
 from geosys.ui.help.help_dialog import HelpDialog
 from geosys.ui.widgets.geosys_coverage_downloader import (
     CoverageSearchThread, create_map, create_difference_map, create_samz_map,
-    create_rx_map
+    create_rx_map, fetch_ndvi_map
 )
 from geosys.ui.widgets.geosys_itemwidget import CoverageSearchResultItemWidget
 from geosys.utilities.gui_utilities import (
@@ -93,7 +93,6 @@ from geosys.utilities.gui_utilities import (
 from geosys.utilities.resources import get_ui_class
 from geosys.utilities.settings import setting, set_setting
 from geosys.utilities.utilities import check_if_file_exists, log
-
 FORM_CLASS = get_ui_class('geosys_dockwidget_base.ui')
 
 
@@ -802,6 +801,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         :param map_specifications: List of map specification.
         :type map_specifications: list
         """
+        geometry = self.wkt_geometries[0]
         # Checks whether the gain and offset values are allowed
 
         log(f"map specifications {map_specifications}")
@@ -953,9 +953,31 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 return
 
             # Extract season field and image IDs
-            source_map_id = map_specifications[0]['SourceMap']['id']
-            image_ids = [spec['image']['id'] for spec in map_specifications]
-            image_dates = [spec['image']['date'] for spec in map_specifications]
+            log("Map specifications: {}".format(self.selected_coverage_results))
+            source_map_id = []
+
+            for spec in map_specifications:
+                image_id = spec['image']['id']
+                season_field_geom = self.wkt_geometries[0]
+                try:
+                    # Call API to fetch NDVI for the selected image
+                    ndvi_response = fetch_ndvi_map(image_id, season_field_geom)
+                    if ndvi_response and 'id' in ndvi_response:
+                        source_map_id.append(ndvi_response['id'])
+                    else:
+                        log(f"No NDVI image found for Image ID: {image_id}")
+                        continue
+                except Exception as e:
+                    log(f"Error fetching NDVI for Image ID {image_id}: {e}")
+                    continue
+
+            if not source_map_id:
+                QMessageBox.critical(
+                    self,
+                    'NDVI Fetch Error',
+                    'No NDVI images were found for the selected coverage.'
+                )
+                return
 
             filename = f"RX_{source_map_id}_zones_{self.rx_zone}_{len(image_ids)}"
             filename = check_if_file_exists(
@@ -1005,7 +1027,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     sample_map_id = map_specification['id']
 
                 is_success, message = create_map(
-                    map_specification, self.output_directory, filename,
+                    map_specification, geometry, self.output_directory, filename,
                     data=data, output_map_format=self.output_map_format,
                     n_planned_value=self.n_planned_value,
                     yield_val=self.yield_average_form.value(),
