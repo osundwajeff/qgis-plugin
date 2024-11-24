@@ -267,7 +267,6 @@ class CoverageSearchThread(QThread):
                     geometry, self.crop_type, self.sowing_date,
                     filters=self.filters
                 )
-                log(f"Results: {results}")
 
                 if isinstance(results, dict) and results.get('message'):
                     # TODO handle model_validation_error
@@ -518,6 +517,7 @@ class CoverageSearchThread(QThread):
 
 def create_map(
         map_specification,
+        geometry,
         output_dir,
         filename,
         output_map_format,
@@ -593,12 +593,22 @@ def create_map(
     """""
     # Construct map creation parameters
     map_specification.update(map_specification['maps'][0])
+    map_specification.update(map_specification['seasonField'])
     map_type_key = map_specification['type']
     season_field_id = map_specification['seasonField']['id']
+    season_field_geom = geometry
     image_date = map_specification['image']['date']
     image_id = map_specification['image']['id']
     destination_base_path = os.path.join(output_dir, filename)
-    data = data if data else {}
+    request_data = {
+                'SeasonField': {
+                    'Id': season_field_id,
+                    'geometry': season_field_geom
+                },
+                'Image': {
+                    'Id': image_id
+                }
+            }
     params = params if params else {}
     data.update({'params': params})
 
@@ -608,6 +618,7 @@ def create_map(
     field_map_json = bridge_api.get_field_map(
         map_type_key,
         season_field_id,
+        season_field_geom,
         image_date,
         image_id,
         n_planned_value,
@@ -619,6 +630,8 @@ def create_map(
 
     if map_type_key == SAMPLE_MAP['key']:
         field_map_json = map_specification
+        
+    log(f"Field map json: {field_map_json}")
 
     return download_field_map(
         field_map_json=field_map_json,
@@ -627,7 +640,7 @@ def create_map(
         output_map_format=output_map_format,
         headers=bridge_api.headers,
         map_specification=map_specification,
-        data=data,
+        data=request_data,
         image_id=image_id)
 
 
@@ -831,7 +844,14 @@ def create_rx_map(
     """""
     map_type_key = "rx-map"
     destination_base_path = os.path.join(output_dir, filename)
-    data = data if data else {}
+    data = {
+        "name": "MyRx MPv5",
+        "tags": [
+            "RX_MAP"
+            ],
+        "sourceMapId": source_map_id,
+        "zoneCount": 5
+    }
     params = params if params else {}
     data.update({'params': params})
 
@@ -944,7 +964,7 @@ def download_field_map(
                 reflectance_map_family['endpoint'],
                 REFLECTANCE['key']
             )
-        elif map_type_key == "rx_map":
+        elif map_type_key == "rx-map":
             # Special handling for RX maps
              # Retrieve the bridge server URL
             username, password, region, client_id, client_secret, use_testing_service = credentials_parameters_from_settings()
@@ -953,17 +973,24 @@ def download_field_map(
                              else BRIDGE_URLS[region]['prod'])
             url = f"{bridge_server}/field-level-maps/v5/maps/rx-map/image{output_map_format['extension']}"
         else:  # Other map types
-            url = field_map_json['_links'][output_map_format['api_key']]
+            log("Map type key: {}".format(map_type_key))
+            username, password, region, client_id, client_secret, use_testing_service = credentials_parameters_from_settings()
+            bridge_server = (BRIDGE_URLS[region]['test']
+                             if use_testing_service
+                             else BRIDGE_URLS[region]['prod'])
+            url = f"{bridge_server}/field-level-maps/v5/maps/base-reference-map/{map_type_key}/image{output_map_format['extension']}"
+            
+        log("URL: {}".format(url))
 
-        char_question_mark = '?'  # Filtering char
-        if char_question_mark in url:  # Filtering, which starts with '?' has already been added, so appending with '&'
-            url = '{}&zoning=true&zoneCount={}'.format(
-                url, data.get('zoneCount')) \
-                if data.get('zoning') else url
-        else:  # No filtering added yet, so appending with '?'
-            url = '{}?zoning=true&zoneCount={}'.format(
-                url, data.get('zoneCount')) \
-                if data.get('zoning') else url
+        #char_question_mark = '?'  # Filtering char
+        #if char_question_mark in url:  # Filtering, which starts with '?' has already been added, so appending with '&'
+        #    url = '{}&zoning=true&zoneCount={}'.format(
+        #        url, data.get('zoneCount')) \
+        #        if data.get('zoning') else url
+        #else:  # No filtering added yet, so appending with '?'
+        #    url = '{}?zoning=true&zoneCount={}'.format(
+        #        url, data.get('zoneCount')) \
+        #        if data.get('zoning') else url
     except KeyError:
         # requested map format not found
         message = (
@@ -980,6 +1007,7 @@ def download_field_map(
         else:
             destination_filename = (
                 destination_base_path + output_map_format['extension'])
+            log("url: {}, headers: {}, data: {}".format(url, headers, data))
             fetch_data(url, zip_path, headers=headers, payload=data)
             if output_map_format == PNG or output_map_format == PNG_KMZ:
                 # Download associated legend and world-file for geo-referencing
@@ -997,19 +1025,20 @@ def download_field_map(
                     list_items = [PGW, LEGEND]
 
                 for item in list_items:
-                    url = field_map_json['_links'][item['api_key']]
+                    # url = field_map_json['_links'][item['api_key']]
+                    log("URL: {}".format(url))
 
-                    char_question_mark = '?'  # Filtering char
+                    #char_question_mark = '?'  # Filtering char
                     # Filtering, which starts with '?' has already been added,
                     # so appending with '&'
-                    if char_question_mark in url:
-                        url = '{}&zoning=true&zoneCount={}'.format(
-                            url, data.get('zoneCount')) \
-                            if data.get('zoning') else url
-                    else:  # No filtering added yet, so appending with '?'
-                        url = '{}?zoning=true&zoneCount={}'.format(
-                            url, data.get('zoneCount')) \
-                            if data.get('zoning') else url
+                    #if char_question_mark in url:
+                    #    url = '{}&zoning=true&zoneCount={}'.format(
+                    #        url, data.get('zoneCount')) \
+                    #        if data.get('zoning') else url
+                    #else:  # No filtering added yet, so appending with '?'
+                    #    url = '{}?zoning=true&zoneCount={}'.format(
+                    #        url, data.get('zoneCount')) \
+                    #        if data.get('zoning') else url
 
                     destination_filename = '{}{}'.format(
                         destination_base_path, item['extension'])
@@ -1090,6 +1119,45 @@ def download_field_map(
         message = 'Failed to download file.'
         return False, message
     return True, message
+
+def fetch_ndvi_map(geometry, image_id):
+    """Fetch NDVI map for a given image and geometry.
+
+    :param bridge_api: Instance of the BridgeAPI.
+    :type bridge_api: BridgeAPI
+
+    :param geometry: Geometry in WKT format.
+    :type geometry: str
+
+    :param season_field_id: Season field ID.
+    :type season_field_id: str
+
+    :param image_id: ID of the image to fetch.
+    :type image_id: str
+
+    :return: JSON response containing NDVI map details.
+    :rtype: dict
+    """
+    
+    request_data = {
+        "SeasonField": {
+            "geometry": geometry
+        },
+        "Image": {
+            "Id": image_id
+        }
+    }
+    bridge_api = BridgeAPI(
+        *credentials_parameters_from_settings(),
+        proxies=QGISSettings.get_qgis_proxy())
+    ndvi_map_json = bridge_api.get_field_map(
+        map_type_key="NDVI",
+        season_field_id=None,
+        season_field_geom=geometry,
+        image_date=None,  # Optional if already filtered
+        image_id=image_id
+    )
+    return ndvi_map_json
 
 
 def credentials_parameters_from_settings():

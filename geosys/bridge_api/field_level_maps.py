@@ -323,7 +323,7 @@ class FieldLevelMapsAPIClient(ApiClient):
                 )
 
             return response.json()
-
+        log("URL:",format(full_url))
         return {}
 
     def get_hotspot(self, url, params=None):

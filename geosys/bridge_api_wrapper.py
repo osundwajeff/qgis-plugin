@@ -283,6 +283,7 @@ class BridgeAPI(ApiClient):
             self,
             map_type_key,
             season_field_id,
+            season_field_geom,
             image_date,
             image_id=None,
             n_planned=1.0,
@@ -341,7 +342,8 @@ class BridgeAPI(ApiClient):
         else:
             request_data = {
                 'SeasonField': {
-                    'Id': season_field_id
+                    'Id': season_field_id,
+                    'geometry': season_field_geom
                 },
                 'Image': {
                     'Date': image_date,
@@ -352,6 +354,7 @@ class BridgeAPI(ApiClient):
 
         # Get request parameters
         params = kwargs.get('params')
+        log('Request data: {}'.format(request_data))
 
         return self._get_field_map(
             map_type_key,
@@ -484,9 +487,6 @@ class BridgeAPI(ApiClient):
             "SourceMap": {
                 "Id": source_map_id
             },
-            "Images": [
-                {"id": image_id} for image_id in list_of_image_ids
-            ],
             "zoneCount": zone_count
         }
         request_data.update(kwargs)
