@@ -45,10 +45,10 @@ from geosys.bridge_api.default import (
     ORGANIC_AVERAGE, POSITION, FILTER, SAMZ_ZONE, SAMZ_ZONING, HOTSPOT,
     ZONING_SEGMENTATION, MAX_FEATURE_NUMBERS, DEFAULT_ZONE_COUNT, GAIN,
     OFFSET, DEFAULT_N_PLANNED, DEFAULT_AVE_YIELD, DEFAULT_MIN_YIELD,
-    DEFAULT_MAX_YIELD, DEFAULT_ORGANIC_AVE, DEFAULT_GAIN, DEFAULT_OFFSET
+    DEFAULT_MAX_YIELD, DEFAULT_ORGANIC_AVE, DEFAULT_GAIN, DEFAULT_OFFSET, DEFAULT_COVERAGE_PERCENT
 )
 from geosys.bridge_api.definitions import (
-    ARCHIVE_MAP_PRODUCTS, ALL_SENSORS, SENSORS, INSEASON_NDVI, INSEASON_EVI,
+    ARCHIVE_MAP_PRODUCTS, ALL_SENSORS, SENSORS, NDVI, EVI,
     SAMZ, SOIL, ELEVATION, REFLECTANCE, LANDSAT_8, LANDSAT_9, SENTINEL_2,
     INSEASONFIELD_AVERAGE_NDVI, INSEASONFIELD_AVERAGE_REVERSE_NDVI,
     INSEASONFIELD_AVERAGE_LAI, INSEASONFIELD_AVERAGE_REVERSE_LAI,
@@ -106,6 +106,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.mask_type = None
         self.start_date = None
         self.end_date = None
+        self.coverage_percent = DEFAULT_COVERAGE_PERCENT
+        self.coverage_percent_value_spinbox.setValue(self.coverage_percent)
 
         # Nitrogen map type parameter
         self.n_planned_value = DEFAULT_N_PLANNED
@@ -417,8 +419,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                         coverage_result['seasonField']['id'])
 
             if len(self.selected_coverage_results) == 2 and has_same_id and (
-                    self.map_product in [INSEASON_NDVI['key'],
-                                         INSEASON_EVI['key']]):
+                    self.map_product in [NDVI['key'],
+                                         EVI['key']]):
                 self.difference_map_push_button.setVisible(True)
             else:
                 self.difference_map_push_button.setVisible(False)
@@ -744,6 +746,9 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # Get the start and end date
         self.start_date = self.start_date_edit.date().toString('yyyy-MM-dd')
         self.end_date = self.end_date_edit.date().toString('yyyy-MM-dd')
+        
+        # Coverage percent
+        self.coverage_percent = self.coverage_percent_value_spinbox.value()
 
         self.n_planned_value = self.n_planned_value_spinbox.value()
 
@@ -1066,6 +1071,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             attributes_points=self.attributes,
             attribute_field=self.sample_map_field,
             mutex=self.one_process_work,
+            coverage_percent=self.coverage_percent,
             n_planned_value=self.n_planned_value,
             parent=self.iface.mainWindow())
         searcher.search_started.connect(self.coverage_search_started)
@@ -1130,7 +1136,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 },
                 "maps": [
                     {
-                        "type": "INSEASON_NDVI",
+                        "type": "NDVI",
                         "_links": {
                             "self": "the_url",
                             "worldFile": "the_url",
