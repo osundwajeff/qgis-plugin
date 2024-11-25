@@ -803,7 +803,11 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QDoubleSpinBox" name="fetch_rx_zones"/>
+            <widget class="QSpinBox" name="fetch_rx_zones">
+             <property name="maximum">
+              <number>5</number>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
