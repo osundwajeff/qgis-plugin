@@ -484,12 +484,13 @@ class BridgeAPI(ApiClient):
         api_client = FieldLevelMapsAPIClient(
             self.access_token, self.bridge_server)
         request_data = {
-            "SourceMap": {
-                "Id": source_map_id
-            },
+            "SourceMapId":  source_map_id,
             "zoneCount": zone_count
         }
         request_data.update(kwargs)
+        
+        log('Request data: {}'.format(request_data))
+        log('URL: {}'.format(url))
         
         rx_json = api_client.get_rx_map(url, request_data)
 

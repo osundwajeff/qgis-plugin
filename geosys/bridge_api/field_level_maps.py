@@ -312,7 +312,8 @@ class FieldLevelMapsAPIClient(ApiClient):
                 full_url = self.full_url(
                     'maps',
                     map_family['endpoint'],
-                    map_type['name']
+                    map_type['name'],
+                    '?storeRequest=true&directLinks=true'
                 )
 
                 response = self.post(
@@ -379,17 +380,19 @@ class FieldLevelMapsAPIClient(ApiClient):
 
         # Construct the full URL for the RX Map endpoint
         full_url = self.full_url(
-            url,
             'maps',
-            'rx-map'
+            'rx-map?storeRequest=true&directLinks=true&zoning=true'
         )
+        log("Full URL: {}".format(full_url))
+        log("Request Data: {}".format(request_data))
 
         # Send the request to the server
         response = self.post(
             full_url,
             headers=headers,
-            params=params,
+            #params=params,
             json=request_data
         )
+        log("Response:".format(response.json()))
 
         return response.json()

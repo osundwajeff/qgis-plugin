@@ -546,25 +546,47 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     def get_map_format(self):
         """Get selected map format from the radio button."""
-
-        widget_data = [
-            {
-                'widget': self.png_radio_button,
-                'data': PNG
-            },
-            {
-                'widget': self.tiff_radio_button,
-                'data': ZIPPED_TIFF
-            },
-            {
-                'widget': self.shp_radio_button,
-                'data': ZIPPED_SHP
-            },
-            {
-                'widget': self.kmz_radio_button,
-                'data': KMZ
-            },
-        ]
+        
+        if self.fetch_rx_group.isChecked():
+            # If fetch_rx_group is checked, the radio buttons are different
+            widget_data = [
+                {
+                    'widget': self.png_radio_button_2,
+                    'data': PNG
+                },
+                {
+                    'widget': self.tiff_radio_button_2,
+                    'data': ZIPPED_TIFF
+                },
+                {
+                    'widget': self.shp_radio_button_2,
+                    'data': ZIPPED_SHP
+                },
+                {
+                    'widget': self.kmz_radio_button_2,
+                    'data': KMZ
+                },
+            ]
+        else:
+            # Default behavior
+            widget_data = [
+                {
+                    'widget': self.png_radio_button,
+                    'data': PNG
+                },
+                {
+                    'widget': self.tiff_radio_button,
+                    'data': ZIPPED_TIFF
+                },
+                {
+                    'widget': self.shp_radio_button,
+                    'data': ZIPPED_SHP
+                },
+                {
+                    'widget': self.kmz_radio_button,
+                    'data': KMZ
+                },
+            ]
         for wd in widget_data:
             if wd['widget'].isChecked():
                 return wd['data']
@@ -901,22 +923,21 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
             # Extract season field and image IDs
             log("Map specifications: {}".format(self.selected_coverage_results))
-            source_map_id = []
 
-            for spec in map_specifications:
-                image_id = spec['image']['id']
-                season_field_geom = self.wkt_geometries[0]
-                try:
-                    # Call API to fetch NDVI for the selected image
-                    ndvi_response = fetch_ndvi_map(image_id, season_field_geom)
-                    if ndvi_response and 'id' in ndvi_response:
-                        source_map_id.append(ndvi_response['id'])
-                    else:
-                        log(f"No NDVI image found for Image ID: {image_id}")
-                        continue
-                except Exception as e:
-                    log(f"Error fetching NDVI for Image ID {image_id}: {e}")
-                    continue
+            image_id = map_specifications[0]['image']['id']
+            image_date = map_specifications[0]['image']['date']
+            season_field_geom = self.wkt_geometries[0]
+            try:
+                # Call API to fetch NDVI for the selected image
+                ndvi_response = fetch_ndvi_map(season_field_geom, image_id)
+                log(f"NDVI Response: {ndvi_response}")
+                if ndvi_response and 'id' in ndvi_response:
+                    source_map_id = (ndvi_response['id'])
+                    log(f"Source Map Id: {source_map_id}")
+                else:
+                    log(f"No NDVI image found for Image ID: {image_id}")
+            except Exception as e:
+                log(f"Error fetching NDVI for Image ID {image_id}: {e}")
 
             if not source_map_id:
                 QMessageBox.critical(
@@ -926,7 +947,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 )
                 return
 
-            filename = f"RX_{source_map_id}_zones_{self.rx_zone}_{len(image_ids)}"
+            filename = f"RX_{source_map_id}_zones_{rx_zone_count}"
             filename = check_if_file_exists(
                 self.output_directory,
                 filename,
@@ -935,8 +956,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
             is_success, message = create_rx_map(
                 source_map_id=source_map_id,
-                list_of_image_ids=image_ids,
-                list_of_image_date=image_dates,
+                list_of_image_ids=image_id,
+                list_of_image_date=image_date,
                 zone_count=rx_zone_count,
                 output_dir=self.output_directory,
                 filename=filename,

@@ -971,14 +971,14 @@ def download_field_map(
             bridge_server = (BRIDGE_URLS[region]['test']
                              if use_testing_service
                              else BRIDGE_URLS[region]['prod'])
-            url = f"{bridge_server}/field-level-maps/v5/maps/rx-map/image{output_map_format['extension']}"
+            if output_map_format in ZIPPED_FORMAT:
+                source_map_id = data.get('sourceMapId')
+                url = f"{bridge_server}/field-level-maps/v5/maps/{source_map_id}/image{output_map_format['extension']}.zip"
+            else:
+                url = field_map_json['_links'][output_map_format['api_key']]
         else:  # Other map types
             log("Map type key: {}".format(map_type_key))
-            username, password, region, client_id, client_secret, use_testing_service = credentials_parameters_from_settings()
-            bridge_server = (BRIDGE_URLS[region]['test']
-                             if use_testing_service
-                             else BRIDGE_URLS[region]['prod'])
-            url = f"{bridge_server}/field-level-maps/v5/maps/base-reference-map/{map_type_key}/image{output_map_format['extension']}"
+            url = field_map_json['_links'][output_map_format['api_key']]
             
         log("URL: {}".format(url))
 
@@ -1002,13 +1002,12 @@ def download_field_map(
     try:
         if output_map_format in ZIPPED_FORMAT:
             zip_path = tempfile.mktemp('{}.zip'.format(map_extension))
-            fetch_data(url, zip_path, headers=headers, payload=data)
+            fetch_data(url, zip_path, headers=headers)
             extract_zip(zip_path, destination_base_path)
         else:
             destination_filename = (
                 destination_base_path + output_map_format['extension'])
-            log("url: {}, headers: {}, data: {}".format(url, headers, data))
-            fetch_data(url, zip_path, headers=headers, payload=data)
+            fetch_data(url, destination_filename, headers=headers)
             if output_map_format == PNG or output_map_format == PNG_KMZ:
                 # Download associated legend and world-file for geo-referencing
                 # the PNG file.
@@ -1019,13 +1018,13 @@ def download_field_map(
                 # composition
                 if map_type_key == COLOR_COMPOSITION['key']:
                     # Color composition has no legend
-                    list_items = [PGW]
+                    list_items = [PGW2]
                 else:
                     # Other maps
-                    list_items = [PGW, LEGEND]
+                    list_items = [PGW2, LEGEND]
 
                 for item in list_items:
-                    # url = field_map_json['_links'][item['api_key']]
+                    url = field_map_json['_links'][item['api_key']]
                     log("URL: {}".format(url))
 
                     #char_question_mark = '?'  # Filtering char
@@ -1042,7 +1041,8 @@ def download_field_map(
 
                     destination_filename = '{}{}'.format(
                         destination_base_path, item['extension'])
-                    fetch_data(url, destination_filename, headers=headers, payload=data)
+                    fetch_data(url, destination_filename, headers=headers)
+                    log("done")
         # Get hotspots for zones if they have been requested by user.
         bridge_api = BridgeAPI(
             *credentials_parameters_from_settings(),
