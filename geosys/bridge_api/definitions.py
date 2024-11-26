@@ -118,13 +118,7 @@ NDVI = {
                    'Vegetation Index.',
     'difference_map': DIFFERENCE_NDVI
 }
-NDVI = {
-    'key': 'NDVI',
-    'name': 'NDVI',
-    'map_family': base_reference_map,
-    'description': 'Provides the partial Normalized Difference '
-                   'Vegetation Index.'
-}
+
 INSEASONFIELD_AVERAGE_NDVI = {
     'key': 'INSEASONFIELD_AVERAGE_NDVI',
     'name': 'INSEASONFIELD_AVERAGE_NDVI',
