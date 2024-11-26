@@ -6,7 +6,7 @@ on:
   push:
     branches:
       - develop
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - reopened
@@ -20,8 +20,6 @@ env:
   IMAGE: qgis/qgis
   WITH_PYTHON_PEP: "true"
   MUTE_LOGS: "true"
-  BRIDGE_API_USERNAME: ${{ secrets.BRIDGE_API_USERNAME }}
-  BRIDGE_API_PASSWORD: ${{ secrets.BRIDGE_API_PASSWORD }}
 
 jobs:
   test:
