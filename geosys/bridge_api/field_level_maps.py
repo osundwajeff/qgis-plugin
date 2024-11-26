@@ -13,7 +13,7 @@ from geosys.bridge_api.definitions import (
     INSEASONFIELD_AVERAGE_LAI,
     INSEASONFIELD_AVERAGE_REVERSE_NDVI,
     INSEASONFIELD_AVERAGE_REVERSE_LAI,
-    INSEASON_S2REP,
+    S2REP,
     SAMZ,
     YVM,
     YGM,
@@ -179,10 +179,9 @@ class FieldLevelMapsAPIClient(ApiClient):
                 image_id = None
                 seasonfield_id = None
 
-            if (map_type['key'] == REFLECTANCE['key']
-                    or map_type['key'] == INSEASON_S2REP['key']):
-                # Reflectance and S2REP maps needs to make use of the
-                # catalog-imagery API
+            if (map_type['key'] == REFLECTANCE['key'] or
+                    map_type['key'] == S2REP['key']):
+                # Reflectance and S2REP maps needs to make use of the catalog-imagery API
                 full_url = self.full_url(
                     'season-fields',
                     seasonfield_id,

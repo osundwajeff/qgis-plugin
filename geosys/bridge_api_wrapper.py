@@ -31,7 +31,7 @@ class MapProduct(object):
 
         :param map_data: Dictionary of API response from Bridge API Coverage
             call. example: {
-                "type": "INSEASON_NDVI",
+                "type": "NDVI",
                 "_links": {
                     "self": url_to_product,
                     "worldFile": url_to_product,
@@ -50,7 +50,7 @@ class MapProduct(object):
     def map_type(self):
         """Get the type of the map product.
 
-        :return: Map type (NDVI, INSEASON_NDVI, etc).
+        :return: Map type (NDVI, NDVI, etc).
         :rtype: str
         """
         return self.map_data.get('type', '')
@@ -370,7 +370,7 @@ class BridgeAPI(ApiClient):
             earliest_image_date, latest_image_date, **kwargs):
         """Get requested difference map.
 
-        Currently this only support INSEASON_NDVI and INSEASON_EVI map.
+        Currently this only support NDVI and EVI map.
 
         :param map_type_key: Map type key.
         :type map_type_key: str
