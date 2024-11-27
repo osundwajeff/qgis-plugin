@@ -259,7 +259,7 @@ class FieldLevelMapsAPIClient(ApiClient):
                 full_url = self.full_url(
                     'maps',
                     'management-zones-map',
-                    'SAMZ'
+                    'SAMZ?storeRequest=true&directLinks=true'
                 )
                 log(f"Full URL: {full_url}")
 

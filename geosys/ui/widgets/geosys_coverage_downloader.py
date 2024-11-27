@@ -898,7 +898,11 @@ def download_field_map(
             bridge_server = (BRIDGE_URLS[region]['test']
                                 if use_testing_service
                                 else BRIDGE_URLS[region]['prod'])
-            url = f"{bridge_server}/field-level-maps/v5/maps/management-zones-map/{map_type_key}/image{output_map_format['extension']}"
+            if output_map_format in ZIPPED_FORMAT:
+                url = f"{bridge_server}/field-level-maps/v5/maps/management-zones-map/{map_type_key}/image{output_map_format['extension']}"
+                method = 'POST'
+            else:
+                url = field_map_json['_links'][output_map_format['api_key']]
             log(f"URL: {url}")
         elif map_type_key == REFLECTANCE['key']:
             # This is only for reflectance map type
@@ -943,13 +947,13 @@ def download_field_map(
             zip_path = tempfile.mktemp('{}.zip'.format(map_extension))
             url = '{}.zip'.format(url)
             log('URL: {}, zip_path: {}'.format(url, zip_path))
-            fetch_data(url, zip_path, headers=headers, payload=data)
+            fetch_data(url, zip_path, headers=headers, method=method, payload=data)
             extract_zip(zip_path, destination_base_path)
         else:
             destination_filename = (
                 destination_base_path + output_map_format['extension'])
             log('URL: {}, destination_filename: {}, headers: {}'.format(url, destination_filename, headers))
-            fetch_data(url, destination_filename, headers=headers, payload=data)
+            fetch_data(url, destination_filename, headers=headers)
             if output_map_format == PNG or output_map_format == PNG_KMZ:
                 # Download associated legend and world-file for geo-referencing
                 # the PNG file.
@@ -960,10 +964,10 @@ def download_field_map(
                 # composition
                 if map_type_key == COLOR_COMPOSITION['key']:
                     # Color composition has no legend
-                    list_items = [PGW]
+                    list_items = [PGW2]
                 else:
                     # Other maps
-                    list_items = [PGW, LEGEND]
+                    list_items = [PGW2, LEGEND]
 
                 for item in list_items:
                     log('Here: {}'.format(item))
@@ -985,7 +989,7 @@ def download_field_map(
                     destination_filename = '{}{}'.format(
                         destination_base_path, item['extension'])
                     log('destination_filename: {}, headers: {}'.format(destination_filename, headers))
-                    fetch_data(url, destination_filename, headers=headers, payload=data)
+                    fetch_data(url, destination_filename, headers=headers)
         # Get hotspots for zones if they have been requested by user.
         bridge_api = BridgeAPI(
             *credentials_parameters_from_settings(),
