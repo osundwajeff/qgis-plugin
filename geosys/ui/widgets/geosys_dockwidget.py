@@ -834,6 +834,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 )
                 return
             # Proceed with custom SAMZ using selected images
+            log(f"Map Specifications: {map_specifications}")
             season_field_id = map_specifications[0]['seasonField']['id']
             log(f"Season Field ID: {season_field_id}")
             geometry = self.wkt_geometries[0]

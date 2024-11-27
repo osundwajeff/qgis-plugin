@@ -19,7 +19,7 @@ __revision__ = "$Format:%H$"
 LOGGER = logging.getLogger('geosys')
 
 
-def fetch_data(url, output_path, headers=None, progress_dialog=None, payload=None):
+def fetch_data(url, output_path, headers=None, progress_dialog=None, method='GET', payload=None):
     """Download data from url and write to output_path.
 
     :param url: URL of the zip bundle.
@@ -53,7 +53,7 @@ def fetch_data(url, output_path, headers=None, progress_dialog=None, payload=Non
         progress_dialog.setLabelText(label_text)
 
     # Download Process
-    downloader = FileDownloader(url, output_path, headers, progress_dialog, method='POST', payload=payload)
+    downloader = FileDownloader(url, output_path, headers, progress_dialog, method, payload)
     try:
         result = downloader.download()
     except IOError as ex:
@@ -134,12 +134,18 @@ class FileDownloader:
         if self.progress_dialog:
             self.prefix_text = self.progress_dialog.labelText()
         # Convert payload to QByteArray
-        self.payload = QByteArray(json.dumps(payload).encode('utf-8')) if payload else QByteArray()
+        self.payload = payload
         self.output_file = None
         self.reply = None
         self.downloaded_file_buffer = None
         self.finished_flag = False
         
+        
+         # Ensure Content-Type is set when a payload is present
+        if self.payload and 'Content-Type' not in self.headers:
+            self.headers['Content-Type'] = 'application/json'
+
+
          # Ensure Content-Type is set when a payload is present
         if self.payload and 'Content-Type' not in self.headers:
             self.headers['Content-Type'] = 'application/json'
@@ -175,11 +181,21 @@ class FileDownloader:
             #   request.setRawHeader(b'user-agent', userAgent)
             request.setRawHeader(
                 bytes(header_name, 'utf-8'), bytes(header_value, 'utf-8'))
-         # Send request with method and optional payload
-        if self.payload:
-            self.reply = self.manager.sendCustomRequest(request, self.method.encode(), self.payload)
-        else:
-            self.reply = self.manager.sendCustomRequest(request, self.method.encode())
+        # Choose the HTTP method
+        if self.method == "GET":
+            self.reply = self.manager.get(request)
+        elif self.method == "POST":
+            if self.payload:
+                # Convert payload to JSON    
+                # Ensure Content-Type is set when a payload is present
+                if self.payload and 'Content-Type' not in self.headers:
+                    self.headers['Content-Type'] = 'application/json'
+
+                payload_data = QByteArray(json.dumps(self.payload).encode('utf-8'))
+                request.setHeader(QNetworkRequest.ContentTypeHeader, "application/json")
+                self.reply = self.manager.post(request, payload_data)
+            else:
+                raise ValueError("POST method requires a payload.")
         self.reply.readyRead.connect(self.get_buffer)
         self.reply.finished.connect(self.write_data)
         self.manager.requestTimedOut.connect(self.request_timeout)
