@@ -206,6 +206,24 @@ class CoverageSearchThread(QThread):
                 self.sensor_type and self.filters.update({
                     IMAGE_SENSOR: self.sensor_type
                 })
+            elif self.map_product == SAMZ['key']:
+                if self.mask_type in {'All', 'None'}:
+                    self.filters.update({
+                        MAPS_TYPE: COLOR_COMPOSITION['key'],
+                        IMAGE_DATE: date_filter
+                    })
+                    self.sensor_type and self.filters.update({
+                        IMAGE_SENSOR: self.sensor_type
+                    })
+                else:
+                    self.filters.update({
+                        MAPS_TYPE: COLOR_COMPOSITION['key'],
+                        IMAGE_DATE: date_filter,
+                        MASK: self.mask_type
+                    })
+                    self.sensor_type and self.filters.update({
+                        IMAGE_SENSOR: self.sensor_type
+                    })
 
             else:
                 # Coverage API call. Maps.Type should be included
@@ -736,9 +754,10 @@ def create_difference_map(
 
 
 def create_samz_map(
-        season_field_id,
+        geometry,
         list_of_image_ids,
         list_of_image_date,
+        zone_count,
         output_dir,
         filename,
         output_map_format,
@@ -785,12 +804,25 @@ def create_samz_map(
     bridge_api = BridgeAPI(
         *credentials_parameters_from_settings(),
         proxies=QGISSettings.get_qgis_proxy())
+    log(f"bridge_api: {bridge_api.headers}")
     samz_map_json = bridge_api.get_samz_map(
-        season_field_id,
+        geometry,
         list_of_image_ids,
         list_of_image_date,
-        **data
+        zone_count=zone_count,
     )
+    # Construct map creation parameters
+    request_data = {
+        "SeasonField": {
+            "Id": None,
+            "geometry": geometry
+        },
+        "Images": [
+            {"id": image_id} for image_id in list_of_image_ids
+        ],
+        "zoneCount": zone_count
+    }
+    log(f"Samz map json: geometry: {geometry}, list_of_image_ids: {list_of_image_ids}, zone_count: {zone_count}")
 
     return download_field_map(
         field_map_json=samz_map_json,
@@ -798,7 +830,7 @@ def create_samz_map(
         destination_base_path=destination_base_path,
         output_map_format=output_map_format,
         headers=bridge_api.headers,
-        data=data)
+        data=request_data)
     
 def create_rx_map(
         source_map_id,
@@ -946,15 +978,27 @@ def download_field_map(
     map_extension = output_map_format['extension']
     try:
         seasonfield_id = field_map_json['seasonField']['id']
-        if map_type_key == REFLECTANCE['key']:
-            # This is only for reflectance map type
-            # Also, reflectance can ONLY make use of tiff.zip format
-
+        if map_type_key == "SAMZ":  # Handle SAMZ-specific URL construction
             # Retrieve the bridge server URL
             username, password, region, client_id, client_secret, use_testing_service = credentials_parameters_from_settings()
             bridge_server = (BRIDGE_URLS[region]['test']
-                             if use_testing_service
-                             else BRIDGE_URLS[region]['prod'])
+                                if use_testing_service
+                                else BRIDGE_URLS[region]['prod'])
+            if output_map_format in ZIPPED_FORMAT:
+                url = f"{bridge_server}/field-level-maps/v5/maps/management-zones-map/{map_type_key}/image{output_map_format['extension']}"
+                method = 'POST'
+            else:
+                url = field_map_json['_links'][output_map_format['api_key']]
+            log(f"URL: {url}")
+        elif map_type_key == REFLECTANCE['key']:
+            # This is only for reflectance map type
+            # Also, reflectance can ONLY make use of tiff.zip format
+            
+            # Retrieve the bridge server URL
+            username, password, region, client_id, client_secret, use_testing_service = credentials_parameters_from_settings()
+            bridge_server = (BRIDGE_URLS[region]['test']
+                                if use_testing_service
+                                else BRIDGE_URLS[region]['prod'])
 
             reflectance_map_family = REFLECTANCE['map_family']
             url = '{}/field-level-maps/v5/season-fields/{}/coverage/{}/{}/{}/image.tiff.zip'.format(
@@ -1002,11 +1046,14 @@ def download_field_map(
     try:
         if output_map_format in ZIPPED_FORMAT:
             zip_path = tempfile.mktemp('{}.zip'.format(map_extension))
-            fetch_data(url, zip_path, headers=headers)
+            url = '{}.zip'.format(url)
+            log('URL: {}, zip_path: {}'.format(url, zip_path))
+            fetch_data(url, zip_path, headers=headers, method=method, payload=data)
             extract_zip(zip_path, destination_base_path)
         else:
             destination_filename = (
                 destination_base_path + output_map_format['extension'])
+            log('URL: {}, destination_filename: {}, headers: {}'.format(url, destination_filename, headers))
             fetch_data(url, destination_filename, headers=headers)
             if output_map_format == PNG or output_map_format == PNG_KMZ:
                 # Download associated legend and world-file for geo-referencing
@@ -1041,6 +1088,7 @@ def download_field_map(
 
                     destination_filename = '{}{}'.format(
                         destination_base_path, item['extension'])
+                    log('destination_filename: {}, headers: {}'.format(destination_filename, headers))
                     fetch_data(url, destination_filename, headers=headers)
                     log("done")
         # Get hotspots for zones if they have been requested by user.
@@ -1114,9 +1162,9 @@ def download_field_map(
                     'segments',
                     segment_filename
                 )
-    except:
-        # zip extraction error
-        message = 'Failed to download file.'
+    except Exception as e:
+        log(f"Error during file download: {str(e)}")
+        message = f"Failed to download file. Error: {str(e)}"
         return False, message
     return True, message
 

@@ -262,6 +262,8 @@ class BridgeAPI(ApiClient):
             max_yield_val,
             sample_field_id,
             params)
+        
+        log('Field map json: {}'.format(field_map_json))
 
         return field_map_json
 
@@ -416,9 +418,10 @@ class BridgeAPI(ApiClient):
 
     def get_samz_map(
             self,
-            season_field_id,
+            geometry,
             list_of_image_ids,
             list_of_image_date=None,
+            zone_count=0,
             **kwargs):
         """Get requested SAMZ map.
 
@@ -441,18 +444,21 @@ class BridgeAPI(ApiClient):
         # Construct map creation parameters
         request_data = {
             "SeasonField": {
-                "Id": season_field_id
+                "Id": None,
+                "geometry": geometry
             },
             "Images": [
                 {"id": image_id} for image_id in list_of_image_ids
-            ]
+            ],
+            "zoneCount": zone_count
         }
-        request_data.update(kwargs)
+        #request_data.update(kwargs)
 
         # Get request parameters
-        params = kwargs.get('params')
+        #params = kwargs.get('params')
+        log('Request data: {}'.format(request_data))
 
-        return self._get_field_map(SAMZ['key'], request_data, params=params)
+        return self._get_field_map(SAMZ['key'], request_data)
     
     def get_rx_map(
             self,
