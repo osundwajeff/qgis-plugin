@@ -315,9 +315,9 @@ class FieldLevelMapsAPIClient(ApiClient):
                 full_url = self.full_url(
                     'maps',
                     map_family['endpoint'],
-                    map_type['name'],
-                    '?storeRequest=true&directLinks=true'
+                    f"{map_type['name']}?storeRequest=true&directLinks=true"
                 )
+                log("FULL URL:",format(full_url))
 
                 response = self.post(
                     full_url,
@@ -327,7 +327,6 @@ class FieldLevelMapsAPIClient(ApiClient):
                 )
 
             return response.json()
-        log("URL:",format(full_url))
         return {}
 
     def get_hotspot(self, url, params=None):

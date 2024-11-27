@@ -1205,6 +1205,7 @@ def fetch_ndvi_map(geometry, image_id):
         image_date=None,  # Optional if already filtered
         image_id=image_id
     )
+    log("NDVI map json: {}".format(ndvi_map_json))
     return ndvi_map_json
 
 
