@@ -965,7 +965,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 log(f"Error fetching NDVI for Image ID {image_id}: {e}")
 
 
-            filename = f"RX_{source_map_id}_zones_{rx_zone_count}"
+            filename = f"{self.rx_name_line.text()}_zones_{rx_zone_count}"
             filename = check_if_file_exists(
                 self.output_directory,
                 filename,

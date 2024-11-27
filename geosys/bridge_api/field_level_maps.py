@@ -101,8 +101,6 @@ class FieldLevelMapsAPIClient(ApiClient):
             headers=headers,
             params=filters,
             json=data)
-        log(f"{self.full_url('season-fields', 'catalog-imagery')}, {headers}, {filters}, {data}")
-        log(f"Response: {response.json()}")
 
         return response.json()
 
@@ -171,7 +169,7 @@ class FieldLevelMapsAPIClient(ApiClient):
             ]
 
             if data:
-                image_id = data['Image']['id'] if data.get(
+                image_id = data['Image']['Id'] if data.get(
                     'Image', None) else None
                 seasonfield_id = data['SeasonField']['Id'] if data.get(
                     'SeasonField', None) else None
@@ -259,9 +257,8 @@ class FieldLevelMapsAPIClient(ApiClient):
                 full_url = self.full_url(
                     'maps',
                     'management-zones-map',
-                    'SAMZ?storeRequest=true&directLinks=true'
+                    'SAMZ'
                 )
-                log(f"Full URL: {full_url}")
 
                 response = self.post(
                     full_url,
@@ -315,9 +312,9 @@ class FieldLevelMapsAPIClient(ApiClient):
                 full_url = self.full_url(
                     'maps',
                     map_family['endpoint'],
-                    f"{map_type['name']}?storeRequest=true&directLinks=true"
+                    map_type['name'],
+                    '?storeRequest=true&directLinks=true'
                 )
-                log("FULL URL:",format(full_url))
 
                 response = self.post(
                     full_url,
@@ -327,6 +324,7 @@ class FieldLevelMapsAPIClient(ApiClient):
                 )
 
             return response.json()
+        log("FULL URL:",format(full_url))
         return {}
 
     def get_hotspot(self, url, params=None):

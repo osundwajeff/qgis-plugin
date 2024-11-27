@@ -882,7 +882,7 @@ def create_rx_map(
             "RX_MAP"
             ],
         "sourceMapId": source_map_id,
-        "zoneCount": 5
+        "zoneCount": zone_count
     }
     params = params if params else {}
     data.update({'params': params})
