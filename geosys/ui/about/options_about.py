@@ -28,35 +28,37 @@ def options_about():
 
     message = m.Message()
     message.add(heading())
-    message.add(content())
-
+    
     # Social media icons for use in the about dialog
     icon_linkedin = resources_path('img', 'icons', 'about', 'svg', 'linkedin.svg')
     icon_twitter = resources_path('img', 'icons', 'about', 'svg', 'twitter.svg')
     icon_youtube = resources_path('img', 'icons', 'about', 'svg', 'youtube.svg')
-
-    # Adds the icons to the about dialog
+    # Use a table for layout with updated icon placement and padding
     message.add(tr(
-        '<div class="col-4">'
-        '<div class="pull-right">'
-        '<p class="text-center"> Connect with us </p>'
-        '<ul class="nav  justify-content-center">'
-        '<li class="px-2">'
-        '<li class="px-2"> <a href="https://twitter.com/EarthDailyAgro/">'
-        f'<img src={resource_url(icon_twitter)} height=35 width=35 >'
-        '</a></li>'
-        '<li class="px-2"> <a href="https://www.linkedin.com/company/115836/admin/">'
-        f'<img src={resource_url(icon_linkedin)} height=35 width=35 /></li>'
-        '<a/></li>'
-        '<li class="px-2"> <a href="https://www.youtube.com/channel/UCy4X-hM2xRK3oyC_xYKSG_g">'
-        f'<img src={resource_url(icon_youtube)} height=35 width=35 >'
-        '</a></li>'
-        '</ul>'
-        '</div>'
-        '</div>'
-        '</div>'
-    )
-    )
+        '<table style="width: 100%; border-spacing: 10px;">'
+        '<tr>'
+        # Left Section: Main Content
+        '<td style="vertical-align: top; text-align: left; width: 70%; padding-right: 20px; padding-left: 0;">'
+        f'{content().to_html()}'
+        '</td>'
+        # Right Section: Social Media Icons
+        '<td style="vertical-align: top; text-align: center; width: 30%;">'
+        '<p><strong>Connect with us</strong></p>'
+        '<table style="margin: 10px auto; border-spacing: 30px;">'
+        '<tr>'
+        f'<td><a href="https://twitter.com/EarthDailyAgro/">'
+        f'<img src={resource_url(icon_twitter)} height=35 width=35 alt="Twitter"></a></td>'
+        f'<td><a href="https://www.linkedin.com/company/115836/admin/">'
+        f'<img src={resource_url(icon_linkedin)} height=35 width=35 alt="LinkedIn"></a></td>'
+        f'<td><a href="https://www.youtube.com/channel/UCy4X-hM2xRK3oyC_xYKSG_g">'
+        f'<img src={resource_url(icon_youtube)} height=35 width=35 alt="YouTube"></a></td>'
+        '</tr>'
+        '</table>'
+        '</td>'
+        '</tr>'
+        '</table>'
+    ))
+
 
     return message
 
@@ -97,17 +99,17 @@ def content():
         '<div class="row">'
         '<div class="col-8">'
         '<ul class="list-unstyled">'
-        '<li>'
+        '<p>'
         '<span class="hint">EarthDaily Agro</span><b> is the agricultural analysis division '
         'of EarthDaily Analytics. '
         'Learn more about EarthDaily at '
         '<a class="links" href="https://earthdailyagro.com/"> earthdaily.com</a></b>'
-        '</li>'
-        '<li class="message">EarthDaily Agro uses satellite imaging to provide '
+        '</p>'
+        '<p class="message">EarthDaily Agro uses satellite imaging to provide '
         'advanced analytics to mitigate risk and the planet. '
         'Increase efficiencies - leading to more sustainable '
         'outcomes for the organization and people who '
-        'feed.</li> '
+        'feed.</p> '
         '</ul>'
         '</div>'
     )))
