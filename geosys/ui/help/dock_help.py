@@ -44,7 +44,7 @@ def heading():
     :returns: A heading object.
     :rtype: safe.messaging.heading.Heading
     """
-    message = m.Heading(tr('GEOSYS QGIS plugin dock help'), **SUBSECTION_STYLE)
+    message = m.Heading(tr('EarthDaily QGIS plugin dock help'), **SUBSECTION_STYLE)
     return message
 
 
@@ -171,8 +171,11 @@ def content():
     message.add(paragraph)
 
     spotlight_paragraph = m.Paragraph(tr(
-        '<p> The <b> Geosys API </b> developer portal is available here'
-        '<a href="https://developer.geosys.com" > https://developer.geosys.com</a></p>'
+        '<p> To access more capabilities, EarthDaily python package and documentation are available on GitHub: </p>'
+        '<ul>'
+        '<li> <a href="https://github.com/earthdaily/earthdaily-python-client"> https://github.com/earthdaily/earthdaily-python-client </a></li>'
+        '<li> <a href="https://github.com/earthdaily/EDA-Documentation/tree/gh-pages"> https://github.com/earthdaily/EDA-Documentation/tree/gh-pages </a></li>'
+        '</ul>'
     ))
 
     message.add(spotlight_paragraph)
