@@ -7,24 +7,23 @@
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
-name=GEOSYS Plugin
+name=EarthDaily Plugin
 qgisMinimumVersion=3.0
-description=Discover, request and use aggregate imagery products based on landsat-8, Sentinel 2 and other sensors from within QGIS, using the GEOSYS API.
+description=Discover, request and use imagery products based on virtual constellation within QGIS, using the EarthDaily® Platform capabilities.
 
-about=GEOSYS® Plugin for QGIS is the easiest way to experience field level capabilities of the GEOSYS® Platform. The plugin will offer an easy way to interact with GEOSYS® Geospatial Analytics without any coding effort and will give you access to:
- - GEOSYS® field historical maps
- - GEOSYS® field in-season maps
- - GEOSYS® processing services
+about=The EarthDaily® plugin for QGIS is the easiest way to leverage the powerful capabilities of the EarthDaily® Platform directly within your QGIS workflows. Designed for Earth observation professionals, it enables seamless access to field-level analytics, eliminating the need for coding while providing actionable geospatial insights.
 
- Highlights:
- - Polygon-based maps creation capabilities
- - Multi index map option: NDVI, GNDVI, EVI, CVI, CVIN, S2REP
- - Multi sensor option : Sentinel 2, Landsat 8, Landsat-9, Deimos, Modis, Resourcesat
- - Visualization of Spectral maps
+Key Features:
+- Historical and In-Season Maps: Analyze past trends and current conditions with EarthDaily® field-level data.
+- Multi-Index Maps: Visualize indices such as NDVI, GNDVI, EVI, CVI, S2REP, NDWI, and NDMI to unlock deeper insights into vegetation health, moisture, and more.
+- Multi-Sensor Integration: Utilize data from Sentinel-2, Landsat-8, Landsat-9, Gaofen, Huanjing, and the upcoming EarthDaily Constellation (2025).
+- Advanced Processing Tools: Create polygon-based maps and access robust spectral visualizations for precision analysis.
+- EarthDaily’s QGIS Plugin bridges the gap between data and decision-making, empowering users in agriculture, water management, forest planning, and beyond to make informed choices.
 
  Resources:
- - Documentation: https://developer.geosys.com/
+ - Documentation: https://github.com/earthdaily/EDA-Documentation
  - Repository: https://github.com/GEOSYS/qgis-plugin
+ - EarthDaily python package: https://github.com/earthdaily/earthdaily-python-client
 
 # Version and release information
 version=1.1.0
