@@ -107,7 +107,9 @@ This project has been testes with QGIS 3.22.3
 1. Within the QGIS plugin manager as described [here](https://earthdaily.github.io/qgis-plugin/2.%20Installation.html)
    
 2. Manual install by download a zip of the project and use the manual plugin install from QGIS. Please see https://docs.qgis.org/3.4/en/docs/user_manual/plugins/plugins.html#the-install-from-zip-tab
-   
+
+
+Documentation about development setup can be found here https://github.com/earthdaily/qgis-plugin/blob/develop/docs/development.md
 <p align="right">(<a href="#top">back to top</a>)</p>
    
 <!-- FEATURES -->
@@ -141,8 +143,6 @@ The following links will provide access to more information:
 ## Support development
 
 If this project has been useful, that it helped you or your business to save precious time, don't hesitate to give it a star.
-
-Documentation about development setup can be found here https://github.com/earthdaily/qgis-plugin/docs/development.md
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
