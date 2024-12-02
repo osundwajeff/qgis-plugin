@@ -145,12 +145,11 @@ class CoverageSearchThread(QThread):
                 self.start_date, self.end_date)
         elif self.end_date:
             date_filter = '$lte:{}'.format(self.end_date)
-        
+
         # Set coverage percent filter
         coverage_percent_filter = ''
         if self.coverage_percent:
             coverage_percent_filter = f'$gte:{self.coverage_percent}'
-
 
         # Disable filter when map product is Elevation
         self.filters = {}
@@ -183,7 +182,8 @@ class CoverageSearchThread(QThread):
                 # This is a workaround to get the seasonfield ID
                 # This has been suggested by GeoSys
                 self.filters.update({
-                    MAPS_TYPE: NDVI['key'],  # This is included for a shorter response
+                    # This is included for a shorter response
+                    MAPS_TYPE: NDVI['key'],
                     IMAGE_DATE: date_filter,
                     COVERAGE_PERCENT: coverage_percent_filter
                 })
@@ -266,7 +266,7 @@ class CoverageSearchThread(QThread):
             searcher_client = BridgeAPI(
                 *credentials_parameters_from_settings(),
                 proxies=QGISSettings.get_qgis_proxy())
-            
+
             catalog_imagery_api = [
                 S2REP['key'],
                 REFLECTANCE['key'],
@@ -293,18 +293,17 @@ class CoverageSearchThread(QThread):
 
                 sample_map_ids = []
                 for result in results:
-                    data = None
-                    params = None
+
                     result['seasonField']['geometry'] = geometry
                     # Get thumbnail content
                     if self.need_stop:
                         break
 
-                    json_id = None
                     requested_map = None
+
                     if self.map_product == SAMPLE_MAP['key']:
                         # Sample maps has a different workflow than other map products
-                        # The sample maps first needs to be created, and then the thumpnails
+                        # The sample maps first needs to be created, and then the thumbnails
                         # can be retrieved.
 
                         # Required parameters for Sample maps
@@ -399,28 +398,26 @@ class CoverageSearchThread(QThread):
                     ]
 
                     thumbnail_url = None
+
+                    image = result['image']
+                    image_id = image['id']
+
                     if self.map_product == REFLECTANCE['key']:
                         # Reflectance map type should make use of the NDVI thumbnail
                         # This is a work-around provided by GeoSys
                         thumbnail_url = (
-                                NDVI_THUMBNAIL_URL.format(
-                                    bridge_url=searcher_client.bridge_server,
-                                    id=result['seasonField']['id'],
-                                    date=result['image']['date']
-                                ))
+                            NDVI_THUMBNAIL_URL.format(
+                                bridge_url=searcher_client.bridge_server
+                            ))
                     elif self.map_product == CVIN['key']:
                         thumbnail_url = (
-                                CVIN_THUMBNAIL_URL.format(
-                                    bridge_url=searcher_client.bridge_server,
-                                    id=result['seasonField']['id'],
-                                    image=result['image']['id']
-                                ))
+                            CVIN_THUMBNAIL_URL.format(
+                                bridge_url=searcher_client.bridge_server
+                            ))
                     elif self.map_product == S2REP['key']:
                         thumbnail_url = (
                             S2REP_THUMBNAIL_URL.format(
-                                bridge_url=searcher_client.bridge_server,
-                                id=result['seasonField']['id'],
-                                image=result['image']['id']
+                                bridge_url=searcher_client.bridge_server
                             ))
                     elif self.map_product in nitrogen_products:
                         # Nitrogen map type
@@ -432,8 +429,8 @@ class CoverageSearchThread(QThread):
                                     id=result['seasonField']['id'],
                                     image=result['image']['id'],
                                     nitrogen_map_type=INSEASONFIELD_AVERAGE_NDVI['key'],
-                                    n_value=str(self.n_planned_value)
-                                ))
+                                    n_value=str(
+                                        self.n_planned_value)))
                         elif self.map_product == INSEASONFIELD_AVERAGE_LAI['key']:
                             #  AVERAGE LAI
                             thumbnail_url = (
@@ -442,8 +439,8 @@ class CoverageSearchThread(QThread):
                                     id=result['seasonField']['id'],
                                     image=result['image']['id'],
                                     nitrogen_map_type=INSEASONFIELD_AVERAGE_LAI['key'],
-                                    n_value=str(self.n_planned_value)
-                                ))
+                                    n_value=str(
+                                        self.n_planned_value)))
                         elif self.map_product == INSEASONFIELD_AVERAGE_REVERSE_NDVI['key']:
                             #  AVERAGE REVERSE NDVI
                             thumbnail_url = (
@@ -452,8 +449,8 @@ class CoverageSearchThread(QThread):
                                     id=result['seasonField']['id'],
                                     image=result['image']['id'],
                                     nitrogen_map_type=INSEASONFIELD_AVERAGE_REVERSE_NDVI['key'],
-                                    n_value=str(self.n_planned_value)
-                                ))
+                                    n_value=str(
+                                        self.n_planned_value)))
                         elif self.map_product == INSEASONFIELD_AVERAGE_REVERSE_LAI['key']:
                             #  AVERAGE REVERSE LAI
                             thumbnail_url = (
@@ -462,65 +459,61 @@ class CoverageSearchThread(QThread):
                                     id=result['seasonField']['id'],
                                     image=result['image']['id'],
                                     nitrogen_map_type=INSEASONFIELD_AVERAGE_REVERSE_LAI['key'],
-                                    n_value=str(self.n_planned_value)
-                                ))
+                                    n_value=str(
+                                        self.n_planned_value)))
                     elif self.map_product == YGM['key'] or self.map_product == YVM['key']:
                         if self.map_product == YGM['key']:
                             thumbnail_url = (
                                 YGM_THUMBNAIL_URL.format(
-                                    bridge_url=searcher_client.bridge_server,
-                                    id=result['seasonField']['id'],
-                                    image=result['image']['id']
+                                    bridge_url=searcher_client.bridge_server
                                 ))
                         else:
                             thumbnail_url = (
                                 YPM_THUMBNAIL_URL.format(
-                                    bridge_url=searcher_client.bridge_server,
-                                    id=result['seasonField']['id'],
-                                    image=result['image']['id']
+                                    bridge_url=searcher_client.bridge_server
                                 ))
                     elif self.map_product == SAMZ['key']:
                         thumbnail_url = (
-                            NDVI_THUMBNAIL_URL.format(
-                                bridge_url=searcher_client.bridge_server,
-                                id=result['seasonField']['id'],
-                                date=result['image']['date']
+                            SAMZ_THUMBNAIL_URL.format(
+                                bridge_url=searcher_client.bridge_server
                             ))
                     elif self.map_product == SAMPLE_MAP['key']:
                         # Sample maps
                         thumbnail_url = (
                             SAMPLEMAP_THUMBNAIL_URL.format(
-                                bridge_url=searcher_client.bridge_server,
-                                id=json_id
+                                bridge_url=searcher_client.bridge_server
                             ))
+
                     elif self.map_product == COLOR_COMPOSITION['key']:
                         # Sample maps
                         thumbnail_url = (
                             COLOR_COMPOSITION_THUMBNAIL_URL.format(
-                                bridge_url=searcher_client.bridge_server,
+                                bridge_url=searcher_client.bridge_server
                             ))
                         image = result['image']
                         image_id = image['id']
 
-                        data = {
-                            "image": {
-                                "id": image_id
-                            },
-                            "seasonField":
-                                {
-                                    "geometry": geometry
-                            }
-                        }
-                        params = {
-                            "epsg-out": 3857,
-                            "clipping": "bbox"
-                        }
                     else:  # All other map types
                         thumbnail_url = None
 
+                    data = {
+                        "image": {
+                            "id": image_id
+                        },
+                        "seasonField":
+                            {
+                                "geometry": geometry
+                        }
+                    }
+                    params = {
+                        "epsg-out": 3857,
+                        "clipping": "bbox"
+                    }
+
                     if thumbnail_url:
-                        log(f"Thumbnail url {thumbnail_url}, params {
-                            params}, data {data}")
+                        log(f"Thumbnail url {thumbnail_url},"
+                            f" params {params}, data {data}"
+                            )
                         thumbnail_content = searcher_client.get_content(
                             thumbnail_url, params=params, data=data)
                         thumbnail_ba = QByteArray(thumbnail_content)
@@ -665,6 +658,8 @@ def create_map(
 
     if map_type_key == SAMPLE_MAP['key']:
         field_map_json = map_specification
+
+    log(f"map json {field_map_json}")
 
     return download_field_map(
         field_map_json=field_map_json,

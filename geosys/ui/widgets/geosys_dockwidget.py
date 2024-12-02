@@ -40,13 +40,35 @@ from qgis.core import (
 from qgis.PyQt.QtCore import Qt
 
 from geosys.bridge_api.default import (
-    VECTOR_FORMAT, PNG, PNG_KMZ, ZIPPED_TIFF, ZIPPED_SHP, KMZ,
-    VALID_QGIS_FORMAT, YIELD_AVERAGE, YIELD_MINIMUM, YIELD_MAXIMUM,
-    ORGANIC_AVERAGE, POSITION, FILTER, SAMZ_ZONE, SAMZ_ZONING, HOTSPOT,
-    ZONING_SEGMENTATION, MAX_FEATURE_NUMBERS, DEFAULT_ZONE_COUNT, GAIN,
-    OFFSET, DEFAULT_N_PLANNED, DEFAULT_AVE_YIELD, DEFAULT_MIN_YIELD,
-    DEFAULT_MAX_YIELD, DEFAULT_ORGANIC_AVE, DEFAULT_GAIN, DEFAULT_OFFSET, DEFAULT_COVERAGE_PERCENT
-)
+    VECTOR_FORMAT,
+    PNG,
+    PNG_KMZ,
+    ZIPPED_TIFF,
+    ZIPPED_SHP,
+    KMZ,
+    VALID_QGIS_FORMAT,
+    YIELD_AVERAGE,
+    YIELD_MINIMUM,
+    YIELD_MAXIMUM,
+    ORGANIC_AVERAGE,
+    POSITION,
+    FILTER,
+    SAMZ_ZONE,
+    SAMZ_ZONING,
+    HOTSPOT,
+    ZONING_SEGMENTATION,
+    MAX_FEATURE_NUMBERS,
+    DEFAULT_ZONE_COUNT,
+    GAIN,
+    OFFSET,
+    DEFAULT_N_PLANNED,
+    DEFAULT_AVE_YIELD,
+    DEFAULT_MIN_YIELD,
+    DEFAULT_MAX_YIELD,
+    DEFAULT_ORGANIC_AVE,
+    DEFAULT_GAIN,
+    DEFAULT_OFFSET,
+    DEFAULT_COVERAGE_PERCENT)
 from geosys.bridge_api.definitions import (
     ARCHIVE_MAP_PRODUCTS, ALL_SENSORS, SENSORS, NDVI, EVI,
     SAMZ, SOIL, ELEVATION, REFLECTANCE, LANDSAT_8, LANDSAT_9, SENTINEL_2,
@@ -732,7 +754,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # Get the start and end date
         self.start_date = self.start_date_edit.date().toString('yyyy-MM-dd')
         self.end_date = self.end_date_edit.date().toString('yyyy-MM-dd')
-        
+
         # Coverage percent
         self.coverage_percent = self.coverage_percent_value_spinbox.value()
 
@@ -913,6 +935,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     max_yield_val=self.yield_maximum_form.value(),
                     sample_map_id=sample_map_id
                 )
+                log(f" Error {message}")
                 if not is_success:
                     QMessageBox.critical(
                         self,

@@ -68,29 +68,32 @@ COLOR_COMPOSITION_THUMBNAIL_URL = (
     'COLORCOMPOSITION/thumbnail.png')
 
 NDVI_THUMBNAIL_URL = (
-    '{bridge_url}/field-level-maps/v5/season-fields/{id}/coverage/{date}'
-    '/base-reference-map/NDVI/thumbnail.png')
+    '{bridge_url}/field-level-maps/v5/maps/base-reference-map/NDVI/thumbnail.png'
+)
+
 NITROGEN_THUMBNAIL_URL = (
     '{bridge_url}/field-level-maps/v5/season-fields/{id}/coverage/{image}'
     '/model-map/{nitrogen_map_type}/n-planned/{n_value}/thumbnail.png')
+
 S2REP_THUMBNAIL_URL = (
-    '{bridge_url}/field-level-maps/v5/season-fields/{id}/coverage/{image}'
-    '/base-reference-map/S2REP/thumbnail.png')
+    '{bridge_url}/field-level-maps/v5/maps/base-reference-map/S2REP/thumbnail.png'
+)
 CVIN_THUMBNAIL_URL = (
-    '{bridge_url}/field-level-maps/v5/season-fields/{id}/coverage/{image}'
-    '/base-reference-map/CVIN/thumbnail.png')
+    '{bridge_url}/field-level-maps/v5/maps/base-reference-map/CVIN/thumbnail.png'
+)
 YGM_THUMBNAIL_URL = (
-    '{bridge_url}/field-level-maps/v5/season-fields/{id}/coverage/{image}'
-    '/yield-goal-map/YGM/historical-yield-average/80/max-yield-Goal/100/min-yield-Goal/10/thumbnail.png')
+    '{bridge_url}/field-level-maps/v5/maps/yield-goal-map/YGM/thumbnail.png')
+
 YPM_THUMBNAIL_URL = (
-    '{bridge_url}/field-level-maps/v5/season-fields/{id}/coverage/{image}'
-    '/yield-variability-map/YPM/historical-yield-average/80/thumbnail.png')
+    '{bridge_url}/field-level-maps/v5/maps/yield-variability-map/{mapType}/thumbnail.png'
+)
+
 SAMZ_THUMBNAIL_URL = (
-    '{bridge_url}/field-level-maps/v5/season-fields/{id}/'
-    '/management-zones-map/SAMZ/thumbnail.png')
+    '{bridge_url}/maps/management-zones-map/SAMZ/thumbnail.png'
+)
+
 SAMPLEMAP_THUMBNAIL_URL = (
-    '{bridge_url}/field-level-maps/v5/maps/{id}/'
-    '/thumbnail.png')
+    '{bridge_url}/maps/sample/SAMPLEMAP/thumbnail.png')
 
 # coverage filters
 COVERAGE_TYPE = 'CoverageType'
