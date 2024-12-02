@@ -64,7 +64,7 @@ class GeosysPlugin:
         locale_path = os.path.join(
             self.plugin_dir,
             'i18n',
-            'GeosysPlugin_{}.qm'.format(locale))
+            'EarthDailyPlugin_{}.qm'.format(locale))
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
@@ -75,10 +75,10 @@ class GeosysPlugin:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&GEOSYS Plugin')
+        self.menu = self.tr(u'&EarthDaily Plugin')
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'GeosysPlugin')
-        self.toolbar.setObjectName(u'GeosysPlugin')
+        self.toolbar = self.iface.addToolBar(u'EarthDailyPlugin')
+        self.toolbar.setObjectName(u'EarthDailyPlugin')
 
         # print "** INITIALIZING GeosysPlugin"
 
@@ -101,13 +101,13 @@ class GeosysPlugin:
         return QCoreApplication.translate('GeosysPlugin', message)
 
     def add_action(self, action, add_to_toolbar=True):
-        """Add a toolbar icon to the GEOSYS toolbar.
+        """Add a toolbar icon to the EarthDaily toolbar.
 
         :param action: The action that should be added to the toolbar.
         :type action: QAction
 
         :param add_to_toolbar: Flag indicating whether the action should also
-            be added to the GEOSYS toolbar. Defaults to True.
+            be added to the EarthDaily toolbar. Defaults to True.
         :type add_to_toolbar: bool
         """
         # store in the class list of actions for easy plugin unloading
@@ -122,12 +122,12 @@ class GeosysPlugin:
         icon = resources_path('img', 'icons', 'icon.png')
         self.action_dock = QAction(
             QIcon(icon),
-            self.tr('Toggle GEOSYS Dock'),
+            self.tr('Toggle EarthDaily Dock'),
             self.iface.mainWindow())
         self.action_dock.setStatusTip(self.tr(
-            'Show/hide GEOSYS dock widget'))
+            'Show/hide EarthDaily dock widget'))
         self.action_dock.setWhatsThis(self.tr(
-            'Show/hide GEOSYS dock widget'))
+            'Show/hide EarthDaily dock widget'))
         self.action_dock.setCheckable(True)
         self.action_dock.setChecked(True)
         self.action_dock.triggered.connect(self.toggle_dock_visibility)
@@ -140,14 +140,14 @@ class GeosysPlugin:
             QIcon(icon),
             self.tr('Options'), self.iface.mainWindow())
         self.action_options.setStatusTip(self.tr(
-            'Open GEOSYS options dialog'))
+            'Open EarthDaily options dialog'))
         self.action_options.setWhatsThis(self.tr(
-            'Open GEOSYS options dialog'))
+            'Open EarthDaily options dialog'))
         self.action_options.triggered.connect(self.show_options)
         self.add_action(self.action_options, add_to_toolbar=False)
 
     def _create_dock(self):
-        """Create GEOSYS dock widget."""
+        """Create EarthDaily dock widget."""
         if self.dock_widget is None:
             # Create the dockwidget (after translation) and keep reference
             from geosys.ui.widgets.geosys_dockwidget import (
@@ -224,7 +224,7 @@ class GeosysPlugin:
 
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&GEOSYS Plugin'),
+                self.tr(u'&EarthDaily Plugin'),
                 action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
@@ -258,9 +258,9 @@ class GeosysPlugin:
             self.dock_widget.show()
 
     def toggle_geosys_action(self, checked):
-        """Check or un-check the toggle GEOSYS toolbar button.
+        """Check or un-check the toggle EarthDaily toolbar button.
 
-        This slot is called when the user hides the GEOSYS panel using its
+        This slot is called when the user hides the EarthDaily panel using its
         close button or using view->panels.
 
         :param checked: True if the dock should be shown, otherwise False.

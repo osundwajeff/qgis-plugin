@@ -69,7 +69,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-74</y>
+        <y>0</y>
         <width>548</width>
         <height>612</height>
        </rect>
@@ -112,7 +112,7 @@
           <item row="1" column="0">
            <widget class="QLabel" name="output_directory_label">
             <property name="text">
-             <string>Set the output directory for map creation. Every map created by GEOSYS plugin will be placed in this directory.</string>
+             <string>Set the output directory for map creation. Every map created by EarthDaily plugin will be placed in this directory.</string>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
@@ -238,7 +238,7 @@
           <item row="0" column="0" colspan="2">
            <widget class="QLabel" name="credentials_label">
             <property name="text">
-             <string>Use valid credentials from GEOSYS. The credentials are required to get the access token which will be used for every Bridge API request.</string>
+             <string>Use valid credentials from EarthDaily. The credentials are required to get the access token which will be used for every Bridge API request.</string>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
