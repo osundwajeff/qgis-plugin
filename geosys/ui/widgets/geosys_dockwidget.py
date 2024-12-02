@@ -24,6 +24,7 @@
 """
 import os
 import sys
+import json
 
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSignal, QSettings, QMutex, QDate
@@ -965,12 +966,42 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 log(f"Error fetching NDVI for Image ID {image_id}: {e}")
 
 
-            filename = f"{self.rx_name_line.text()}_zones_{rx_zone_count}"
+            filename = f"RX_zones_{rx_zone_count}"
             filename = check_if_file_exists(
                 self.output_directory,
                 filename,
                 self.output_map_format['extension']
             )
+            
+            patch_data = [
+                {
+                    "op":"add",
+                    "path": "/parameters/zones/0/attributes/value",
+                    "value": self.zone_1_sb.text()
+                },
+                {
+                    "op":"add",
+                    "path": "/parameters/zones/1/attributes/value",
+                    "value": self.zone_2_sb.text()
+                },
+                    {
+                    "op":"add",
+                    "path": "/parameters/zones/2/attributes/value",
+                    "value": self.zone_3_sb.text()
+                },
+                    {
+                    "op":"add",
+                    "path": "/parameters/zones/3/attributes/value",
+                    "value": self.zone_4_sb.text()
+                },
+                    {
+                    "op":"add",
+                    "path": "/parameters/zones/4/attributes/value",
+                    "value": self.zone_5_sb.text()
+                }
+            ]
+            
+            patch_data = json.dumps(patch_data)
 
             is_success, message = create_rx_map(
                 source_map_id=source_map_id,
@@ -981,6 +1012,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 filename=filename,
                 output_map_format=self.output_map_format,
                 data=data,
+                patch_data=patch_data
             )
 
             if not is_success:

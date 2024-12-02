@@ -42,7 +42,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="coverage_form_page">
        <property name="minimumSize">
@@ -822,74 +822,33 @@
            <string>Parameters</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_6">
-           <item row="1" column="2">
-            <widget class="QDoubleSpinBox" name="zone_x_1_form">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>302</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="minimum">
-              <double>1.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>999.990000000000009</double>
+           <item row="0" column="1">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Input name</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="zone_x_2">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
+           <item row="4" column="0">
+            <widget class="QLabel" name="zone_x_3">
              <property name="text">
-              <string>Zone 2</string>
+              <string>Zone 3</string>
              </property>
             </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QLineEdit" name="zone_4_val"/>
+           </item>
+           <item row="6" column="1">
+            <widget class="QLineEdit" name="zone_5_val"/>
+           </item>
+           <item row="8" column="1">
+            <widget class="QLineEdit" name="lineEdit_8"/>
            </item>
            <item row="0" column="2">
             <widget class="QLineEdit" name="rx_name_line"/>
            </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="zone_x_6">
-             <property name="text">
-              <string>Zone X</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="2">
-            <widget class="QSpinBox" name="zonex_5_form">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>302</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="minimum">
-              <number>0</number>
-             </property>
-             <property name="value">
-              <number>0</number>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
+           <item row="2" column="0">
             <widget class="QLabel" name="zone_x_1">
              <property name="minimumSize">
               <size>
@@ -902,139 +861,105 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="zone_x_4">
-             <property name="text">
-              <string>Zone 4</string>
-             </property>
-            </widget>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="zone_2_val"/>
            </item>
-           <item row="6" column="2">
-            <widget class="QDoubleSpinBox" name="zone_x_6_form">
-             <property name="decimals">
-              <number>2</number>
-             </property>
-             <property name="singleStep">
-              <double>0.100000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QDoubleSpinBox" name="zone_x_2_form">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>302</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="minimum">
-              <double>1.000000000000000</double>
-             </property>
-             <property name="maximum">
-              <double>999.990000000000009</double>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="0">
+           <item row="8" column="0">
             <widget class="QLabel" name="zone_x_7">
              <property name="text">
               <string>Zone X</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="zone_x_3">
-             <property name="text">
-              <string>Zone 3</string>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="2">
-            <widget class="QDoubleSpinBox" name="zone_x_7_form">
-             <property name="singleStep">
-              <double>0.100000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0">
+           <item row="6" column="0">
             <widget class="QLabel" name="zone_x_5">
              <property name="text">
               <string>Zone 5</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="2">
-            <widget class="QDoubleSpinBox" name="zone_x_3_form">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="zone_1_val"/>
+           </item>
+           <item row="7" column="1">
+            <widget class="QLineEdit" name="lineEdit_7"/>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLineEdit" name="zone_3_val"/>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="zone_x_4">
+             <property name="text">
+              <string>Zone 4</string>
              </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="zone_x_2">
              <property name="minimumSize">
               <size>
-               <width>302</width>
+               <width>0</width>
                <height>0</height>
               </size>
              </property>
-             <property name="minimum">
-              <double>1.000000000000000</double>
+             <property name="text">
+              <string>Zone 2</string>
              </property>
+            </widget>
+           </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="zone_x_6">
+             <property name="text">
+              <string>Zone X</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QSpinBox" name="zone_1_sb">
              <property name="maximum">
-              <double>999.990000000000009</double>
+              <number>100</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QSpinBox" name="zone_2_sb">
+             <property name="maximum">
+              <number>100</number>
              </property>
             </widget>
            </item>
            <item row="4" column="2">
-            <widget class="QDoubleSpinBox" name="zone_x_4_form">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>302</width>
-               <height>0</height>
-              </size>
-             </property>
+            <widget class="QSpinBox" name="zone_3_sb">
              <property name="maximum">
-              <double>999.990000000000009</double>
+              <number>100</number>
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="zone_1_val"/>
+           <item row="5" column="2">
+            <widget class="QSpinBox" name="zone_4_sb">
+             <property name="maximum">
+              <number>100</number>
+             </property>
+            </widget>
            </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="zone_2_val"/>
+           <item row="6" column="2">
+            <widget class="QSpinBox" name="zone_5_sb">
+             <property name="maximum">
+              <number>100</number>
+             </property>
+            </widget>
            </item>
-           <item row="3" column="1">
-            <widget class="QLineEdit" name="zone_3_val"/>
+           <item row="7" column="2">
+            <widget class="QSpinBox" name="zone_6_sb">
+             <property name="maximum">
+              <number>100</number>
+             </property>
+            </widget>
            </item>
-           <item row="4" column="1">
-            <widget class="QLineEdit" name="zone_4_val"/>
-           </item>
-           <item row="5" column="1">
-            <widget class="QLineEdit" name="zone_5_val"/>
-           </item>
-           <item row="6" column="1">
-            <widget class="QLineEdit" name="lineEdit_7"/>
-           </item>
-           <item row="7" column="1">
-            <widget class="QLineEdit" name="lineEdit_8"/>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>Input name</string>
+           <item row="8" column="2">
+            <widget class="QSpinBox" name="zone_7_sb">
+             <property name="maximum">
+              <number>100</number>
              </property>
             </widget>
            </item>
