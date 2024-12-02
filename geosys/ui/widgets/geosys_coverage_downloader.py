@@ -519,10 +519,13 @@ class CoverageSearchThread(QThread):
                         thumbnail_url = None
 
                     if thumbnail_url:
+                        log(f"Thumbnail url {thumbnail_url}, params {
+                            params}, data {data}")
                         thumbnail_content = searcher_client.get_content(
                             thumbnail_url, params=params, data=data)
                         thumbnail_ba = QByteArray(thumbnail_content)
                     else:
+
                         thumbnail_ba = bytes('', 'utf-8')
 
                     collected_results.append({

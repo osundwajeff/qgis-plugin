@@ -314,17 +314,12 @@ class FieldLevelMapsAPIClient(ApiClient):
                     map_family['endpoint'],
                     map_type['name']
                 )
-                log(f"full url {
-                    full_url}/image.png, params {params}, data {data}")
-
                 response = self.post(
                     f"{full_url}/image.png",
                     headers=headers,
                     params=params,
                     json=data
                 )
-                log(f"RESPONSE {response.text}, {response.json()}")
-
             return response.json()
 
         return {}
