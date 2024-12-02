@@ -124,6 +124,6 @@ def logo_element():
         an empty path if using QUrl.toLocalPath
     """
 
-    path = os.path.join(resources_path(), 'img', 'logos', 'geosys-color.jpg')
+    path = os.path.join(resources_path(), 'img', 'logos', 'earthdaily.png')
     url = urllib.parse.urljoin('file:', urllib.request.pathname2url(path))
     return url
