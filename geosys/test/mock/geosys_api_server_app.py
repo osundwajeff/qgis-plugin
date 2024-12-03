@@ -134,10 +134,10 @@ def management_zones_map(map_type):
         return jsonify({"error": "Invalid headers"}), 400
 
     data = request.get_json()
-    if not data or "SeasonField" not in data or "Images" not in data or "params" not in data:
+    if not data or "SeasonField" not in data or "Images" not in data:
         return jsonify({"error": "Invalid request data"}), 400
 
-    zone_count = data.get('params').get("zoneCount")
+    zone_count = data.get("zoneCount")
     if zone_count is None:
         return jsonify(
             {"error": "Invalid or missing query parameter 'zoneCount'"}), 400

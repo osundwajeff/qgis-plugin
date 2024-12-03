@@ -158,13 +158,19 @@ class BridgeAPIWrapperTest(unittest.TestCase):
     def test_get_samz_map(self):
         """Test we can successfully get the SAMZ map."""
         season_field_id = 'nja3zv9'
-        params = {'zoneCount': 5}
+        zoneCount = 5
         images_ids = [
             'IKc73hpUQ726BpoqhQpaU8SfYGFYTAL5hhyYZq4PwFY',
             'IKc73hpUQ7258rG71UeO1lSjNsyqKnIvs5u5uNwBDPw',
             'IKc73hpUQ724bvftcz8VwUcNIu0zZd3Uh0ipmckxKHk',
             'IKc73hpUQ7245vMfZRcmMZTisN0Oh5pObBmZzfW5D76'
         ]
+        geom = ("POLYGON(("
+                "1.5614669851321183 43.43877959480905,"
+                "1.5720241598147355 43.43877959480905,"
+                "1.5720241598147355 43.43323264029555,"
+                "1.5614669851321183 43.43323264029555,"
+                "1.5614669851321183 43.43877959480905))")
 
         bridge_api = BridgeAPI(
             username=self.username,
@@ -179,13 +185,7 @@ class BridgeAPIWrapperTest(unittest.TestCase):
 
         # test SAMZ auto
         field_map = bridge_api.get_samz_map(
-            season_field_id, [], params=params)
-
-        self.assertTrue('seasonField' in field_map)
-
-        # test SAMZ custom
-        field_map = bridge_api.get_samz_map(
-            season_field_id, images_ids, params=params)
+            geom, images_ids, zone_count=zoneCount)
 
         self.assertTrue('seasonField' in field_map)
 
