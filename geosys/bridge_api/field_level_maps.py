@@ -171,7 +171,7 @@ class FieldLevelMapsAPIClient(ApiClient):
             ]
 
             if data:
-                image_id = data['Image']['id'] if data.get(
+                image_id = data['Image']['Id'] if data.get(
                     'Image', None) else None
                 seasonfield_id = data['SeasonField']['Id'] if data.get(
                     'SeasonField', None) else None

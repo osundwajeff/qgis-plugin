@@ -150,7 +150,6 @@ class FileDownloader:
         if self.payload and 'Content-Type' not in self.headers:
             self.headers['Content-Type'] = 'application/json'
 
-
     def download(self):
         """Downloading the file.
 
