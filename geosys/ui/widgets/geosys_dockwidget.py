@@ -24,6 +24,7 @@
 """
 import os
 import sys
+import json
 
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSignal, QSettings, QMutex, QDate
@@ -849,6 +850,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 break
 
         map_product_definition = get_definition(self.map_product)
+        log(f"Map product definition: {map_product_definition}")
         if gain_offset_allowed and \
                 (self.spinBox_gain.value() > 0
                  or self.spinBox_offset.value() > 0):  # Gain and offset will be added to the data
@@ -871,6 +873,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 ORGANIC_AVERAGE: self.organic_average,
                 SAMZ_ZONE: self.samz_zone
             }
+            
+        log(f'Zone count: {SAMZ_ZONE}')
 
         if self.samz_zone > 0:
             self.samz_zoning = True
@@ -918,6 +922,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     )
 
         zone_cnt = self.samz_zone_form.value()
+        log(f"Zone Count: {zone_cnt}")
         if map_product_definition == SAMZ:
             image_dates = []
             image_ids = []
@@ -941,6 +946,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 # Iterate through multiple specifications
                 for map_specification in map_specifications:
                     image_dates.append(map_specification['image']['date'])
+                    log(f"Image Date: {map_specification['image']['date']}")
                     image_ids.append(map_specification['image']['id'])
 
             filename = '{}_{}_zones'.format(
@@ -950,6 +956,10 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 filename,
                 self.output_map_format['extension']
             )
+            
+            log(f'Filename: {filename}')
+            
+            log((f'Data: {data}'))
 
             is_success, message = create_samz_map(
                 geometry, image_ids, image_dates, zone_cnt, self.output_directory, filename,
@@ -980,6 +990,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             image_id = map_specifications[0]['image']['id']
             image_date = map_specifications[0]['image']['date']
             season_field_geom = self.wkt_geometries[0]
+            source_map_id = None
             try:
                 # Call API to fetch NDVI for the selected image
                 ndvi_response = fetch_ndvi_map(season_field_geom, image_id)
@@ -992,20 +1003,43 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             except Exception as e:
                 log(f"Error fetching NDVI for Image ID {image_id}: {e}")
 
-            if not source_map_id:
-                QMessageBox.critical(
-                    self,
-                    'NDVI Fetch Error',
-                    'No NDVI images were found for the selected coverage.'
-                )
-                return
 
-            filename = f"RX_{source_map_id}_zones_{rx_zone_count}"
+            filename = f"RX_zones_{rx_zone_count}"
             filename = check_if_file_exists(
                 self.output_directory,
                 filename,
                 self.output_map_format['extension']
             )
+            
+            patch_data = [
+                {
+                    "op":"add",
+                    "path": "/parameters/zones/0/attributes/value",
+                    "value": self.zone_1_sb.text()
+                },
+                {
+                    "op":"add",
+                    "path": "/parameters/zones/1/attributes/value",
+                    "value": self.zone_2_sb.text()
+                },
+                    {
+                    "op":"add",
+                    "path": "/parameters/zones/2/attributes/value",
+                    "value": self.zone_3_sb.text()
+                },
+                    {
+                    "op":"add",
+                    "path": "/parameters/zones/3/attributes/value",
+                    "value": self.zone_4_sb.text()
+                },
+                    {
+                    "op":"add",
+                    "path": "/parameters/zones/4/attributes/value",
+                    "value": self.zone_5_sb.text()
+                }
+            ]
+            
+            patch_data = json.dumps(patch_data)
 
             is_success, message = create_rx_map(
                 source_map_id=source_map_id,
@@ -1016,6 +1050,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 filename=filename,
                 output_map_format=self.output_map_format,
                 data=data,
+                patch_data=patch_data
             )
 
             if not is_success:
@@ -1254,6 +1289,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         :param thumbnail_ba: Thumbnail image data in byte array format.
         :type thumbnail_ba: QByteArray
         """
+        log(f"Received Map JSON: {coverage_map_json}")
         if coverage_map_json:
             custom_widget = CoverageSearchResultItemWidget(
                 coverage_map_json, thumbnail_ba, self.map_product)

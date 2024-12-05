@@ -352,6 +352,7 @@ class FieldLevelMapsAPIClient(ApiClient):
         self,
         url,
         request_data,
+        patch_data,
         params=None):
         """
         Get RX Map data from the server.
@@ -376,6 +377,21 @@ class FieldLevelMapsAPIClient(ApiClient):
             'accept': 'application/json',
             'content-type': 'application/json'
         }
+        
+        source_map_id = request_data.get("SourceMapId")
+        
+        patch_url = self.full_url(
+            'maps',
+            source_map_id,
+            'rx-map'
+        )
+
+        response_patch = self.patch(
+            patch_url,
+            headers=headers,
+            params=params,
+            json=patch_data
+        )
 
         # Construct the full URL for the RX Map endpoint
         full_url = self.full_url(

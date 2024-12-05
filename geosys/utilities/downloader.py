@@ -106,7 +106,7 @@ def extract_zip(zip_path, destination_base_path):
 class FileDownloader:
     """The blueprint for downloading file from url."""
 
-    def __init__(self, url, output_path, headers=None, progress_dialog=None):
+    def __init__(self, url, output_path, headers=None, progress_dialog=None, method='GET', payload=None):
         """Constructor of the class.
 
         :param url: URL of file.
@@ -130,6 +130,7 @@ class FileDownloader:
         self.output_path = output_path
         self.headers = headers if headers else {}
         self.progress_dialog = progress_dialog
+        self.method = method.upper()
         if self.progress_dialog:
             self.prefix_text = self.progress_dialog.labelText()
         # Convert payload to QByteArray
@@ -138,6 +139,17 @@ class FileDownloader:
         self.reply = None
         self.downloaded_file_buffer = None
         self.finished_flag = False
+        
+        
+         # Ensure Content-Type is set when a payload is present
+        if self.payload and 'Content-Type' not in self.headers:
+            self.headers['Content-Type'] = 'application/json'
+
+
+         # Ensure Content-Type is set when a payload is present
+        if self.payload and 'Content-Type' not in self.headers:
+            self.headers['Content-Type'] = 'application/json'
+
 
 
     def download(self):
