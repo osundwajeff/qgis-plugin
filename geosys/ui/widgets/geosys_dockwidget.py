@@ -1015,31 +1015,31 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 {
                     "op":"add",
                     "path": "/parameters/zones/0/attributes/value",
-                    "value": self.zone_1_sb.text()
+                    "value": self.zone_1_sb.value()
                 },
                 {
                     "op":"add",
                     "path": "/parameters/zones/1/attributes/value",
-                    "value": self.zone_2_sb.text()
+                    "value": self.zone_2_sb.value()
                 },
                     {
                     "op":"add",
                     "path": "/parameters/zones/2/attributes/value",
-                    "value": self.zone_3_sb.text()
+                    "value": self.zone_3_sb.value()
                 },
                     {
                     "op":"add",
                     "path": "/parameters/zones/3/attributes/value",
-                    "value": self.zone_4_sb.text()
+                    "value": self.zone_4_sb.value()
                 },
                     {
                     "op":"add",
                     "path": "/parameters/zones/4/attributes/value",
-                    "value": self.zone_5_sb.text()
+                    "value": self.zone_5_sb.value()
                 }
             ]
             
-            patch_data = json.dumps(patch_data)
+            #patch_data = json.dumps(patch_data)
 
             is_success, message = create_rx_map(
                 source_map_id=source_map_id,
