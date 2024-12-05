@@ -867,6 +867,8 @@ def create_rx_map(
         zone_count=zone_count,
         patch_data=patch_data
     )
+    
+    log("RX Map Before Download JSON: {}".format(rx_map_json))
 
     return download_field_map(
         field_map_json=rx_map_json,
@@ -974,7 +976,7 @@ def download_field_map(
                              if use_testing_service
                              else BRIDGE_URLS[region]['prod'])
             if output_map_format in ZIPPED_FORMAT:
-                source_map_id = data.get('sourceMapId')
+                source_map_id = field_map_json.get('id')
                 url = f"{bridge_server}/field-level-maps/v5/maps/{source_map_id}/image{output_map_format['extension']}"
                 method = 'GET'
             else:

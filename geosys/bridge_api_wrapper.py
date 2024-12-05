@@ -494,5 +494,7 @@ class BridgeAPI(ApiClient):
         log('URL: {}'.format(url))
         
         rx_json = api_client.get_rx_map(url, request_data, patch_data)
+        
+        #log('Response RX JSON data: {}'.format(rx_json))
 
         return rx_json
