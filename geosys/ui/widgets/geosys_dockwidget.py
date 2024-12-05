@@ -24,6 +24,7 @@
 """
 import os
 import sys
+import json
 
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSignal, QSettings, QMutex, QDate
@@ -805,6 +806,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 break
 
         map_product_definition = get_definition(self.map_product)
+        log(f"Map product definition: {map_product_definition}")
         if gain_offset_allowed and \
                 (self.spinBox_gain.value() > 0 or
                  self.spinBox_offset.value() > 0):  # Gain and offset will be added to the data
@@ -827,6 +829,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 ORGANIC_AVERAGE: self.organic_average,
                 SAMZ_ZONE: self.samz_zone
             }
+            
+        log(f'Zone count: {SAMZ_ZONE}')
 
         if self.samz_zone > 0:
             self.samz_zoning = True
@@ -874,32 +878,53 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     )
 
         zone_cnt = self.samz_zone_form.value()
+        log(f"Zone Count: {zone_cnt}")
         if map_product_definition == SAMZ:
             image_dates = []
             image_ids = []
-            samz_mode = 'auto'
-            if map_specifications:
-                season_field_id = map_specifications[0]['seasonField']['id']
-                samz_mode = 'custom'
+            # Check if images are provided; raise an error if none are selected
+            if not map_specifications:
+                QMessageBox.critical(
+                    self,
+                    'Image Selection Required',
+                    'At least one image must be selected to generate a SAMZ map.'
+                )
+                return
+            # Proceed with custom SAMZ using selected images
+            log(f"Map Specifications: {map_specifications}")
+            season_field_id = map_specifications[0]['seasonField']['id']
+            log(f"Season Field ID: {season_field_id}")
+            geometry = self.wkt_geometries[0]
+            log(f"Geometry: {geometry}")
+            if len(map_specifications) == 1:
+                # Log and use the single image provided
+                single_specification = map_specifications[0]
+                image_dates.append(single_specification['image']['date'])
+                log(f"Using single image. Image Date: {single_specification['image']['date']}")
+                image_ids.append(single_specification['image']['id'])
+                log(f"Using single image. Image ID: {single_specification['image']['id']}")
+            else:
+                # Iterate through multiple specifications
                 for map_specification in map_specifications:
                     image_dates.append(map_specification['image']['date'])
+                    log(f"Image Date: {map_specification['image']['date']}")
                     image_ids.append(map_specification['image']['id'])
-            else:
-                # take season field id from the first item in coverage results
-                item = self.coverage_result_list.item(0)
-                item_data = item.data(Qt.UserRole)
-                season_field_id = item_data['seasonField']['id']
+                    log(f"Image ID: {map_specification['image']['id']}")
 
-            filename = '{}_{}_zones_{}_{}'.format(
-                SAMZ['key'], str(zone_cnt), season_field_id, samz_mode)
+            filename = '{}_{}_zones'.format(
+                SAMZ['key'], str(zone_cnt))
             filename = check_if_file_exists(
                 self.output_directory,
                 filename,
                 self.output_map_format['extension']
             )
+            
+            log(f'Filename: {filename}')
+            
+            log((f'Data: {data}'))
 
             is_success, message = create_samz_map(
-                season_field_id, image_ids, image_dates, self.output_directory, filename,
+                geometry, image_ids, image_dates, zone_cnt, self.output_directory, filename,
                 output_map_format=self.output_map_format, params=data)
 
             if not is_success:
@@ -927,6 +952,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             image_id = map_specifications[0]['image']['id']
             image_date = map_specifications[0]['image']['date']
             season_field_geom = self.wkt_geometries[0]
+            source_map_id = None
             try:
                 # Call API to fetch NDVI for the selected image
                 ndvi_response = fetch_ndvi_map(season_field_geom, image_id)
@@ -939,20 +965,43 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             except Exception as e:
                 log(f"Error fetching NDVI for Image ID {image_id}: {e}")
 
-            if not source_map_id:
-                QMessageBox.critical(
-                    self,
-                    'NDVI Fetch Error',
-                    'No NDVI images were found for the selected coverage.'
-                )
-                return
 
-            filename = f"RX_{source_map_id}_zones_{rx_zone_count}"
+            filename = f"RX_zones_{rx_zone_count}"
             filename = check_if_file_exists(
                 self.output_directory,
                 filename,
                 self.output_map_format['extension']
             )
+            
+            patch_data = [
+                {
+                    "op":"add",
+                    "path": "/parameters/zones/0/attributes/value",
+                    "value": self.zone_1_sb.text()
+                },
+                {
+                    "op":"add",
+                    "path": "/parameters/zones/1/attributes/value",
+                    "value": self.zone_2_sb.text()
+                },
+                    {
+                    "op":"add",
+                    "path": "/parameters/zones/2/attributes/value",
+                    "value": self.zone_3_sb.text()
+                },
+                    {
+                    "op":"add",
+                    "path": "/parameters/zones/3/attributes/value",
+                    "value": self.zone_4_sb.text()
+                },
+                    {
+                    "op":"add",
+                    "path": "/parameters/zones/4/attributes/value",
+                    "value": self.zone_5_sb.text()
+                }
+            ]
+            
+            patch_data = json.dumps(patch_data)
 
             is_success, message = create_rx_map(
                 source_map_id=source_map_id,
@@ -963,6 +1012,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 filename=filename,
                 output_map_format=self.output_map_format,
                 data=data,
+                patch_data=patch_data
             )
 
             if not is_success:
@@ -1101,11 +1151,12 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.coverage_result_list.clear()
 
         # start search thread
+        map_product = COLOR_COMPOSITION['key'] if self.map_product == SAMZ['key'] else self.map_product
         searcher = CoverageSearchThread(
             geometries=self.wkt_geometries,
             crop_type=self.crop_type,
             sowing_date=self.sowing_date,
-            map_product=self.map_product,
+            map_product=map_product,
             sensor_type=self.sensor_type,
             mask_type=self.mask_type,
             end_date=self.end_date,
@@ -1199,6 +1250,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         :param thumbnail_ba: Thumbnail image data in byte array format.
         :type thumbnail_ba: QByteArray
         """
+        log(f"Received Map JSON: {coverage_map_json}")
         if coverage_map_json:
             custom_widget = CoverageSearchResultItemWidget(
                 coverage_map_json, thumbnail_ba, self.map_product)

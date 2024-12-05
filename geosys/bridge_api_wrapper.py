@@ -461,6 +461,7 @@ class BridgeAPI(ApiClient):
             list_of_image_ids,
             list_of_image_date=None,
             zone_count=0,
+            patch_data=None,
             **kwargs):
         """Get requested RX map.
 
@@ -492,6 +493,6 @@ class BridgeAPI(ApiClient):
         log('Request data: {}'.format(request_data))
         log('URL: {}'.format(url))
         
-        rx_json = api_client.get_rx_map(url, request_data)
+        rx_json = api_client.get_rx_map(url, request_data, patch_data)
 
         return rx_json

@@ -809,6 +809,7 @@ def create_rx_map(
         filename,
         output_map_format,
         data=None,
+        patch_data=None,
         params=None):
     """Create map based on given parameters.
 
@@ -850,7 +851,7 @@ def create_rx_map(
             "RX_MAP"
             ],
         "sourceMapId": source_map_id,
-        "zoneCount": 5
+        "zoneCount": zone_count
     }
     params = params if params else {}
     data.update({'params': params})
@@ -864,6 +865,7 @@ def create_rx_map(
         list_of_image_ids=list_of_image_ids,
         list_of_image_date=list_of_image_date,
         zone_count=zone_count,
+        patch_data=patch_data
     )
 
     return download_field_map(
@@ -973,7 +975,8 @@ def download_field_map(
                              else BRIDGE_URLS[region]['prod'])
             if output_map_format in ZIPPED_FORMAT:
                 source_map_id = data.get('sourceMapId')
-                url = f"{bridge_server}/field-level-maps/v5/maps/{source_map_id}/image{output_map_format['extension']}.zip"
+                url = f"{bridge_server}/field-level-maps/v5/maps/{source_map_id}/image{output_map_format['extension']}"
+                method = 'GET'
             else:
                 url = field_map_json['_links'][output_map_format['api_key']]
         else:  # Other map types
@@ -1002,7 +1005,9 @@ def download_field_map(
     try:
         if output_map_format in ZIPPED_FORMAT:
             zip_path = tempfile.mktemp('{}.zip'.format(map_extension))
-            fetch_data(url, zip_path, headers=headers)
+            url = '{}.zip'.format(url)
+            log('URL: {}, zip_path: {}'.format(url, zip_path))
+            fetch_data(url, zip_path, headers=headers, method=method, payload=data)
             extract_zip(zip_path, destination_base_path)
         else:
             destination_filename = (
