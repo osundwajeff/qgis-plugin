@@ -7,6 +7,8 @@ from PyQt5.QtWidgets import (
 
 from qgis.PyQt.QtCore import Qt
 from geosys.bridge_api.definitions import SAMPLE_MAP
+from geosys.utilities.utilities import log
+
 
 __copyright__ = "Copyright 2019, Kartoza"
 __license__ = "GPL version 3"
@@ -17,7 +19,12 @@ __revision__ = "$Format:%H$"
 class CoverageSearchResultItemWidget(QWidget):
     """Custom item widget for coverage search results."""
 
-    def __init__(self, coverage_map_json, thumbnail_ba, map_product, parent=None):
+    def __init__(
+            self,
+            coverage_map_json,
+            thumbnail_ba,
+            map_product,
+            parent=None):
         """Custom item widget for coverage search results.
 
         :param coverage_map_json: Result of single map coverage.
@@ -64,10 +71,15 @@ class CoverageSearchResultItemWidget(QWidget):
 
         self.map_thumbnail = QLabel(self)
         self.map_thumbnail.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.map_thumbnail.resize(24, 24)
+        self.map_thumbnail.resize(96, 96)
 
         qimg = QImage.fromData(thumbnail_ba)
-        pixmap = QPixmap.fromImage(qimg)
+        pixmap = QPixmap.fromImage(qimg).scaled(
+            96,
+            96,
+            Qt.KeepAspectRatio,
+            Qt.SmoothTransformation
+        )
         self.map_thumbnail.setPixmap(pixmap)
         self.layout.addWidget(self.map_thumbnail)
 
@@ -76,7 +88,7 @@ class CoverageSearchResultItemWidget(QWidget):
         self.layout.addLayout(self.map_description_layout)
 
         season_field_id = coverage_map_json.get(
-            'seasonField', {}).get('id', '')
+            'image', {}).get('collection', '')
         self.season_field_id = QLabel(self)
         self.season_field_id.setTextFormat(Qt.RichText)
         self.season_field_id.setWordWrap(True)
@@ -102,7 +114,9 @@ class CoverageSearchResultItemWidget(QWidget):
             self.coverage_type = QLabel(self)
             self.coverage_type.setTextFormat(Qt.RichText)
             self.coverage_type.setWordWrap(True)
-            self.coverage_type.setText(coverage_map_json.get('coverageType', ''))
+            self.coverage_type.setText(
+                coverage_map_json.get(
+                    'coverageType', ''))
             self.map_description_layout.addWidget(self.coverage_type, 3, 0)
 
         else:

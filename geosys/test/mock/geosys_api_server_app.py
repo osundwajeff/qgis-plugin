@@ -69,7 +69,10 @@ def base_reference_map(string_id):
         return jsonify({"error": "Invalid headers"}), 400
 
     data = request.get_json()
-    if not data or "SeasonField" not in data or "Image" not in data:
+    lowercase_keys = {key.lower() for key in data}
+
+    if (not data or "seasonfield" not in lowercase_keys
+            or "image" not in lowercase_keys):
         return jsonify({"error": "Invalid data structure"}), 400
 
     response = {

@@ -123,7 +123,7 @@ class ApiClient(object):
 
         return response
 
-    def get_content(self, url, params=None):
+    def get_content(self, url, params=None, data=None):
         """Get the response content.
 
         :param url: API url.
@@ -135,7 +135,12 @@ class ApiClient(object):
         :return: Response content.
         :rtype: bytes
         """
-        response = get(
-            url, headers=self.headers, params=params, proxies=self.proxy,
-            stream=True)
+
+        response = self.post(
+            url,
+            headers=self.headers,
+            params=params,
+            json=data,
+            stream=True
+        )
         return response.content
