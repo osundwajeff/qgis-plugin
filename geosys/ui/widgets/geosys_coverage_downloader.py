@@ -962,21 +962,6 @@ def download_field_map(
                     list_items = [PGW2, LEGEND]
 
                 for item in list_items:
-                    #url = field_map_json['_links'][item['api_key']]
-                    
-                    # TODO: Check the significance of this section on other map types
-                    char_question_mark = '?'  # Filtering char
-                    # Filtering, which starts with '?' has already been added,
-                    # so appending with '&'
-                    #if char_question_mark in url:
-                    #    url = '{}&zoning=true&zoneCount={}'.format(
-                    #        url, data.get('zoneCount')) \
-                    #        if data.get('zoning') else url
-                    #else:  # No filtering added yet, so appending with '?'
-                    #    url = '{}?zoning=true&zoneCount={}'.format(
-                    #        url, data.get('zoneCount')) \
-                    #        if data.get('zoning') else url
-
                     destination_filename = '{}{}'.format(
                         destination_base_path, item['extension'])
                     fetch_data(url, destination_filename, headers=headers)

@@ -69,7 +69,7 @@ from geosys.utilities.gui_utilities import (
 )
 from geosys.utilities.resources import get_ui_class
 from geosys.utilities.settings import setting, set_setting
-from geosys.utilities.utilities import check_if_file_exists, log
+from geosys.utilities.utilities import check_if_file_exists
 
 FORM_CLASS = get_ui_class('geosys_dockwidget_base.ui')
 
