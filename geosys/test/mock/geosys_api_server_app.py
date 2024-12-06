@@ -61,7 +61,7 @@ def field_level_maps_coverage():
     return jsonify(response)
 
 
-@app.route("/field-level-maps/v5/maps/base-reference-map/<string:string_id>",
+@app.route("/field-level-maps/v5/maps/base-reference-map/<string:string_id>/",
            methods=["POST"])
 def base_reference_map(string_id):
     if request.headers.get("accept") != "application/json" or \
@@ -73,7 +73,7 @@ def base_reference_map(string_id):
 
     if (not data or "seasonfield" not in lowercase_keys
             or "image" not in lowercase_keys):
-        return jsonify({"error": "Invalid data structure"}), 400
+        return jsonify({"error": "Invalid data structure", "data": data}), 400
 
     response = {
         "id": "09BLXmtcED029BKAoVnjZKEQ",
@@ -96,7 +96,7 @@ def base_reference_map(string_id):
     return jsonify(response)
 
 
-@app.route("/field-level-maps/v5/maps/difference-map/<string:string_id>",
+@app.route("/field-level-maps/v5/maps/difference-map/<string:string_id>/",
            methods=["POST"])
 def difference_map(string_id):
     if request.headers.get(
@@ -107,8 +107,8 @@ def difference_map(string_id):
     lowercase_keys = {key.lower() for key in data}
 
     if (not data or "seasonfield" not in lowercase_keys
-            or "earliestimage" not in data or "latestimage" not in data):
-        return jsonify({"error": "Invalid request data"}), 400
+            or "earliestimage" not in lowercase_keys or "latestimage" not in lowercase_keys):
+        return jsonify({"error": "Invalid request data", "data": data}), 400
 
     response = {
         "id": "09BLXmtcED029BKAoVnjZKEQ",
@@ -143,7 +143,7 @@ def management_zones_map(map_type):
     lowercase_keys = {key.lower() for key in data}
 
     if (not data or "seasonfield" not in lowercase_keys
-            or "image" not in lowercase_keys):
+            or "images" not in lowercase_keys):
         return jsonify({"error": "Invalid request data"}), 400
 
     zone_count = data.get("zoneCount")

@@ -1037,8 +1037,8 @@ def download_field_map(
                              else BRIDGE_URLS[region]['prod'])
             if output_map_format in ZIPPED_FORMAT:
                 source_map_id = field_map_json.get('id')
-                url = f"{bridge_server}/field-level-maps/v5/maps/{
-                    source_map_id}/image{output_map_format['extension']}"
+                url = (f"{bridge_server}/field-level-maps/v5/maps/"
+                       f"{source_map_id}/image{output_map_format['extension']}")
                 method = 'GET'
             else:
                 url = field_map_json['_links'][output_map_format['api_key']]

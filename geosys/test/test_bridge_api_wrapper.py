@@ -112,9 +112,16 @@ class BridgeAPIWrapperTest(unittest.TestCase):
     def test_get_field_map(self):
         """Test we can successfully get the field map."""
         map_type_key = 'NDVI'
-        season_field_id = 'nja3zv9'
         image_date = '2024-10-21'
         image_id = 'IKc73hpUQ71zsw94i77UI1lwJh7dcYFoTFwjoPfYPAq'
+
+        geometry = ("POLYGON(("
+                    "1.5614669851321183 43.43877959480905,"
+                    "1.5720241598147355 43.43877959480905,"
+                    "1.5720241598147355 43.43323264029555,"
+                    "1.5614669851321183 43.43323264029555,"
+                    "1.5614669851321183 43.43877959480905))"
+                    )
 
         bridge_api = BridgeAPI(
             username=self.username,
@@ -127,8 +134,9 @@ class BridgeAPIWrapperTest(unittest.TestCase):
             server_url=self.app_server.url
         )
         field_map = bridge_api.get_field_map(
-            map_type_key, season_field_id, image_date, image_id
+            map_type_key, None, geometry, image_date, image_id
         )
+        print(field_map)
         self.assertTrue('seasonField' in field_map)
 
     def test_get_difference_map(self):
@@ -137,6 +145,14 @@ class BridgeAPIWrapperTest(unittest.TestCase):
         season_field_id = 'nja3zv9'
         earliest_image_date = '2024-10-21'
         latest_image_date = '2024-11-02'
+
+        geometry = ("POLYGON(("
+                    "1.5614669851321183 43.43877959480905,"
+                    "1.5720241598147355 43.43877959480905,"
+                    "1.5720241598147355 43.43323264029555,"
+                    "1.5614669851321183 43.43323264029555,"
+                    "1.5614669851321183 43.43877959480905))"
+                    )
 
         bridge_api = BridgeAPI(
             username=self.username,
@@ -149,9 +165,10 @@ class BridgeAPIWrapperTest(unittest.TestCase):
             server_url=self.app_server.url
         )
         field_map = bridge_api.get_difference_map(
-            map_type_key, season_field_id,
+            map_type_key, geometry,
             earliest_image_date, latest_image_date
         )
+        print(field_map)
 
         self.assertTrue('seasonField' in field_map)
 
@@ -186,6 +203,7 @@ class BridgeAPIWrapperTest(unittest.TestCase):
         # test SAMZ auto
         field_map = bridge_api.get_samz_map(
             geom, images_ids, zone_count=zoneCount)
+        print(field_map)
 
         self.assertTrue('seasonField' in field_map)
 

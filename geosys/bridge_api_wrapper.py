@@ -341,15 +341,15 @@ class BridgeAPI(ApiClient):
                 request_data = None
         else:
             request_data = {
+                'Image': {
+                    "Id": image_id
+                },
                 'SeasonField': {
                     'Id': season_field_id,
                     'geometry': season_field_geom
                 },
                 "offset": 0,
                 "gain": 0,
-                "seasonField": {
-                    "geometry": season_field_geom,
-                }
             }
             request_data.update(kwargs)
 
@@ -368,7 +368,7 @@ class BridgeAPI(ApiClient):
             params)
 
     def get_difference_map(
-            self, map_type_key, season_field_id,
+            self, map_type_key, season_field_geometry,
             earliest_image_date, latest_image_date, **kwargs):
         """Get requested difference map.
 
@@ -395,7 +395,8 @@ class BridgeAPI(ApiClient):
         # Construct map creation parameters
         request_data = {
             "SeasonField": {
-                "Id": season_field_id
+                "Id": None,
+                "geometry": season_field_geometry
             },
             "EarliestImage": {
                 "Date": earliest_image_date
@@ -448,7 +449,8 @@ class BridgeAPI(ApiClient):
             },
             "Images": [
                 {"id": image_id} for image_id in list_of_image_ids
-            ]
+            ],
+            "zoneCount": zone_count
         }
 
         return self._get_field_map(SAMZ['key'], request_data)
