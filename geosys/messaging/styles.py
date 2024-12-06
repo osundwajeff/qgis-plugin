@@ -48,7 +48,8 @@ SECTION_LEVEL_2_STYLE = {
 
 SUBSECTION_LEVEL_3_STYLE = {
     'level': 3,
-    'style_class': 'subsection'}
+    'style_class': 'subsection',
+    'attributes': 'style="color: #00B2F4;"'}
 
 HEADING_LEVEL_4_STYLE = {
     'level': 4,
@@ -123,6 +124,6 @@ def logo_element():
         an empty path if using QUrl.toLocalPath
     """
 
-    path = os.path.join(resources_path(), 'img', 'logos', 'geosys-color.jpg')
+    path = os.path.join(resources_path(), 'img', 'logos', 'earthdaily.png')
     url = urllib.parse.urljoin('file:', urllib.request.pathname2url(path))
     return url

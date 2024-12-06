@@ -296,8 +296,8 @@ class MessageViewer(QtWebKitWidgets.QWebView):
         """Helper to write the log out as an html file."""
         html = html_header()
         html += (
-            '<img src="file:///%s/img/logos/geosys-color.jpg" '
-            'title="GEOSYS Logo" alt="GEOSYS Logo" />' % resources_path())
+            '<img src="file:///%s/img/logos/earthdaily.png" '
+            'title="EarthDaily Logo" alt="EarthDaily Logo" />' % resources_path())
         html += ('<h5 class="info"><i class="icon-info-sign icon-white"></i> '
                  '%s</h5>' % self.tr('Analysis log'))
         for item in self.dynamic_messages_log:
