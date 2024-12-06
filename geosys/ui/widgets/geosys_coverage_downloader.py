@@ -285,7 +285,6 @@ class CoverageSearchThread(QThread):
                     geometry, self.crop_type, self.sowing_date,
                     filters=self.filters
                 )
-                log(f"Results: {results}")
 
                 if isinstance(results, dict) and results.get('message'):
                     # TODO handle model_validation_error
@@ -521,8 +520,6 @@ class CoverageSearchThread(QThread):
                 "Error of processing!\n{0}: {1}")).format(
                 unicode(sys.exc_info()[0].__name__), unicode(
                     sys.exc_info()[1]))
-
-            log(f"{error_text}, {e}")
 
             error_text = f"{error_text},-- {e}"
             self.error_occurred.emit(error_text)
@@ -791,7 +788,6 @@ def create_samz_map(
     bridge_api = BridgeAPI(
         *credentials_parameters_from_settings(),
         proxies=QGISSettings.get_qgis_proxy())
-    log(f"bridge_api: {bridge_api.headers}")
     samz_map_json = bridge_api.get_samz_map(
         geometry,
         list_of_image_ids,
@@ -809,7 +805,6 @@ def create_samz_map(
         ],
         "zoneCount": zone_count
     }
-    log(f"Samz map json: geometry: {geometry}, list_of_image_ids: {list_of_image_ids}, zone_count: {zone_count}")
 
     return download_field_map(
         field_map_json=samz_map_json,
@@ -903,7 +898,6 @@ def download_field_map(
                 method = 'POST'
             else:
                 url = field_map_json['_links'][output_map_format['api_key']]
-            log(f"URL: {url}")
         elif map_type_key == REFLECTANCE['key']:
             # This is only for reflectance map type
             # Also, reflectance can ONLY make use of tiff.zip format
@@ -946,13 +940,11 @@ def download_field_map(
         if output_map_format in ZIPPED_FORMAT:
             zip_path = tempfile.mktemp('{}.zip'.format(map_extension))
             url = '{}.zip'.format(url)
-            log('URL: {}, zip_path: {}'.format(url, zip_path))
             fetch_data(url, zip_path, headers=headers, method=method, payload=data)
             extract_zip(zip_path, destination_base_path)
         else:
             destination_filename = (
                 destination_base_path + output_map_format['extension'])
-            log('URL: {}, destination_filename: {}, headers: {}'.format(url, destination_filename, headers))
             fetch_data(url, destination_filename, headers=headers)
             if output_map_format == PNG or output_map_format == PNG_KMZ:
                 # Download associated legend and world-file for geo-referencing
@@ -970,7 +962,6 @@ def download_field_map(
                     list_items = [PGW2, LEGEND]
 
                 for item in list_items:
-                    log('Here: {}'.format(item))
                     #url = field_map_json['_links'][item['api_key']]
                     
                     # TODO: Check the significance of this section on other map types
@@ -988,7 +979,6 @@ def download_field_map(
 
                     destination_filename = '{}{}'.format(
                         destination_base_path, item['extension'])
-                    log('destination_filename: {}, headers: {}'.format(destination_filename, headers))
                     fetch_data(url, destination_filename, headers=headers)
         # Get hotspots for zones if they have been requested by user.
         bridge_api = BridgeAPI(
@@ -1062,7 +1052,6 @@ def download_field_map(
                     segment_filename
                 )
     except Exception as e:
-        log(f"Error during file download: {str(e)}")
         message = f"Failed to download file. Error: {str(e)}"
         return False, message
     return True, message

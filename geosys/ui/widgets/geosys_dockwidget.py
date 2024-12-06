@@ -749,7 +749,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 break
 
         map_product_definition = get_definition(self.map_product)
-        log(f"Map product definition: {map_product_definition}")
         if gain_offset_allowed and \
                 (self.spinBox_gain.value() > 0 or
                  self.spinBox_offset.value() > 0):  # Gain and offset will be added to the data
@@ -772,8 +771,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 ORGANIC_AVERAGE: self.organic_average,
                 SAMZ_ZONE: self.samz_zone
             }
-            
-        log(f'Zone count: {SAMZ_ZONE}')
 
         if self.samz_zone > 0:
             self.samz_zoning = True
@@ -821,7 +818,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     )
 
         zone_cnt = self.samz_zone_form.value()
-        log(f"Zone Count: {zone_cnt}")
         if map_product_definition == SAMZ:
             image_dates = []
             image_ids = []
@@ -834,25 +830,18 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 )
                 return
             # Proceed with custom SAMZ using selected images
-            log(f"Map Specifications: {map_specifications}")
             season_field_id = map_specifications[0]['seasonField']['id']
-            log(f"Season Field ID: {season_field_id}")
             geometry = self.wkt_geometries[0]
-            log(f"Geometry: {geometry}")
             if len(map_specifications) == 1:
                 # Log and use the single image provided
                 single_specification = map_specifications[0]
                 image_dates.append(single_specification['image']['date'])
-                log(f"Using single image. Image Date: {single_specification['image']['date']}")
                 image_ids.append(single_specification['image']['id'])
-                log(f"Using single image. Image ID: {single_specification['image']['id']}")
             else:
                 # Iterate through multiple specifications
                 for map_specification in map_specifications:
                     image_dates.append(map_specification['image']['date'])
-                    log(f"Image Date: {map_specification['image']['date']}")
                     image_ids.append(map_specification['image']['id'])
-                    log(f"Image ID: {map_specification['image']['id']}")
 
             filename = '{}_{}_zones'.format(
                 SAMZ['key'], str(zone_cnt))
@@ -861,10 +850,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 filename,
                 self.output_map_format['extension']
             )
-            
-            log(f'Filename: {filename}')
-            
-            log((f'Data: {data}'))
 
             is_success, message = create_samz_map(
                 geometry, image_ids, image_dates, zone_cnt, self.output_directory, filename,
@@ -1103,7 +1088,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         :param thumbnail_ba: Thumbnail image data in byte array format.
         :type thumbnail_ba: QByteArray
         """
-        log(f"Received Map JSON: {coverage_map_json}")
         if coverage_map_json:
             custom_widget = CoverageSearchResultItemWidget(
                 coverage_map_json, thumbnail_ba, self.map_product)

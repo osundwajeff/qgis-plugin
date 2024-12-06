@@ -101,8 +101,6 @@ class FieldLevelMapsAPIClient(ApiClient):
             headers=headers,
             params=filters,
             json=data)
-        log(f"{self.full_url('season-fields', 'catalog-imagery')}, {headers}, {filters}, {data}")
-        log(f"Response: {response.json()}")
 
         return response.json()
 
@@ -261,7 +259,6 @@ class FieldLevelMapsAPIClient(ApiClient):
                     'management-zones-map',
                     'SAMZ?storeRequest=true&directLinks=true'
                 )
-                log(f"Full URL: {full_url}")
 
                 response = self.post(
                     full_url,
