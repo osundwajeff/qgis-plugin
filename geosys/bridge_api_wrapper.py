@@ -355,7 +355,6 @@ class BridgeAPI(ApiClient):
 
         # Get request parameters
         params = kwargs.get('params')
-        log('Request data: {}'.format(request_data))
 
         return self._get_field_map(
             map_type_key,
@@ -491,11 +490,6 @@ class BridgeAPI(ApiClient):
         }
         request_data.update(kwargs)
 
-        log('Request data: {}'.format(request_data))
-        log('URL: {}'.format(url))
-
         rx_json = api_client.get_rx_map(url, request_data, patch_data)
-
-        #log('Response RX JSON data: {}'.format(rx_json))
 
         return rx_json

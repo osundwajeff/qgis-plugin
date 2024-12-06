@@ -382,7 +382,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # If current page is map creation parameters page, create map without
         # increasing index.
         if self.current_stacked_widget_index == 2:
-            log("Creating map")
             self.start_map_creation()
             return
 
@@ -827,7 +826,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         geometry = self.wkt_geometries[0]
         # Checks whether the gain and offset values are allowed
 
-        log(f"map specifications {map_specifications}")
         self.output_directory = setting(
             'output_directory', expected_type=str, qsettings=self.settings)
 
@@ -850,7 +848,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 break
 
         map_product_definition = get_definition(self.map_product)
-        log(f"Map product definition: {map_product_definition}")
         if gain_offset_allowed and \
                 (self.spinBox_gain.value() > 0
                  or self.spinBox_offset.value() > 0):  # Gain and offset will be added to the data
@@ -873,8 +870,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 ORGANIC_AVERAGE: self.organic_average,
                 SAMZ_ZONE: self.samz_zone
             }
-            
-        log(f'Zone count: {SAMZ_ZONE}')
 
         if self.samz_zone > 0:
             self.samz_zoning = True
@@ -922,7 +917,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     )
 
         zone_cnt = self.samz_zone_form.value()
-        log(f"Zone Count: {zone_cnt}")
         if map_product_definition == SAMZ:
             image_dates = []
             image_ids = []
@@ -946,7 +940,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 # Iterate through multiple specifications
                 for map_specification in map_specifications:
                     image_dates.append(map_specification['image']['date'])
-                    log(f"Image Date: {map_specification['image']['date']}")
                     image_ids.append(map_specification['image']['id'])
 
             filename = '{}_{}_zones'.format(
@@ -956,10 +949,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 filename,
                 self.output_map_format['extension']
             )
-            
-            log(f'Filename: {filename}')
-            
-            log((f'Data: {data}'))
 
             is_success, message = create_samz_map(
                 geometry, image_ids, image_dates, zone_cnt, self.output_directory, filename,
@@ -985,8 +974,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 return
 
             # Extract season field and image IDs
-            log("Map specifications: {}".format(self.selected_coverage_results))
-
             image_id = map_specifications[0]['image']['id']
             image_date = map_specifications[0]['image']['date']
             season_field_geom = self.wkt_geometries[0]
@@ -994,15 +981,15 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             try:
                 # Call API to fetch NDVI for the selected image
                 ndvi_response = fetch_ndvi_map(season_field_geom, image_id)
-                log(f"NDVI Response: {ndvi_response}")
                 if ndvi_response and 'id' in ndvi_response:
                     source_map_id = (ndvi_response['id'])
-                    log(f"Source Map Id: {source_map_id}")
-                else:
-                    log(f"No NDVI image found for Image ID: {image_id}")
             except Exception as e:
-                log(f"Error fetching NDVI for Image ID {image_id}: {e}")
-
+                QMessageBox.critical(
+                    self,
+                    'RX Map',
+                    f'Error fetching NDVI map: {e}'
+                )
+                return
 
             filename = f"RX_zones_{rx_zone_count}"
             filename = check_if_file_exists(
@@ -1074,7 +1061,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     max_yield_val=self.yield_maximum_form.value(),
                     sample_map_id=sample_map_id
                 )
-                log(f" Error {message}")
                 if not is_success:
                     QMessageBox.critical(
                         self,
@@ -1109,7 +1095,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 unicode(sys.exc_info()[0].__name__),
                 unicode(sys.exc_info()[1]))
             QMessageBox.critical(self, message_title, error_text)
-            log(f"Problem {e}, {error_text}")
         finally:
             QApplication.restoreOverrideCursor()
 
@@ -1272,7 +1257,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         :param thumbnail_ba: Thumbnail image data in byte array format.
         :type thumbnail_ba: QByteArray
         """
-        log(f"Received Map JSON: {coverage_map_json}")
         if coverage_map_json:
             custom_widget = CoverageSearchResultItemWidget(
                 coverage_map_json, thumbnail_ba, self.map_product)

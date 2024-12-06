@@ -666,8 +666,6 @@ def create_map(
     if map_type_key == SAMPLE_MAP['key']:
         field_map_json = map_specification
 
-    log(f"Field map json: {field_map_json}")
-
     return download_field_map(
         field_map_json=field_map_json,
         map_type_key=map_type_key,
@@ -916,8 +914,6 @@ def create_rx_map(
         patch_data=patch_data
     )
 
-    log("RX Map Before Download JSON: {}".format(rx_map_json.get('id')))
-
     return download_field_map(
         field_map_json=rx_map_json,
         map_type_key=map_type_key,
@@ -1066,7 +1062,6 @@ def download_field_map(
         if output_map_format in ZIPPED_FORMAT:
             zip_path = tempfile.mktemp('{}.zip'.format(map_extension))
             url = '{}.zip'.format(url)
-            log('URL: {}, zip_path: {}'.format(url, zip_path))
             fetch_data(
                 url,
                 zip_path,
@@ -1097,7 +1092,7 @@ def download_field_map(
                     destination_filename = '{}{}'.format(
                         destination_base_path, item['extension'])
                     fetch_data(url, destination_filename, headers=headers)
-                    log("done")
+
         # Get hotspots for zones if they have been requested by user.
         bridge_api = BridgeAPI(
             *credentials_parameters_from_settings(),
