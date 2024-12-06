@@ -821,21 +821,30 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if map_product_definition == SAMZ:
             image_dates = []
             image_ids = []
-            samz_mode = 'auto'
-            if map_specifications:
-                season_field_id = map_specifications[0]['seasonField']['id']
-                samz_mode = 'custom'
+            # Check if images are provided; raise an error if none are selected
+            if not map_specifications:
+                QMessageBox.critical(
+                    self,
+                    'Image Selection Required',
+                    'At least one image must be selected to generate a SAMZ map.'
+                )
+                return
+            # Proceed with custom SAMZ using selected images
+            season_field_id = map_specifications[0]['seasonField']['id']
+            geometry = self.wkt_geometries[0]
+            if len(map_specifications) == 1:
+                # Log and use the single image provided
+                single_specification = map_specifications[0]
+                image_dates.append(single_specification['image']['date'])
+                image_ids.append(single_specification['image']['id'])
+            else:
+                # Iterate through multiple specifications
                 for map_specification in map_specifications:
                     image_dates.append(map_specification['image']['date'])
                     image_ids.append(map_specification['image']['id'])
-            else:
-                # take season field id from the first item in coverage results
-                item = self.coverage_result_list.item(0)
-                item_data = item.data(Qt.UserRole)
-                season_field_id = item_data['seasonField']['id']
 
-            filename = '{}_{}_zones_{}_{}'.format(
-                SAMZ['key'], str(zone_cnt), season_field_id, samz_mode)
+            filename = '{}_{}_zones'.format(
+                SAMZ['key'], str(zone_cnt))
             filename = check_if_file_exists(
                 self.output_directory,
                 filename,
@@ -843,7 +852,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             )
 
             is_success, message = create_samz_map(
-                season_field_id, image_ids, image_dates, self.output_directory, filename,
+                geometry, image_ids, image_dates, zone_cnt, self.output_directory, filename,
                 output_map_format=self.output_map_format, params=data)
 
             if not is_success:
@@ -980,11 +989,12 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.coverage_result_list.clear()
 
         # start search thread
+        map_product = COLOR_COMPOSITION['key'] if self.map_product == SAMZ['key'] else self.map_product
         searcher = CoverageSearchThread(
             geometries=self.wkt_geometries,
             crop_type=self.crop_type,
             sowing_date=self.sowing_date,
-            map_product=self.map_product,
+            map_product=map_product,
             sensor_type=self.sensor_type,
             mask_type=self.mask_type,
             end_date=self.end_date,

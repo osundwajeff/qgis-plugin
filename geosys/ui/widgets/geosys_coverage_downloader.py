@@ -206,6 +206,24 @@ class CoverageSearchThread(QThread):
                 self.sensor_type and self.filters.update({
                     IMAGE_SENSOR: self.sensor_type
                 })
+            elif self.map_product == SAMZ['key']:
+                if self.mask_type in {'All', 'None'}:
+                    self.filters.update({
+                        MAPS_TYPE: COLOR_COMPOSITION['key'],
+                        IMAGE_DATE: date_filter
+                    })
+                    self.sensor_type and self.filters.update({
+                        IMAGE_SENSOR: self.sensor_type
+                    })
+                else:
+                    self.filters.update({
+                        MAPS_TYPE: COLOR_COMPOSITION['key'],
+                        IMAGE_DATE: date_filter,
+                        MASK: self.mask_type
+                    })
+                    self.sensor_type and self.filters.update({
+                        IMAGE_SENSOR: self.sensor_type
+                    })
 
             else:
                 # Coverage API call. Maps.Type should be included
@@ -267,7 +285,6 @@ class CoverageSearchThread(QThread):
                     geometry, self.crop_type, self.sowing_date,
                     filters=self.filters
                 )
-                log(f"Results: {results}")
 
                 if isinstance(results, dict) and results.get('message'):
                     # TODO handle model_validation_error
@@ -504,8 +521,6 @@ class CoverageSearchThread(QThread):
                 unicode(sys.exc_info()[0].__name__), unicode(
                     sys.exc_info()[1]))
 
-            log(f"{error_text}, {e}")
-
             error_text = f"{error_text},-- {e}"
             self.error_occurred.emit(error_text)
         finally:
@@ -723,9 +738,10 @@ def create_difference_map(
 
 
 def create_samz_map(
-        season_field_id,
+        geometry,
         list_of_image_ids,
         list_of_image_date,
+        zone_count,
         output_dir,
         filename,
         output_map_format,
@@ -773,11 +789,22 @@ def create_samz_map(
         *credentials_parameters_from_settings(),
         proxies=QGISSettings.get_qgis_proxy())
     samz_map_json = bridge_api.get_samz_map(
-        season_field_id,
+        geometry,
         list_of_image_ids,
         list_of_image_date,
-        **data
+        zone_count=zone_count,
     )
+    # Construct map creation parameters
+    request_data = {
+        "SeasonField": {
+            "Id": None,
+            "geometry": geometry
+        },
+        "Images": [
+            {"id": image_id} for image_id in list_of_image_ids
+        ],
+        "zoneCount": zone_count
+    }
 
     return download_field_map(
         field_map_json=samz_map_json,
@@ -785,7 +812,8 @@ def create_samz_map(
         destination_base_path=destination_base_path,
         output_map_format=output_map_format,
         headers=bridge_api.headers,
-        data=data)
+        data=request_data
+        )
 
 
 def download_field_map(
@@ -859,15 +887,26 @@ def download_field_map(
     map_extension = output_map_format['extension']
     try:
         seasonfield_id = field_map_json['seasonField']['id']
-        if map_type_key == REFLECTANCE['key']:
-            # This is only for reflectance map type
-            # Also, reflectance can ONLY make use of tiff.zip format
-
+        if map_type_key == "SAMZ":  # Handle SAMZ-specific URL construction
             # Retrieve the bridge server URL
             username, password, region, client_id, client_secret, use_testing_service = credentials_parameters_from_settings()
             bridge_server = (BRIDGE_URLS[region]['test']
-                             if use_testing_service
-                             else BRIDGE_URLS[region]['prod'])
+                                if use_testing_service
+                                else BRIDGE_URLS[region]['prod'])
+            if output_map_format in ZIPPED_FORMAT:
+                url = f"{bridge_server}/field-level-maps/v5/maps/management-zones-map/{map_type_key}/image{output_map_format['extension']}"
+                method = 'POST'
+            else:
+                url = field_map_json['_links'][output_map_format['api_key']]
+        elif map_type_key == REFLECTANCE['key']:
+            # This is only for reflectance map type
+            # Also, reflectance can ONLY make use of tiff.zip format
+            
+            # Retrieve the bridge server URL
+            username, password, region, client_id, client_secret, use_testing_service = credentials_parameters_from_settings()
+            bridge_server = (BRIDGE_URLS[region]['test']
+                                if use_testing_service
+                                else BRIDGE_URLS[region]['prod'])
 
             reflectance_map_family = REFLECTANCE['map_family']
             url = '{}/field-level-maps/v5/season-fields/{}/coverage/{}/{}/{}/image.tiff.zip'.format(
@@ -881,14 +920,14 @@ def download_field_map(
             url = field_map_json['_links'][output_map_format['api_key']]
 
         char_question_mark = '?'  # Filtering char
-        if char_question_mark in url:  # Filtering, which starts with '?' has already been added, so appending with '&'
-            url = '{}&zoning=true&zoneCount={}'.format(
-                url, data.get('zoneCount')) \
-                if data.get('zoning') else url
-        else:  # No filtering added yet, so appending with '?'
-            url = '{}?zoning=true&zoneCount={}'.format(
-                url, data.get('zoneCount')) \
-                if data.get('zoning') else url
+        #if char_question_mark in url:  # Filtering, which starts with '?' has already been added, so appending with '&'
+        #    url = '{}&zoning=true&zoneCount={}'.format(
+        #        url, data.get('zoneCount')) \
+        #        if data.get('zoning') else url
+        #else:  # No filtering added yet, so appending with '?'
+        #    url = '{}?zoning=true&zoneCount={}'.format(
+        #        url, data.get('zoneCount')) \
+        #        if data.get('zoning') else url
     except KeyError:
         # requested map format not found
         message = (
@@ -900,7 +939,8 @@ def download_field_map(
     try:
         if output_map_format in ZIPPED_FORMAT:
             zip_path = tempfile.mktemp('{}.zip'.format(map_extension))
-            fetch_data(url, zip_path, headers=headers)
+            url = '{}.zip'.format(url)
+            fetch_data(url, zip_path, headers=headers, method=method, payload=data)
             extract_zip(zip_path, destination_base_path)
         else:
             destination_filename = (
@@ -916,26 +956,12 @@ def download_field_map(
                 # composition
                 if map_type_key == COLOR_COMPOSITION['key']:
                     # Color composition has no legend
-                    list_items = [PGW]
+                    list_items = [PGW2]
                 else:
                     # Other maps
-                    list_items = [PGW, LEGEND]
+                    list_items = [PGW2, LEGEND]
 
                 for item in list_items:
-                    url = field_map_json['_links'][item['api_key']]
-
-                    char_question_mark = '?'  # Filtering char
-                    # Filtering, which starts with '?' has already been added,
-                    # so appending with '&'
-                    if char_question_mark in url:
-                        url = '{}&zoning=true&zoneCount={}'.format(
-                            url, data.get('zoneCount')) \
-                            if data.get('zoning') else url
-                    else:  # No filtering added yet, so appending with '?'
-                        url = '{}?zoning=true&zoneCount={}'.format(
-                            url, data.get('zoneCount')) \
-                            if data.get('zoning') else url
-
                     destination_filename = '{}{}'.format(
                         destination_base_path, item['extension'])
                     fetch_data(url, destination_filename, headers=headers)
@@ -1010,9 +1036,8 @@ def download_field_map(
                     'segments',
                     segment_filename
                 )
-    except:
-        # zip extraction error
-        message = 'Failed to download file.'
+    except Exception as e:
+        message = f"Failed to download file. Error: {str(e)}"
         return False, message
     return True, message
 

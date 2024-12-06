@@ -3,6 +3,7 @@
 import logging
 import os
 import zipfile
+import json
 
 from qgis.core import QgsApplication, QgsNetworkAccessManager
 # noinspection PyPackageRequirements
@@ -18,7 +19,7 @@ __revision__ = "$Format:%H$"
 LOGGER = logging.getLogger('geosys')
 
 
-def fetch_data(url, output_path, headers=None, progress_dialog=None):
+def fetch_data(url, output_path, headers=None, progress_dialog=None, method='GET', payload=None):
     """Download data from url and write to output_path.
 
     :param url: URL of the zip bundle.
@@ -52,7 +53,7 @@ def fetch_data(url, output_path, headers=None, progress_dialog=None):
         progress_dialog.setLabelText(label_text)
 
     # Download Process
-    downloader = FileDownloader(url, output_path, headers, progress_dialog)
+    downloader = FileDownloader(url, output_path, headers, progress_dialog, method, payload)
     try:
         result = downloader.download()
     except IOError as ex:
@@ -105,7 +106,7 @@ def extract_zip(zip_path, destination_base_path):
 class FileDownloader:
     """The blueprint for downloading file from url."""
 
-    def __init__(self, url, output_path, headers=None, progress_dialog=None):
+    def __init__(self, url, output_path, headers=None, progress_dialog=None, method='GET', payload=None):
         """Constructor of the class.
 
         :param url: URL of file.
@@ -113,6 +114,12 @@ class FileDownloader:
 
         :param output_path: Output path.
         :type output_path: str
+        
+        :param method: HTTP method (GET/POST).
+        :type method: str
+
+        :param payload: JSON payload for POST requests.
+        :type payload: str
 
         :param progress_dialog: Progress dialog widget.
         :type progress_dialog: QWidget
@@ -123,12 +130,25 @@ class FileDownloader:
         self.output_path = output_path
         self.headers = headers if headers else {}
         self.progress_dialog = progress_dialog
+        self.method = method.upper()
         if self.progress_dialog:
             self.prefix_text = self.progress_dialog.labelText()
+        # Convert payload to QByteArray
+        self.payload = payload
         self.output_file = None
         self.reply = None
         self.downloaded_file_buffer = None
         self.finished_flag = False
+        
+        
+         # Ensure Content-Type is set when a payload is present
+        if self.payload and 'Content-Type' not in self.headers:
+            self.headers['Content-Type'] = 'application/json'
+
+
+         # Ensure Content-Type is set when a payload is present
+        if self.payload and 'Content-Type' not in self.headers:
+            self.headers['Content-Type'] = 'application/json'
 
     def download(self):
         """Downloading the file.
@@ -160,7 +180,21 @@ class FileDownloader:
             #   request.setRawHeader(b'user-agent', userAgent)
             request.setRawHeader(
                 bytes(header_name, 'utf-8'), bytes(header_value, 'utf-8'))
-        self.reply = self.manager.get(request)
+        # Choose the HTTP method
+        if self.method == "GET":
+            self.reply = self.manager.get(request)
+        elif self.method == "POST":
+            if self.payload:
+                # Convert payload to JSON    
+                # Ensure Content-Type is set when a payload is present
+                if self.payload and 'Content-Type' not in self.headers:
+                    self.headers['Content-Type'] = 'application/json'
+
+                payload_data = QByteArray(json.dumps(self.payload).encode('utf-8'))
+                request.setHeader(QNetworkRequest.ContentTypeHeader, "application/json")
+                self.reply = self.manager.post(request, payload_data)
+            else:
+                raise ValueError("POST method requires a payload.")
         self.reply.readyRead.connect(self.get_buffer)
         self.reply.finished.connect(self.write_data)
         self.manager.requestTimedOut.connect(self.request_timeout)
@@ -248,6 +282,9 @@ class FileDownloader:
 
         elif result == QNetworkReply.ContentNotFoundError:
             LOGGER.exception('Path not found : %s' % self.url.path())
+            LOGGER.error(f"Content not found at URL: {self.url.toString()}")
+            LOGGER.error(f"Headers sent: {self.requestHeaders().toRawHeaders()}")
+            LOGGER.error(f"Server response: {self.reply.readAll().data()}")
             return False, 'Sorry, the content was not found on the server.'
 
         else:
