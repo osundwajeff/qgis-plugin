@@ -315,9 +315,8 @@ class FieldLevelMapsAPIClient(ApiClient):
                     map_family['endpoint'],
                     map_type['name']
                 )
-                log(f"Full URL {full_url}/image.png")
                 response = self.post(
-                    f"{full_url}/image.png",
+                    f"{full_url}",
                     headers=headers,
                     params=params,
                     json=data

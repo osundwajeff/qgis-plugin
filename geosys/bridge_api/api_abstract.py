@@ -135,9 +135,6 @@ class ApiClient(object):
         :return: Response content.
         :rtype: bytes
         """
-        # response = post(
-        #     url, headers=self.headers, params=params, proxies=self.proxy,
-        #     stream=True)
 
         response = self.post(
             url,

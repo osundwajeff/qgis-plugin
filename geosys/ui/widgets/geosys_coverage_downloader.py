@@ -511,9 +511,6 @@ class CoverageSearchThread(QThread):
                     }
 
                     if thumbnail_url:
-                        log(f"Thumbnail url {thumbnail_url},"
-                            f" params {params}, data {data}"
-                            )
                         thumbnail_content = searcher_client.get_content(
                             thumbnail_url, params=params, data=data)
                         thumbnail_ba = QByteArray(thumbnail_content)
@@ -658,8 +655,6 @@ def create_map(
 
     if map_type_key == SAMPLE_MAP['key']:
         field_map_json = map_specification
-
-    log(f"map json {field_map_json}")
 
     return download_field_map(
         field_map_json=field_map_json,
