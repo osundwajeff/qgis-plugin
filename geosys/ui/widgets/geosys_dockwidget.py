@@ -24,6 +24,7 @@
 """
 import os
 import sys
+import json
 
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSignal, QSettings, QMutex, QDate
@@ -80,7 +81,8 @@ from geosys.bridge_api.definitions import (
 from geosys.bridge_api.utilities import get_definition
 from geosys.ui.help.help_dialog import HelpDialog
 from geosys.ui.widgets.geosys_coverage_downloader import (
-    CoverageSearchThread, create_map, create_difference_map, create_samz_map
+    CoverageSearchThread, create_map, create_difference_map, create_samz_map,
+    create_rx_map, fetch_ndvi_map
 )
 from geosys.ui.widgets.geosys_itemwidget import CoverageSearchResultItemWidget
 from geosys.utilities.gui_utilities import (
@@ -92,7 +94,6 @@ from geosys.utilities.gui_utilities import (
 from geosys.utilities.resources import get_ui_class
 from geosys.utilities.settings import setting, set_setting
 from geosys.utilities.utilities import check_if_file_exists, log
-
 FORM_CLASS = get_ui_class('geosys_dockwidget_base.ui')
 
 
@@ -170,6 +171,10 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             ORGANIC_AVERAGE: self.organic_average_form,
             SAMZ_ZONE: self.samz_zone_form
         }
+        # For rx zone
+        self.fetch_rx_map = None
+        self.rx_zone = None # TODO: Handle the RX zone creation parameters similarly to the SAMZ zone
+        # TODO: Need to add the RX map creation parameters settings
 
         self.selected_coverage_results = []
 
@@ -190,6 +195,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         # Set connectors
         self.setup_connectors()
+        self.update_button_states()  # Ensure buttons are correctly initialized
 
         # Populate layer combo box
         self.connect_layer_listener()
@@ -311,6 +317,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # widget display
             self.current_selected_layer = self.geometry_combo_box.currentText()
 
+        # Default behavior when fetch_rx_group is not checked
         # If current page is coverage results page, prepare map creation
         # parameters.
         if self.current_stacked_widget_index == 1:
@@ -351,11 +358,30 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.set_gain_offset_state()  # Disabled gain and offset for some map product types
             self.set_parameter_values_as_default()
             # self.restore_parameter_values_from_setting()
+        
+        # Handle the case when fetch_rx_group is checked
+        if self.fetch_rx_group.isChecked():
+            # If on the first page, go to the next page
+            if self.current_stacked_widget_index == self.max_stacked_widget_index:
+                # If on the last page, perform the map creation task
+                self.png_radio_button_2.setEnabled(True)
+                self.tiff_radio_button_2.setEnabled(True)
+                self.shp_radio_button_2.setEnabled(True)
+                self.kmz_radio_button_2.setEnabled(True)
+                self.start_map_creation()
+                return
+            else:
+                # Otherwise, proceed to the next page
+                self.current_stacked_widget_index += 1
+                self.stacked_widget.setCurrentIndex(
+                    self.current_stacked_widget_index
+                )
+                self.set_next_button_text(self.current_stacked_widget_index)
+                return
 
         # If current page is map creation parameters page, create map without
         # increasing index.
         if self.current_stacked_widget_index == 2:
-            log("Creating map")
             self.start_map_creation()
             return
 
@@ -397,13 +423,20 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.spinBox_offset.show()
 
     def set_next_button_text(self, index):
-        """Programmatically changed next button text based on current page."""
+        """Programmatically change next button text based on current page."""
         text_rule = {
             0: 'Search Map',
             1: 'Next',
             2: 'Create Map'
         }
-        self.next_push_button.setText(text_rule[index])
+        if self.fetch_rx_group.isChecked():
+            # When fetch_rx_group is active, set "Next" or "Create Map"
+            if index == self.max_stacked_widget_index:
+                self.next_push_button.setText("Create Map")
+            else:
+                self.next_push_button.setText("Next")
+        else:
+            self.next_push_button.setText(text_rule[index])
 
     def handle_difference_map_button(self):
         """Handle difference map button behavior."""
@@ -553,25 +586,47 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     def get_map_format(self):
         """Get selected map format from the radio button."""
-
-        widget_data = [
-            {
-                'widget': self.png_radio_button,
-                'data': PNG
-            },
-            {
-                'widget': self.tiff_radio_button,
-                'data': ZIPPED_TIFF
-            },
-            {
-                'widget': self.shp_radio_button,
-                'data': ZIPPED_SHP
-            },
-            {
-                'widget': self.kmz_radio_button,
-                'data': KMZ
-            },
-        ]
+        
+        if self.fetch_rx_group.isChecked():
+            # If fetch_rx_group is checked, the radio buttons are different
+            widget_data = [
+                {
+                    'widget': self.png_radio_button_2,
+                    'data': PNG
+                },
+                {
+                    'widget': self.tiff_radio_button_2,
+                    'data': ZIPPED_TIFF
+                },
+                {
+                    'widget': self.shp_radio_button_2,
+                    'data': ZIPPED_SHP
+                },
+                {
+                    'widget': self.kmz_radio_button_2,
+                    'data': KMZ
+                },
+            ]
+        else:
+            # Default behavior
+            widget_data = [
+                {
+                    'widget': self.png_radio_button,
+                    'data': PNG
+                },
+                {
+                    'widget': self.tiff_radio_button,
+                    'data': ZIPPED_TIFF
+                },
+                {
+                    'widget': self.shp_radio_button,
+                    'data': ZIPPED_SHP
+                },
+                {
+                    'widget': self.kmz_radio_button,
+                    'data': KMZ
+                },
+            ]
         for wd in widget_data:
             if wd['widget'].isChecked():
                 return wd['data']
@@ -768,9 +823,9 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         :param map_specifications: List of map specification.
         :type map_specifications: list
         """
+        geometry = self.wkt_geometries[0]
         # Checks whether the gain and offset values are allowed
 
-        log(f"map specifications {map_specifications}")
         self.output_directory = setting(
             'output_directory', expected_type=str, qsettings=self.settings)
 
@@ -908,6 +963,77 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
             # Add map to qgis canvas
             self.load_layer(os.path.join(self.output_directory, filename))
+        elif self.fetch_rx_group and self.fetch_rx_group.isChecked(): # RX Map Logic
+            rx_zone_count = self.fetch_rx_zones.value()
+            if not map_specifications:
+                QMessageBox.critical(
+                    self,
+                    'Map Creation Error',
+                    'No coverage results available for RX Map creation.'
+                )
+                return
+
+            # Extract season field and image IDs
+            image_id = map_specifications[0]['image']['id']
+            image_date = map_specifications[0]['image']['date']
+            season_field_geom = self.wkt_geometries[0]
+            source_map_id = None
+            try:
+                # Call API to fetch NDVI for the selected image
+                ndvi_response = fetch_ndvi_map(season_field_geom, image_id)
+                if ndvi_response and 'id' in ndvi_response:
+                    source_map_id = (ndvi_response['id'])
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    'RX Map',
+                    f'Error fetching NDVI map: {e}'
+                )
+                return
+
+            filename = f"RX_zones_{rx_zone_count}"
+            filename = check_if_file_exists(
+                self.output_directory,
+                filename,
+                self.output_map_format['extension']
+            )
+            
+            # Dynamically generate patch_data
+            patch_data = []
+            for i in range(rx_zone_count):
+                widget = getattr(self, f"zone_{i + 1}_sb", None)  # Dynamically get the spinbox
+                if widget:
+                    patch_data.append({
+                        "op": "add",
+                        "path": f"/parameters/zones/{i}/attributes/value",
+                        "value": widget.value()
+                    })
+            
+            #patch_data = json.dumps(patch_data)
+
+            is_success, message = create_rx_map(
+                source_map_id=source_map_id,
+                list_of_image_ids=image_id,
+                list_of_image_date=image_date,
+                zone_count=rx_zone_count,
+                output_dir=self.output_directory,
+                filename=filename,
+                output_map_format=self.output_map_format,
+                data=data,
+                patch_data=patch_data
+            )
+
+            if not is_success:
+                QMessageBox.critical(
+                    self,
+                    'RX Map Creation Error',
+                    f'Error creating RX Map: {message}'
+                )
+                return
+
+            # Load the RX map into the QGIS canvas
+            self.load_layer(os.path.join(self.output_directory, filename))
+            return
         else:
             for map_specification in map_specifications:
                 filename = '{}_{}_zones_{}_{}'.format(
@@ -927,7 +1053,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     sample_map_id = map_specification['id']
 
                 is_success, message = create_map(
-                    map_specification, self.output_directory, filename,
+                    map_specification, geometry, self.output_directory, filename,
                     data=data, output_map_format=self.output_map_format,
                     n_planned_value=self.n_planned_value,
                     yield_val=self.yield_average_form.value(),
@@ -935,7 +1061,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     max_yield_val=self.yield_maximum_form.value(),
                     sample_map_id=sample_map_id
                 )
-                log(f" Error {message}")
                 if not is_success:
                     QMessageBox.critical(
                         self,
@@ -970,7 +1095,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 unicode(sys.exc_info()[0].__name__),
                 unicode(sys.exc_info()[1]))
             QMessageBox.critical(self, message_title, error_text)
-            log(f"Problem {e}, {error_text}")
         finally:
             QApplication.restoreOverrideCursor()
 
@@ -1334,6 +1458,20 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 if field_name not in IGNORE_LAYER_FIELDS \
                         and field_type in ALLOWED_FIELD_TYPES:
                     self.cb_column_name.addItem(field_name)
+                    
+    def update_button_states(self):
+        """Update button states dynamically based on fetch_rx_group state."""
+        if self.fetch_rx_group.isChecked():
+            # Enable the Next button, disable Create Map button
+            self.next_push_button.setEnabled(True)
+            self.next_push_button.setVisible(True)
+            self.set_next_button_text(1)  # Set "Next" as the button text
+        else:
+            # Revert to default behavior when fetch_rx_group is not checked
+            self.next_push_button.setEnabled(
+                self.current_stacked_widget_index < self.max_stacked_widget_index
+            )
+            self.set_next_button_text(self.current_stacked_widget_index)
 
     def setup_connectors(self):
         """Setup signal/slot mechanisms for dock elements."""
@@ -1347,6 +1485,9 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # Product type has changed
         self.map_product_combo_box.currentIndexChanged.connect(
             self.product_type_change)
+        
+        # Fetch RX Group state toggled
+        self.fetch_rx_group.toggled.connect(self.update_button_states)
 
         # Stacked widget connector
         self.stacked_widget.currentChanged.connect(self.set_next_button_text)

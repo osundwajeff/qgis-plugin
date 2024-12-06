@@ -139,16 +139,6 @@ class FileDownloader:
         self.reply = None
         self.downloaded_file_buffer = None
         self.finished_flag = False
-        
-        
-         # Ensure Content-Type is set when a payload is present
-        if self.payload and 'Content-Type' not in self.headers:
-            self.headers['Content-Type'] = 'application/json'
-
-
-         # Ensure Content-Type is set when a payload is present
-        if self.payload and 'Content-Type' not in self.headers:
-            self.headers['Content-Type'] = 'application/json'
 
     def download(self):
         """Downloading the file.

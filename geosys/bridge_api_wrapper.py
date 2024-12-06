@@ -283,7 +283,8 @@ class BridgeAPI(ApiClient):
             self,
             map_type_key,
             season_field_id,
-            geometry,
+            season_field_geom,
+            image_date,
             image_id=None,
             n_planned=1.0,
             yield_val=0,
@@ -340,14 +341,15 @@ class BridgeAPI(ApiClient):
                 request_data = None
         else:
             request_data = {
-                "image": {
-                    "id": image_id
+                'Image': {
+                    "Id": image_id
+                },
+                'SeasonField': {
+                    'Id': season_field_id,
+                    'geometry': season_field_geom
                 },
                 "offset": 0,
                 "gain": 0,
-                "seasonField": {
-                    "geometry": geometry,
-                }
             }
             request_data.update(kwargs)
 
@@ -365,7 +367,7 @@ class BridgeAPI(ApiClient):
             params)
 
     def get_difference_map(
-            self, map_type_key, season_field_id,
+            self, map_type_key, season_field_geometry,
             earliest_image_date, latest_image_date, **kwargs):
         """Get requested difference map.
 
@@ -392,7 +394,8 @@ class BridgeAPI(ApiClient):
         # Construct map creation parameters
         request_data = {
             "SeasonField": {
-                "Id": season_field_id
+                "Id": None,
+                "geometry": season_field_geometry
             },
             "EarliestImage": {
                 "Date": earliest_image_date
@@ -450,3 +453,43 @@ class BridgeAPI(ApiClient):
         }
 
         return self._get_field_map(SAMZ['key'], request_data)
+
+    def get_rx_map(
+            self,
+            url,
+            source_map_id,
+            list_of_image_ids,
+            list_of_image_date=None,
+            zone_count=0,
+            patch_data=None,
+            **kwargs):
+        """Get requested RX map.
+
+        :param source_map_id: ID of the season field.
+        :param source_map_id: str
+
+        :param list_of_image_ids: IDs of selected images.
+        :param list_of_image_ids: list
+
+        :param list_of_image_date: List of image date indicating the maps
+            which are going to be compiled.
+        :type list_of_image_date: list
+
+        :param kwargs: Other map creation and request parameters.
+
+        :return: JSON response.
+            Map data specification based on given criteria.
+        :rtype: dict
+        """
+        # Construct map creation parameters
+        api_client = FieldLevelMapsAPIClient(
+            self.access_token, self.bridge_server)
+        request_data = {
+            "SourceMapId": source_map_id,
+            "zoneCount": zone_count
+        }
+        request_data.update(kwargs)
+
+        rx_json = api_client.get_rx_map(url, request_data, patch_data)
+
+        return rx_json

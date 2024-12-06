@@ -552,6 +552,7 @@ class CoverageSearchThread(QThread):
 
 def create_map(
         map_specification,
+        geometry,
         output_dir,
         filename,
         output_map_format,
@@ -627,13 +628,22 @@ def create_map(
     """""
     # Construct map creation parameters
     map_specification.update(map_specification['maps'][0])
+    map_specification.update(map_specification['seasonField'])
     map_type_key = map_specification['type']
     season_field_id = map_specification['seasonField']['id']
-    geometry = map_specification['seasonField']['geometry']
+    season_field_geom = geometry
     image_date = map_specification['image']['date']
     image_id = map_specification['image']['id']
     destination_base_path = os.path.join(output_dir, filename)
-    data = data if data else {}
+    request_data = {
+        'SeasonField': {
+            'Id': season_field_id,
+            'geometry': season_field_geom
+        },
+        'Image': {
+            'Id': image_id
+        }
+    }
     params = params if params else {}
     data.update({'params': params})
 
@@ -643,7 +653,7 @@ def create_map(
     field_map_json = bridge_api.get_field_map(
         map_type_key,
         season_field_id,
-        geometry,
+        season_field_geom,
         image_date,
         image_id,
         n_planned_value,
@@ -663,7 +673,7 @@ def create_map(
         output_map_format=output_map_format,
         headers=bridge_api.headers,
         map_specification=map_specification,
-        data=data,
+        data=request_data,
         image_id=image_id)
 
 
@@ -833,8 +843,84 @@ def create_samz_map(
         destination_base_path=destination_base_path,
         output_map_format=output_map_format,
         headers=bridge_api.headers,
-        data=request_data
-        )
+        data=data)
+
+
+def create_rx_map(
+        source_map_id,
+        list_of_image_ids,
+        list_of_image_date,
+        zone_count,
+        output_dir,
+        filename,
+        output_map_format,
+        data=None,
+        patch_data=None,
+        params=None):
+    """Create map based on given parameters.
+
+    :param source_map_id: ID of the season field.
+    :param source_map_id: str
+
+    :param list_of_image_ids: List of selected image IDs
+    :param list_of_image_ids: list
+
+    :param list_of_image_date: List of image date indicating the maps
+        which are going to be compiled.
+    :type list_of_image_date: list
+
+    :param output_dir: Base directory of the output.
+    :type output_dir: str
+
+    :param filename: Filename of the output.
+    :type filename: str
+
+    :param output_map_format: Output map format.
+    :type output_map_format: dict
+
+    :param data: Map creation data.
+        example: {
+            "MinYieldGoal": 0,
+            "MaxYieldGoal": 0,
+            "HistoricalYieldAverage": 0
+        }
+    :type data: dict
+
+    :param params: Map creation parameters.
+    :type params: dict
+    """""
+    map_type_key = "rx-map"
+    destination_base_path = os.path.join(output_dir, filename)
+    data = {
+        "name": "MyRx MPv5",
+        "tags": [
+            "RX_MAP"
+        ],
+        "sourceMapId": source_map_id,
+        "zoneCount": zone_count
+    }
+    params = params if params else {}
+    data.update({'params': params})
+
+    bridge_api = BridgeAPI(
+        *credentials_parameters_from_settings(),
+        proxies=QGISSettings.get_qgis_proxy())
+    rx_map_json = bridge_api.get_rx_map(
+        url=bridge_api.bridge_server,
+        source_map_id=source_map_id,
+        list_of_image_ids=list_of_image_ids,
+        list_of_image_date=list_of_image_date,
+        zone_count=zone_count,
+        patch_data=patch_data
+    )
+
+    return download_field_map(
+        field_map_json=rx_map_json,
+        map_type_key=map_type_key,
+        destination_base_path=destination_base_path,
+        output_map_format=output_map_format,
+        headers=bridge_api.headers,
+        data=data)
 
 
 def download_field_map(
@@ -912,22 +998,23 @@ def download_field_map(
             # Retrieve the bridge server URL
             username, password, region, client_id, client_secret, use_testing_service = credentials_parameters_from_settings()
             bridge_server = (BRIDGE_URLS[region]['test']
-                                if use_testing_service
-                                else BRIDGE_URLS[region]['prod'])
+                             if use_testing_service
+                             else BRIDGE_URLS[region]['prod'])
             if output_map_format in ZIPPED_FORMAT:
-                url = f"{bridge_server}/field-level-maps/v5/maps/management-zones-map/{map_type_key}/image{output_map_format['extension']}"
+                url = (f"{bridge_server}/field-level-maps/v5/maps/management-zones-map/"
+                       f"{map_type_key}/image{output_map_format['extension']}")
                 method = 'POST'
             else:
                 url = field_map_json['_links'][output_map_format['api_key']]
         elif map_type_key == REFLECTANCE['key']:
             # This is only for reflectance map type
             # Also, reflectance can ONLY make use of tiff.zip format
-            
+
             # Retrieve the bridge server URL
             username, password, region, client_id, client_secret, use_testing_service = credentials_parameters_from_settings()
             bridge_server = (BRIDGE_URLS[region]['test']
-                                if use_testing_service
-                                else BRIDGE_URLS[region]['prod'])
+                             if use_testing_service
+                             else BRIDGE_URLS[region]['prod'])
 
             reflectance_map_family = REFLECTANCE['map_family']
             url = '{}/field-level-maps/v5/season-fields/{}/coverage/{}/{}/{}/image.tiff.zip'.format(
@@ -937,15 +1024,29 @@ def download_field_map(
                 reflectance_map_family['endpoint'],
                 REFLECTANCE['key']
             )
+        elif map_type_key == "rx-map":
+            # Special handling for RX maps
+            # Retrieve the bridge server URL
+            username, password, region, client_id, client_secret, use_testing_service = credentials_parameters_from_settings()
+            bridge_server = (BRIDGE_URLS[region]['test']
+                             if use_testing_service
+                             else BRIDGE_URLS[region]['prod'])
+            if output_map_format in ZIPPED_FORMAT:
+                source_map_id = field_map_json.get('id')
+                url = (f"{bridge_server}/field-level-maps/v5/maps/"
+                       f"{source_map_id}/image{output_map_format['extension']}")
+                method = 'GET'
+            else:
+                url = field_map_json['_links'][output_map_format['api_key']]
         else:  # Other map types
             url = field_map_json['_links'][output_map_format['api_key']]
 
         char_question_mark = '?'  # Filtering char
-        #if char_question_mark in url:  # Filtering, which starts with '?' has already been added, so appending with '&'
+        # if char_question_mark in url:  # Filtering, which starts with '?' has already been added, so appending with '&'
         #    url = '{}&zoning=true&zoneCount={}'.format(
         #        url, data.get('zoneCount')) \
         #        if data.get('zoning') else url
-        #else:  # No filtering added yet, so appending with '?'
+        # else:  # No filtering added yet, so appending with '?'
         #    url = '{}?zoning=true&zoneCount={}'.format(
         #        url, data.get('zoneCount')) \
         #        if data.get('zoning') else url
@@ -961,7 +1062,12 @@ def download_field_map(
         if output_map_format in ZIPPED_FORMAT:
             zip_path = tempfile.mktemp('{}.zip'.format(map_extension))
             url = '{}.zip'.format(url)
-            fetch_data(url, zip_path, headers=headers, method=method, payload=data)
+            fetch_data(
+                url,
+                zip_path,
+                headers=headers,
+                method=method,
+                payload=data)
             extract_zip(zip_path, destination_base_path)
         else:
             destination_filename = (
@@ -986,6 +1092,7 @@ def download_field_map(
                     destination_filename = '{}{}'.format(
                         destination_base_path, item['extension'])
                     fetch_data(url, destination_filename, headers=headers)
+
         # Get hotspots for zones if they have been requested by user.
         bridge_api = BridgeAPI(
             *credentials_parameters_from_settings(),
@@ -1061,6 +1168,46 @@ def download_field_map(
         message = f"Failed to download file. Error: {str(e)}"
         return False, message
     return True, message
+
+
+def fetch_ndvi_map(geometry, image_id):
+    """Fetch NDVI map for a given image and geometry.
+
+    :param bridge_api: Instance of the BridgeAPI.
+    :type bridge_api: BridgeAPI
+
+    :param geometry: Geometry in WKT format.
+    :type geometry: str
+
+    :param season_field_id: Season field ID.
+    :type season_field_id: str
+
+    :param image_id: ID of the image to fetch.
+    :type image_id: str
+
+    :return: JSON response containing NDVI map details.
+    :rtype: dict
+    """
+
+    request_data = {
+        "SeasonField": {
+            "geometry": geometry
+        },
+        "Image": {
+            "Id": image_id
+        }
+    }
+    bridge_api = BridgeAPI(
+        *credentials_parameters_from_settings(),
+        proxies=QGISSettings.get_qgis_proxy())
+    ndvi_map_json = bridge_api.get_field_map(
+        map_type_key="NDVI",
+        season_field_id=None,
+        season_field_geom=geometry,
+        image_date=None,  # Optional if already filtered
+        image_id=image_id
+    )
+    return ndvi_map_json
 
 
 def credentials_parameters_from_settings():
