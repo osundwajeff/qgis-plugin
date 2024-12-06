@@ -283,12 +283,8 @@ class BridgeAPI(ApiClient):
             self,
             map_type_key,
             season_field_id,
-<<<<<<< HEAD
-            geometry,
-=======
             season_field_geom,
             image_date,
->>>>>>> 038988d (WIP: Fetch rx-map for selected ndvi image)
             image_id=None,
             n_planned=1.0,
             yield_val=0,
@@ -345,19 +341,14 @@ class BridgeAPI(ApiClient):
                 request_data = None
         else:
             request_data = {
-<<<<<<< HEAD
-                "image": {
-                    "id": image_id
-=======
                 'SeasonField': {
                     'Id': season_field_id,
                     'geometry': season_field_geom
->>>>>>> 038988d (WIP: Fetch rx-map for selected ndvi image)
                 },
                 "offset": 0,
                 "gain": 0,
                 "seasonField": {
-                    "geometry": geometry,
+                    "geometry": season_field_geom,
                 }
             }
             request_data.update(kwargs)
@@ -461,7 +452,7 @@ class BridgeAPI(ApiClient):
         }
 
         return self._get_field_map(SAMZ['key'], request_data)
-    
+
     def get_rx_map(
             self,
             url,
@@ -493,16 +484,16 @@ class BridgeAPI(ApiClient):
         api_client = FieldLevelMapsAPIClient(
             self.access_token, self.bridge_server)
         request_data = {
-            "SourceMapId":  source_map_id,
+            "SourceMapId": source_map_id,
             "zoneCount": zone_count
         }
         request_data.update(kwargs)
-        
+
         log('Request data: {}'.format(request_data))
         log('URL: {}'.format(url))
-        
+
         rx_json = api_client.get_rx_map(url, request_data, patch_data)
-        
+
         #log('Response RX JSON data: {}'.format(rx_json))
 
         return rx_json
