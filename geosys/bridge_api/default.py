@@ -43,6 +43,12 @@ BRIDGE_URLS = {
     }
 }
 
+HOTSPOT_URL = 'https://hotspots-dev.aws-dev.geosys.com/hotspots-processor'
+
+VEGETATION_ENDPOINT = 'vegetation'
+SAMZ_ENDPOINT = 'management-zones'
+ELEVATION_ENDPOINT = 'topology-map'
+
 CLIENT_ID = 'mapproduct_api'
 CLIENT_SECRET = 'mapproduct_api.secret'
 GRANT_TYPE = 'password'
