@@ -1005,8 +1005,8 @@ def download_field_map(
                              if use_testing_service
                              else BRIDGE_URLS[region]['prod'])
             if output_map_format in ZIPPED_FORMAT:
-                url = f"{bridge_server}/field-level-maps/v5/maps/management-zones-map/{
-                    map_type_key}/image{output_map_format['extension']}"
+                url = (f"{bridge_server}/field-level-maps/v5/maps/management-zones-map/"
+                       f"{map_type_key}/image{output_map_format['extension']}")
                 method = 'POST'
             else:
                 url = field_map_json['_links'][output_map_format['api_key']]

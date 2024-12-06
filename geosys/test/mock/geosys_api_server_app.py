@@ -104,7 +104,10 @@ def difference_map(string_id):
         return jsonify({"error": "Invalid headers"}), 400
 
     data = request.get_json()
-    if not data or "SeasonField" not in data or "EarliestImage" not in data or "LatestImage" not in data:
+    lowercase_keys = {key.lower() for key in data}
+
+    if (not data or "seasonfield" not in lowercase_keys
+            or "earliestimage" not in data or "latestimage" not in data):
         return jsonify({"error": "Invalid request data"}), 400
 
     response = {
@@ -137,7 +140,10 @@ def management_zones_map(map_type):
         return jsonify({"error": "Invalid headers"}), 400
 
     data = request.get_json()
-    if not data or "SeasonField" not in data or "Images" not in data:
+    lowercase_keys = {key.lower() for key in data}
+
+    if (not data or "seasonfield" not in lowercase_keys
+            or "image" not in lowercase_keys):
         return jsonify({"error": "Invalid request data"}), 400
 
     zone_count = data.get("zoneCount")
