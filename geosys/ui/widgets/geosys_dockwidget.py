@@ -1011,33 +1011,16 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 self.output_map_format['extension']
             )
             
-            patch_data = [
-                {
-                    "op":"add",
-                    "path": "/parameters/zones/0/attributes/value",
-                    "value": self.zone_1_sb.value()
-                },
-                {
-                    "op":"add",
-                    "path": "/parameters/zones/1/attributes/value",
-                    "value": self.zone_2_sb.value()
-                },
-                    {
-                    "op":"add",
-                    "path": "/parameters/zones/2/attributes/value",
-                    "value": self.zone_3_sb.value()
-                },
-                    {
-                    "op":"add",
-                    "path": "/parameters/zones/3/attributes/value",
-                    "value": self.zone_4_sb.value()
-                },
-                    {
-                    "op":"add",
-                    "path": "/parameters/zones/4/attributes/value",
-                    "value": self.zone_5_sb.value()
-                }
-            ]
+            # Dynamically generate patch_data
+            patch_data = []
+            for i in range(rx_zone_count):
+                widget = getattr(self, f"zone_{i + 1}_sb", None)  # Dynamically get the spinbox
+                if widget:
+                    patch_data.append({
+                        "op": "add",
+                        "path": f"/parameters/zones/{i}/attributes/value",
+                        "value": widget.value()
+                    })
             
             #patch_data = json.dumps(patch_data)
 

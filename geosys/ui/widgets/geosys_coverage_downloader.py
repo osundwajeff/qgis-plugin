@@ -923,7 +923,7 @@ def create_rx_map(
         patch_data=patch_data
     )
     
-    log("RX Map Before Download JSON: {}".format(rx_map_json))
+    log("RX Map Before Download JSON: {}".format(rx_map_json.get('id')))
 
     return download_field_map(
         field_map_json=rx_map_json,
