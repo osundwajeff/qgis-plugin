@@ -177,9 +177,10 @@ class FieldLevelMapsAPIClient(ApiClient):
                 image_id = None
                 seasonfield_id = None
 
-            if (map_type['key'] == REFLECTANCE['key'] or
-                    map_type['key'] == S2REP['key']):
-                # Reflectance and S2REP maps needs to make use of the catalog-imagery API
+            if (map_type['key'] == REFLECTANCE['key']
+                    or map_type['key'] == S2REP['key']):
+                # Reflectance and S2REP maps needs to make use of the
+                # catalog-imagery API
                 full_url = self.full_url(
                     'season-fields',
                     seasonfield_id,
@@ -257,7 +258,7 @@ class FieldLevelMapsAPIClient(ApiClient):
                 full_url = self.full_url(
                     'maps',
                     'management-zones-map',
-                    'SAMZ'
+                    'SAMZ?storeRequest=true&directLinks=true'
                 )
 
                 response = self.post(
@@ -312,18 +313,16 @@ class FieldLevelMapsAPIClient(ApiClient):
                 full_url = self.full_url(
                     'maps',
                     map_family['endpoint'],
-                    map_type['name']
+                    map_type['name'],
+                    '?storeRequest=true&directLinks=true'
                 )
-
                 response = self.post(
-                    full_url,
+                    f"{full_url}",
                     headers=headers,
                     params=params,
                     json=data
                 )
-
             return response.json()
-
         return {}
 
     def get_hotspot(self, url, params=None):
@@ -347,3 +346,64 @@ class FieldLevelMapsAPIClient(ApiClient):
             return response.json()
 
         return {}
+
+    def get_rx_map(
+        self,
+        url,
+        request_data,
+        patch_data,
+        params=None):
+        """
+        Get RX Map data from the server.
+
+        :param source_map_id: ID of the season field.
+        :type source_map_id: str
+
+        :param list_of_image_ids: List of image IDs for the RX map.
+        :type list_of_image_ids: list
+
+        :param list_of_image_date: List of image dates.
+        :type list_of_image_date: list
+
+        :param params: Additional parameters for RX Map creation.
+        :type params: dict
+
+        :return: JSON response.
+        :rtype: dict
+        """
+        params = params if params else {}
+        headers = {
+            'accept': 'application/json',
+            'content-type': 'application/json'
+        }
+
+        # Construct the full URL for the RX Map endpoint
+        full_url = self.full_url(
+            'maps',
+            'rx-map?storeRequest=true&directLinks=true&zoning=true'
+        )
+
+        # Send the request to the server
+        response = self.post(
+            full_url,
+            headers=headers,
+            json=request_data
+        )
+        
+        response_json = response.json()
+        
+        source_map_id = response_json.get("id")
+        
+        patch_url = self.full_url(
+            'maps',
+            source_map_id,
+            'rx-map'
+        )
+
+        response_patch = self.patch(
+            patch_url,
+            headers=headers,
+            json=patch_data
+        )
+
+        return response.json()

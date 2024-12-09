@@ -24,6 +24,7 @@
 """
 import os
 import sys
+import json
 
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSignal, QSettings, QMutex, QDate
@@ -40,13 +41,35 @@ from qgis.core import (
 from qgis.PyQt.QtCore import Qt
 
 from geosys.bridge_api.default import (
-    VECTOR_FORMAT, PNG, PNG_KMZ, ZIPPED_TIFF, ZIPPED_SHP, KMZ,
-    VALID_QGIS_FORMAT, YIELD_AVERAGE, YIELD_MINIMUM, YIELD_MAXIMUM,
-    ORGANIC_AVERAGE, POSITION, FILTER, SAMZ_ZONE, SAMZ_ZONING, HOTSPOT,
-    ZONING_SEGMENTATION, MAX_FEATURE_NUMBERS, DEFAULT_ZONE_COUNT, GAIN,
-    OFFSET, DEFAULT_N_PLANNED, DEFAULT_AVE_YIELD, DEFAULT_MIN_YIELD,
-    DEFAULT_MAX_YIELD, DEFAULT_ORGANIC_AVE, DEFAULT_GAIN, DEFAULT_OFFSET, DEFAULT_COVERAGE_PERCENT
-)
+    VECTOR_FORMAT,
+    PNG,
+    PNG_KMZ,
+    ZIPPED_TIFF,
+    ZIPPED_SHP,
+    KMZ,
+    VALID_QGIS_FORMAT,
+    YIELD_AVERAGE,
+    YIELD_MINIMUM,
+    YIELD_MAXIMUM,
+    ORGANIC_AVERAGE,
+    POSITION,
+    FILTER,
+    SAMZ_ZONE,
+    SAMZ_ZONING,
+    HOTSPOT,
+    ZONING_SEGMENTATION,
+    MAX_FEATURE_NUMBERS,
+    DEFAULT_ZONE_COUNT,
+    GAIN,
+    OFFSET,
+    DEFAULT_N_PLANNED,
+    DEFAULT_AVE_YIELD,
+    DEFAULT_MIN_YIELD,
+    DEFAULT_MAX_YIELD,
+    DEFAULT_ORGANIC_AVE,
+    DEFAULT_GAIN,
+    DEFAULT_OFFSET,
+    DEFAULT_COVERAGE_PERCENT)
 from geosys.bridge_api.definitions import (
     ARCHIVE_MAP_PRODUCTS, ALL_SENSORS, SENSORS, NDVI, EVI,
     SAMZ, SOIL, ELEVATION, REFLECTANCE, LANDSAT_8, LANDSAT_9, SENTINEL_2,
@@ -58,7 +81,8 @@ from geosys.bridge_api.definitions import (
 from geosys.bridge_api.utilities import get_definition
 from geosys.ui.help.help_dialog import HelpDialog
 from geosys.ui.widgets.geosys_coverage_downloader import (
-    CoverageSearchThread, create_map, create_difference_map, create_samz_map
+    CoverageSearchThread, create_map, create_difference_map, create_samz_map,
+    create_rx_map, fetch_ndvi_map
 )
 from geosys.ui.widgets.geosys_itemwidget import CoverageSearchResultItemWidget
 from geosys.utilities.gui_utilities import (
@@ -69,8 +93,7 @@ from geosys.utilities.gui_utilities import (
 )
 from geosys.utilities.resources import get_ui_class
 from geosys.utilities.settings import setting, set_setting
-from geosys.utilities.utilities import check_if_file_exists
-
+from geosys.utilities.utilities import check_if_file_exists, log
 FORM_CLASS = get_ui_class('geosys_dockwidget_base.ui')
 
 
@@ -148,6 +171,10 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             ORGANIC_AVERAGE: self.organic_average_form,
             SAMZ_ZONE: self.samz_zone_form
         }
+        # For rx zone
+        self.fetch_rx_map = None
+        self.rx_zone = None # TODO: Handle the RX zone creation parameters similarly to the SAMZ zone
+        # TODO: Need to add the RX map creation parameters settings
 
         self.selected_coverage_results = []
 
@@ -168,6 +195,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         # Set connectors
         self.setup_connectors()
+        self.update_button_states()  # Ensure buttons are correctly initialized
 
         # Populate layer combo box
         self.connect_layer_listener()
@@ -209,7 +237,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         """Populates the the Mask type combobox."""
         for mask_type in MASK_PARAMETERS:
             self.cb_mask.addItem(mask_type)
-            
+
             # Set 'Auto' as the default selected option
         index = self.cb_mask.findText('Auto')
         if index != -1:
@@ -228,10 +256,16 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         for map_product in ARCHIVE_MAP_PRODUCTS:
             product_name = map_product['name']
             if us_option:  # If US zone is selected the SOILMAP option will be added
-                add_ordered_combo_item(self.map_product_combo_box, map_product['name'], map_product['key'])
+                add_ordered_combo_item(
+                    self.map_product_combo_box,
+                    map_product['name'],
+                    map_product['key'])
             else:  # If EU area is selected the SOILMAP option will not be added
                 if product_name != SOIL['name']:
-                    add_ordered_combo_item(self.map_product_combo_box, map_product['name'], map_product['key'])
+                    add_ordered_combo_item(
+                        self.map_product_combo_box,
+                        map_product['name'],
+                        map_product['key'])
 
     def populate_date(self):
         """Set default value of start and end date to last week."""
@@ -252,9 +286,9 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # If the current map type is elevation or soil map and the
             # widget is on the map creation page, the back button should
             # take the user to the coverage parameters page
-            if ((self.map_product == ELEVATION['key'] or
-                 self.map_product == SOIL['key']) and
-                    self.current_stacked_widget_index == 2):
+            if ((self.map_product == ELEVATION['key']
+                 or self.map_product == SOIL['key'])
+                    and self.current_stacked_widget_index == 2):
                 self.current_stacked_widget_index -= 2
             else:
                 self.current_stacked_widget_index -= 1
@@ -279,9 +313,11 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.next_push_button.setEnabled(False)
 
             # Stores the current selected layer name
-            # This will be used to keep this layer selected for use in the widget display
+            # This will be used to keep this layer selected for use in the
+            # widget display
             self.current_selected_layer = self.geometry_combo_box.currentText()
 
+        # Default behavior when fetch_rx_group is not checked
         # If current page is coverage results page, prepare map creation
         # parameters.
         if self.current_stacked_widget_index == 1:
@@ -322,6 +358,26 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.set_gain_offset_state()  # Disabled gain and offset for some map product types
             self.set_parameter_values_as_default()
             # self.restore_parameter_values_from_setting()
+        
+        # Handle the case when fetch_rx_group is checked
+        if self.fetch_rx_group.isChecked():
+            # If on the first page, go to the next page
+            if self.current_stacked_widget_index == self.max_stacked_widget_index:
+                # If on the last page, perform the map creation task
+                self.png_radio_button_2.setEnabled(True)
+                self.tiff_radio_button_2.setEnabled(True)
+                self.shp_radio_button_2.setEnabled(True)
+                self.kmz_radio_button_2.setEnabled(True)
+                self.start_map_creation()
+                return
+            else:
+                # Otherwise, proceed to the next page
+                self.current_stacked_widget_index += 1
+                self.stacked_widget.setCurrentIndex(
+                    self.current_stacked_widget_index
+                )
+                self.set_next_button_text(self.current_stacked_widget_index)
+                return
 
         # If current page is map creation parameters page, create map without
         # increasing index.
@@ -342,7 +398,14 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         OM, SOILMAP, SAMZ, YGM, and YPM map product types.
         """
         selected_map_product = self.map_product  # Map product type selected by the user
-        list_products_to_exclude = ['COLORCOMPOSITION', 'ELEVATION', 'OM', 'SOILMAP', 'SAMZ', 'YGM', 'YPM']
+        list_products_to_exclude = [
+            'COLORCOMPOSITION',
+            'ELEVATION',
+            'OM',
+            'SOILMAP',
+            'SAMZ',
+            'YGM',
+            'YPM']
 
         for map_product_to_exclude in list_products_to_exclude:
             if selected_map_product == map_product_to_exclude:
@@ -360,13 +423,20 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.spinBox_offset.show()
 
     def set_next_button_text(self, index):
-        """Programmatically changed next button text based on current page."""
+        """Programmatically change next button text based on current page."""
         text_rule = {
             0: 'Search Map',
             1: 'Next',
             2: 'Create Map'
         }
-        self.next_push_button.setText(text_rule[index])
+        if self.fetch_rx_group.isChecked():
+            # When fetch_rx_group is active, set "Next" or "Create Map"
+            if index == self.max_stacked_widget_index:
+                self.next_push_button.setText("Create Map")
+            else:
+                self.next_push_button.setText("Next")
+        else:
+            self.next_push_button.setText(text_rule[index])
 
     def handle_difference_map_button(self):
         """Handle difference map button behavior."""
@@ -400,10 +470,12 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         for item in self.coverage_result_list.selectedItems():
             item_json = item.data(Qt.UserRole)
             if self.map_product == REFLECTANCE['key']:
-                # NDVI used for coverage. This is a workaround suggested by GeoSys
+                # NDVI used for coverage. This is a workaround suggested by
+                # GeoSys
                 item_json['maps'][0]['type'] = REFLECTANCE['key']
             elif self.map_product == SOIL['key']:
-                # Used when soilmap type. This is a workaround suggested by GeoSys
+                # Used when soilmap type. This is a workaround suggested by
+                # GeoSys
                 item_json['maps'][0]['type'] = SOIL['key']
             elif self.map_product == ELEVATION['key']:
                 # For elevation map type
@@ -465,7 +537,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             add_ordered_combo_item(
                 self.geometry_combo_box, title, layer_id, icon=icon)
 
-        current_index = self.geometry_combo_box.findText(self.current_selected_layer)
+        current_index = self.geometry_combo_box.findText(
+            self.current_selected_layer)
         if current_index >= 0:
             # Current text/previous selection, is in the list of active layers
             # The previous selection will still be selected
@@ -513,25 +586,47 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     def get_map_format(self):
         """Get selected map format from the radio button."""
-
-        widget_data = [
-            {
-                'widget': self.png_radio_button,
-                'data': PNG
-            },
-            {
-                'widget': self.tiff_radio_button,
-                'data': ZIPPED_TIFF
-            },
-            {
-                'widget': self.shp_radio_button,
-                'data': ZIPPED_SHP
-            },
-            {
-                'widget': self.kmz_radio_button,
-                'data': KMZ
-            },
-        ]
+        
+        if self.fetch_rx_group.isChecked():
+            # If fetch_rx_group is checked, the radio buttons are different
+            widget_data = [
+                {
+                    'widget': self.png_radio_button_2,
+                    'data': PNG
+                },
+                {
+                    'widget': self.tiff_radio_button_2,
+                    'data': ZIPPED_TIFF
+                },
+                {
+                    'widget': self.shp_radio_button_2,
+                    'data': ZIPPED_SHP
+                },
+                {
+                    'widget': self.kmz_radio_button_2,
+                    'data': KMZ
+                },
+            ]
+        else:
+            # Default behavior
+            widget_data = [
+                {
+                    'widget': self.png_radio_button,
+                    'data': PNG
+                },
+                {
+                    'widget': self.tiff_radio_button,
+                    'data': ZIPPED_TIFF
+                },
+                {
+                    'widget': self.shp_radio_button,
+                    'data': ZIPPED_SHP
+                },
+                {
+                    'widget': self.kmz_radio_button,
+                    'data': KMZ
+                },
+            ]
         for wd in widget_data:
             if wd['widget'].isChecked():
                 return wd['data']
@@ -644,7 +739,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # layer is not selected
             return False, 'Layer is not selected.'
         use_selected_features = (
-                self.selected_features_checkbox.isChecked() and (
+            self.selected_features_checkbox.isChecked() and (
                 layer.selectedFeatureCount() > 0))
         use_single_geometry = self.single_geometry_checkbox.isChecked()
 
@@ -685,7 +780,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         if self.map_product == SAMPLE_MAP['name'].lower():
             # These checks are only required for sample maps
-            self.sample_map_point_layer = item_data_from_combo(self.cb_point_layer)
+            self.sample_map_point_layer = item_data_from_combo(
+                self.cb_point_layer)
             if not self.sample_map_point_layer:
                 # Point layer
                 return False, 'Sample point layer has not been selected.'
@@ -707,12 +803,13 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.wkt_point_geometries = wkt_geometries_from_feature_iterator(
                 feature_points_iterator, MAX_FEATURE_NUMBERS, use_single_geometry)
 
-            self.attributes = attribute_from_feature_iterator(feature_points_iterator2, self.sample_map_field)
+            self.attributes = attribute_from_feature_iterator(
+                feature_points_iterator2, self.sample_map_field)
 
         # Get the start and end date
         self.start_date = self.start_date_edit.date().toString('yyyy-MM-dd')
         self.end_date = self.end_date_edit.date().toString('yyyy-MM-dd')
-        
+
         # Coverage percent
         self.coverage_percent = self.coverage_percent_value_spinbox.value()
 
@@ -726,12 +823,14 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         :param map_specifications: List of map specification.
         :type map_specifications: list
         """
+        geometry = self.wkt_geometries[0]
         # Checks whether the gain and offset values are allowed
 
         self.output_directory = setting(
             'output_directory', expected_type=str, qsettings=self.settings)
 
-        selected_map_product = self.map_product  # Map product type selected by the user
+        # Map product type selected by the user
+        selected_map_product = self.map_product
         list_products_to_exclude = [
             'COLORCOMPOSITION',
             'ELEVATION',
@@ -750,8 +849,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         map_product_definition = get_definition(self.map_product)
         if gain_offset_allowed and \
-                (self.spinBox_gain.value() > 0 or
-                 self.spinBox_offset.value() > 0):  # Gain and offset will be added to the data
+                (self.spinBox_gain.value() > 0
+                 or self.spinBox_offset.value() > 0):  # Gain and offset will be added to the data
             self.gain = self.spinBox_gain.value()  # Gain set by user
             self.offset = self.spinBox_offset.value()  # Offset set by user
             data = {
@@ -821,21 +920,30 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if map_product_definition == SAMZ:
             image_dates = []
             image_ids = []
-            samz_mode = 'auto'
-            if map_specifications:
-                season_field_id = map_specifications[0]['seasonField']['id']
-                samz_mode = 'custom'
+            # Check if images are provided; raise an error if none are selected
+            if not map_specifications:
+                QMessageBox.critical(
+                    self,
+                    'Image Selection Required',
+                    'At least one image must be selected to generate a SAMZ map.'
+                )
+                return
+            # Proceed with custom SAMZ using selected images
+            season_field_id = map_specifications[0]['seasonField']['id']
+            geometry = self.wkt_geometries[0]
+            if len(map_specifications) == 1:
+                # Log and use the single image provided
+                single_specification = map_specifications[0]
+                image_dates.append(single_specification['image']['date'])
+                image_ids.append(single_specification['image']['id'])
+            else:
+                # Iterate through multiple specifications
                 for map_specification in map_specifications:
                     image_dates.append(map_specification['image']['date'])
                     image_ids.append(map_specification['image']['id'])
-            else:
-                # take season field id from the first item in coverage results
-                item = self.coverage_result_list.item(0)
-                item_data = item.data(Qt.UserRole)
-                season_field_id = item_data['seasonField']['id']
 
-            filename = '{}_{}_zones_{}_{}'.format(
-                SAMZ['key'], str(zone_cnt), season_field_id, samz_mode)
+            filename = '{}_{}_zones'.format(
+                SAMZ['key'], str(zone_cnt))
             filename = check_if_file_exists(
                 self.output_directory,
                 filename,
@@ -843,7 +951,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             )
 
             is_success, message = create_samz_map(
-                season_field_id, image_ids, image_dates, self.output_directory, filename,
+                geometry, image_ids, image_dates, zone_cnt, self.output_directory, filename,
                 output_map_format=self.output_map_format, params=data)
 
             if not is_success:
@@ -855,6 +963,77 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
             # Add map to qgis canvas
             self.load_layer(os.path.join(self.output_directory, filename))
+        elif self.fetch_rx_group and self.fetch_rx_group.isChecked(): # RX Map Logic
+            rx_zone_count = self.fetch_rx_zones.value()
+            if not map_specifications:
+                QMessageBox.critical(
+                    self,
+                    'Map Creation Error',
+                    'No coverage results available for RX Map creation.'
+                )
+                return
+
+            # Extract season field and image IDs
+            image_id = map_specifications[0]['image']['id']
+            image_date = map_specifications[0]['image']['date']
+            season_field_geom = self.wkt_geometries[0]
+            source_map_id = None
+            try:
+                # Call API to fetch NDVI for the selected image
+                ndvi_response = fetch_ndvi_map(season_field_geom, image_id)
+                if ndvi_response and 'id' in ndvi_response:
+                    source_map_id = (ndvi_response['id'])
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    'RX Map',
+                    f'Error fetching NDVI map: {e}'
+                )
+                return
+
+            filename = f"RX_zones_{rx_zone_count}"
+            filename = check_if_file_exists(
+                self.output_directory,
+                filename,
+                self.output_map_format['extension']
+            )
+            
+            # Dynamically generate patch_data
+            patch_data = []
+            for i in range(rx_zone_count):
+                widget = getattr(self, f"zone_{i + 1}_sb", None)  # Dynamically get the spinbox
+                if widget:
+                    patch_data.append({
+                        "op": "add",
+                        "path": f"/parameters/zones/{i}/attributes/value",
+                        "value": widget.value()
+                    })
+            
+            #patch_data = json.dumps(patch_data)
+
+            is_success, message = create_rx_map(
+                source_map_id=source_map_id,
+                list_of_image_ids=image_id,
+                list_of_image_date=image_date,
+                zone_count=rx_zone_count,
+                output_dir=self.output_directory,
+                filename=filename,
+                output_map_format=self.output_map_format,
+                data=data,
+                patch_data=patch_data
+            )
+
+            if not is_success:
+                QMessageBox.critical(
+                    self,
+                    'RX Map Creation Error',
+                    f'Error creating RX Map: {message}'
+                )
+                return
+
+            # Load the RX map into the QGIS canvas
+            self.load_layer(os.path.join(self.output_directory, filename))
+            return
         else:
             for map_specification in map_specifications:
                 filename = '{}_{}_zones_{}_{}'.format(
@@ -874,7 +1053,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     sample_map_id = map_specification['id']
 
                 is_success, message = create_map(
-                    map_specification, self.output_directory, filename,
+                    map_specification, geometry, self.output_directory, filename,
                     data=data, output_map_format=self.output_map_format,
                     n_planned_value=self.n_planned_value,
                     yield_val=self.yield_average_form.value(),
@@ -906,13 +1085,12 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     'Error validating map creation parameters. {}'.format(
                         message))
                 return
-
             # store parameters value as qsettings
             self.save_parameter_values_as_setting()
 
             # start map creation job
             self._start_map_creation(self.selected_coverage_results)
-        except:
+        except Exception as e:
             error_text = "{0}: {1}".format(
                 unicode(sys.exc_info()[0].__name__),
                 unicode(sys.exc_info()[1]))
@@ -980,11 +1158,12 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.coverage_result_list.clear()
 
         # start search thread
+        map_product = COLOR_COMPOSITION['key'] if self.map_product == SAMZ['key'] else self.map_product
         searcher = CoverageSearchThread(
             geometries=self.wkt_geometries,
             crop_type=self.crop_type,
             sowing_date=self.sowing_date,
-            map_product=self.map_product,
+            map_product=map_product,
             sensor_type=self.sensor_type,
             mask_type=self.mask_type,
             end_date=self.end_date,
@@ -1149,8 +1328,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         project.layersAdded.connect(self.get_sample_map_point_layers)
         project.layersRemoved.connect(self.get_sample_map_point_layers)
 
-        self.iface.mapCanvas().layersChanged.connect(self.get_sample_map_point_layers) \
-            if self.iface is not None else None
+        self.iface.mapCanvas().layersChanged.connect(
+            self.get_sample_map_point_layers) if self.iface is not None else None
 
     # pylint: disable=W0702
     def disconnect_point_layer_listener(self):
@@ -1159,7 +1338,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         ..seealso:: connect_point_layer_listener
         """
         project = QgsProject.instance()
-        project.layersWillBeRemoved.disconnect(self.get_sample_map_point_layers)
+        project.layersWillBeRemoved.disconnect(
+            self.get_sample_map_point_layers)
         project.layersAdded.disconnect(self.get_sample_map_point_layers)
         project.layersRemoved.disconnect(self.get_sample_map_point_layers)
 
@@ -1174,7 +1354,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             if sensor_name == LANDSAT_8['name'] or \
                     sensor_name == LANDSAT_9['name'] or \
                     sensor_name == SENTINEL_2['name']:
-                add_ordered_combo_item(self.sensor_combo_box, sensor_name, sensor['key'])
+                add_ordered_combo_item(
+                    self.sensor_combo_box, sensor_name, sensor['key'])
 
     def clear_combo_box(self, combo_box):
         """Clears/removes all the entries in the provided combo_box
@@ -1277,6 +1458,20 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 if field_name not in IGNORE_LAYER_FIELDS \
                         and field_type in ALLOWED_FIELD_TYPES:
                     self.cb_column_name.addItem(field_name)
+                    
+    def update_button_states(self):
+        """Update button states dynamically based on fetch_rx_group state."""
+        if self.fetch_rx_group.isChecked():
+            # Enable the Next button, disable Create Map button
+            self.next_push_button.setEnabled(True)
+            self.next_push_button.setVisible(True)
+            self.set_next_button_text(1)  # Set "Next" as the button text
+        else:
+            # Revert to default behavior when fetch_rx_group is not checked
+            self.next_push_button.setEnabled(
+                self.current_stacked_widget_index < self.max_stacked_widget_index
+            )
+            self.set_next_button_text(self.current_stacked_widget_index)
 
     def setup_connectors(self):
         """Setup signal/slot mechanisms for dock elements."""
@@ -1288,7 +1483,11 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.start_difference_map_creation)
 
         # Product type has changed
-        self.map_product_combo_box.currentIndexChanged.connect(self.product_type_change)
+        self.map_product_combo_box.currentIndexChanged.connect(
+            self.product_type_change)
+        
+        # Fetch RX Group state toggled
+        self.fetch_rx_group.toggled.connect(self.update_button_states)
 
         # Stacked widget connector
         self.stacked_widget.currentChanged.connect(self.set_next_button_text)
@@ -1298,7 +1497,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.update_selection_data)
 
         # If the selected point layer for the Sample maps changes
-        self.cb_point_layer.currentIndexChanged.connect(self.point_layer_changed)
+        self.cb_point_layer.currentIndexChanged.connect(
+            self.point_layer_changed)
 
     def unblock_signals(self):
         """Let the combos listen for event changes again."""

@@ -33,7 +33,6 @@ def options_about():
     # Social media icons for use in the about dialog
     icon_linkedin = resources_path('img', 'icons', 'about', 'svg', 'linkedin.svg')
     icon_twitter = resources_path('img', 'icons', 'about', 'svg', 'twitter.svg')
-    icon_youtube = resources_path('img', 'icons', 'about', 'svg', 'youtube.svg')
 
     # Adds the icons to the about dialog
     message.add(tr(
@@ -42,15 +41,12 @@ def options_about():
         '<p class="text-center"> Connect with us </p>'
         '<ul class="nav  justify-content-center">'
         '<li class="px-2">'
-        '<li class="px-2"> <a href="https://twitter.com/EarthDailyAgro/">'
+        '<li class="px-2"> <a href="https://x.com/earthdailya">'
         f'<img src={resource_url(icon_twitter)} height=35 width=35 >'
         '</a></li>'
-        '<li class="px-2"> <a href="https://www.linkedin.com/company/115836/admin/">'
+        '<li class="px-2"> <a href="https://www.linkedin.com/company/earthdailyanalytics">'
         f'<img src={resource_url(icon_linkedin)} height=35 width=35 /></li>'
         '<a/></li>'
-        '<li class="px-2"> <a href="https://www.youtube.com/channel/UCy4X-hM2xRK3oyC_xYKSG_g">'
-        f'<img src={resource_url(icon_youtube)} height=35 width=35 >'
-        '</a></li>'
         '</ul>'
         '</div>'
         '</div>'
@@ -75,7 +71,7 @@ def heading():
     heading_message = tr(
         '<div class="row subsection">'
         '<div>'
-        '<h3><a id="None"> </a> About EarthDaily Agro </h3>'
+        '<h3><a id="None"> </a> About EarthDaily </h3>'
         '</div>'
         '</div>'
     )
@@ -98,16 +94,16 @@ def content():
         '<div class="col-8">'
         '<ul class="list-unstyled">'
         '<li>'
-        '<span class="hint">EarthDaily Agro</span><b> is the agricultural analysis division '
-        'of EarthDaily Analytics. '
-        'Learn more about EarthDaily at '
-        '<a class="links" href="https://earthdailyagro.com/"> earthdaily.com</a></b>'
+        '<span class="hint">EarthDaily </span><b> is a global leader in Earth observation '
+        'delivering unparalleled geospatial insights across industries such as Agriculture, water management, and forest planning. '
+        'With a team of world-class agronomists, data scientists, and Earth observation specialists, '
+        'EarthDaily transforms the highest-quality satellite imagery into actionable solutions.'
         '</li>'
-        '<li class="message">EarthDaily Agro uses satellite imaging to provide '
-        'advanced analytics to mitigate risk and the planet. '
-        'Increase efficiencies - leading to more sustainable '
-        'outcomes for the organization and people who '
-        'feed.</li> '
+        '<li class="message">By combining advanced analytics and superior signal-to-noise ratio data, '
+        'EarthDaily empowers organizations to mitigate risk, optimize operations, and achieve sustainable outcomes. '
+        "Explore how EarthDaily's innovative platforms support the vital sectors shaping our world at "
+        '<a class="links" href="https://earthdaily.com/"> earthdaily.com</a></b>'
+        '</li> '
         '</ul>'
         '</div>'
     )))

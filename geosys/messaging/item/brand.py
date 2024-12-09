@@ -53,13 +53,13 @@ class Brand(Text):
         """Render as html.
         """
         uri = resource_url(
-            resources_path('img', 'logos', 'geosys-color.jpg'))
+            resources_path('img', 'logos', 'earthdaily.png'))
         snippet = (
             '<div class="branding">'
             '<img src="%s" title="%s" alt="%s" %s/></div>') % (
                 uri,
-                'GEOSYS',
-                'GEOSYS',
+                'EarthDaily',
+                'EarthDaily',
                 self.html_attributes())
         return snippet
 

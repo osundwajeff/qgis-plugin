@@ -313,7 +313,7 @@ SAMPLE_MAP = {
 }
 
 NDMI = {
-    'key': 'ndmi',
+    'key': 'NDMI',
     'name': 'NDMI',
     'map_family': base_reference_map,
     'description': 'Provides the in-season Normalized Difference Moisture Index.'
@@ -321,7 +321,7 @@ NDMI = {
 
 
 NDWI = {
-    'key': 'ndwi',
+    'key': 'NDWI',
     'name': 'NDWI',
     'map_family': base_reference_map,
     'description': 'Provides the in-season Normalized Difference Water Index.'
