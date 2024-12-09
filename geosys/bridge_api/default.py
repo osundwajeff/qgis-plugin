@@ -103,7 +103,6 @@ IMAGE_SENSOR = 'Image.Sensor'
 IMAGE_SOIL_MATERIAL = 'Image.SoilMaterial'
 MASK = 'Mask'
 MAPS_TYPE = 'Maps.Type'
-MAP_LIMIT = '$limit'
 
 # map creation parameters
 YIELD_AVERAGE = 'HistoricalYieldAverage'

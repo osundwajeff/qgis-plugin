@@ -115,7 +115,7 @@ NDVI = {
     'key': 'NDVI',
     'name': 'NDVI',
     'map_family': base_reference_map,
-    'description': 'Provides the in-season Normalized Difference '
+    'description': 'Provides the Normalized Difference '
                    'Vegetation Index.',
     'difference_map': DIFFERENCE_NDVI
 }
@@ -137,24 +137,13 @@ INSEASONFIELD_AVERAGE_REVERSE_NDVI = {
 
 # EVI (Enhanced Vegetation Index)
 # https://en.wikipedia.org/wiki/Enhanced_vegetation_index
+
 EVI = {
     'key': 'EVI',
     'name': 'EVI',
     'map_family': base_reference_map,
-    'description': ''
-}
-EVI = {
-    'key': 'EVI',
-    'name': 'EVI',
-    'map_family': base_reference_map,
-    'description': 'Provides the in-season Enhanced Vegetation Index.',
+    'description': 'Provides the Enhanced Vegetation Index.',
     'difference_map': DIFFERENCE_EVI
-}
-EVI = {
-    'key': 'EVI',
-    'name': 'EVI',
-    'map_family': base_reference_map,
-    'description': 'Provides the partial Enhanced Vegetation Index.'
 }
 
 # CVI (Chlorophyll Vegetation Index)
@@ -162,24 +151,12 @@ CVI = {
     'key': 'CVI',
     'name': 'CVI',
     'map_family': base_reference_map,
-    'description': ''
-}
-CVI = {
-    'key': 'CVI',
-    'name': 'CVI',
-    'map_family': base_reference_map,
-    'description': 'Provides the in-season Chlorophyll Vegetation Index. '
+    'description': 'Provides the Chlorophyll Vegetation Index. '
                    'It is used as an indicator of photosynthetic energy '
                    'conversion.'
 }
 
 # GNDVI (Green Normalized Difference Vegetation Index)
-GNDVI = {
-    'key': 'GNDVI',
-    'name': 'GNDVI',
-    'map_family': base_reference_map,
-    'description': ''
-}
 GNDVI = {
     'key': 'GNDVI',
     'name': 'GNDVI',

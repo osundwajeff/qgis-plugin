@@ -50,8 +50,8 @@ class GeosysOptionsDialog(QtWidgets.QDialog, FORM_CLASS):
 
         # List of setting key and control
         self.boolean_settings = {
-            'geosys_region_na': self.us_radio_button,
-            'geosys_region_eu': self.eu_radio_button,
+            #'geosys_region_na': self.us_radio_button,
+            #'geosys_region_eu': self.eu_radio_button,
             'use_testing_service': self.testing_service_checkbox
         }
         self.credentials_settings = {
@@ -61,7 +61,6 @@ class GeosysOptionsDialog(QtWidgets.QDialog, FORM_CLASS):
             'bridge_api_client_secret': self.client_secret_form
         }
         self.text_settings = {
-            'bridge_api_page_limit': self.page_limit_form,
             'output_directory': self.output_directory_form
         }
         self.text_settings.update(self.credentials_settings)
@@ -104,8 +103,8 @@ class GeosysOptionsDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def region(self):
         """Get current value of region."""
-        if self.eu_radio_button.isChecked():
-            return 'eu'
+        #if self.eu_radio_button.isChecked():
+        #    return 'eu'
         return 'na'
 
     def use_testing_service(self):
