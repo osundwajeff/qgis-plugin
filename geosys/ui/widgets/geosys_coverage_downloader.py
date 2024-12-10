@@ -1128,16 +1128,16 @@ def download_field_map(
             samz_types = ['SAMZ']
             topology_types = ['EROSION', 'ELEVATION', 'SLOPE']
 
-            if data.get('mapType') in vegetation_map_types:
+            if map_type_key in vegetation_map_types:
                 base_url = f"{HOTSPOT_URL}/{VEGETATION_ENDPOINT}"
-            elif data.get('mapType') in samz_types:
+            elif map_type_key in samz_types:
                 base_url = f"{HOTSPOT_URL}/{SAMZ_ENDPOINT}"
-            elif data.get('mapType') in topology_types:
+            elif map_type_key in topology_types:
                 base_url = f"{HOTSPOT_URL}/{ELEVATION_ENDPOINT}"
             else:
                 raise ValueError(
                     f"Unsupported map type: "
-                    f"{data.get('mapType')}"
+                    f"{map_type_key}"
                 )
 
             params = {
