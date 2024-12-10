@@ -1143,10 +1143,10 @@ def download_field_map(
         output_dir = setting('output_directory', expected_type=str)
 
         if map_json.get('OutputData', {}).get('Hotspots'):
-            hotspot_filename = f"{
-                'HotspotsPerPart' if params['Type'] == 'Polygon' else 'HotspotsPerPolygon'}_{
-                map_specification['seasonField']['id']}_{
-                map_specification['image']['date']}"
+            hotspot_filename = (
+                f"{'HotspotsPerPart' if params['Type'] == 'Polygon' else 'HotspotsPerPolygon'}_"
+                f"{map_specification['seasonField']['id']}_"
+                f"{map_specification['image']['date']}")
             hotspot_filename = check_if_file_exists(
                 output_dir, hotspot_filename, SHP_EXT)
 
@@ -1157,10 +1157,10 @@ def download_field_map(
             )
 
         if map_json.get('OutputData', {}).get('Zones'):
-            segment_filename = f"{
-                'SegmentsPerPart' if params['Type'] == 'Polygon' else 'SegmentsPerPolygon'}_{
-                map_specification['seasonField']['id']}_{
-                map_specification['image']['date']}"
+            segment_filename = (
+                f"{'SegmentsPerPart' if params['Type'] == 'Polygon' else 'SegmentsPerPolygon'}_"
+                f"{map_specification['seasonField']['id']}_"
+                f"{map_specification['image']['date']}")
             segment_filename = check_if_file_exists(
                 output_dir, segment_filename, SHP_EXT)
 
