@@ -1101,74 +1101,78 @@ def download_field_map(
             *credentials_parameters_from_settings(),
             proxies=QGISSettings.get_qgis_proxy())
 
-        vegetation_map_types = [
-            'NDVI',
-            'EVI',
-            'CVI',
-            'CVIN',
-            'GNDVI',
-            'LAI',
-            'NDWI',
-            'S2REP']
-        samz_types = ['SAMZ']
-        topology_types = ['EROSION', 'ELEVATION', 'SLOPE']
+        if data.get('zoning') and data.get('hotspot'):
+            vegetation_map_types = [
+                'NDVI',
+                'EVI',
+                'CVI',
+                'CVIN',
+                'GNDVI',
+                'LAI',
+                'NDWI',
+                'S2REP']
+            samz_types = ['SAMZ']
+            topology_types = ['EROSION', 'ELEVATION', 'SLOPE']
 
-        if data.get('mapType') in vegetation_map_types:
-            base_url = f"{HOTSPOT_URL}/{VEGETATION_ENDPOINT}"
-        elif data.get('mapType') in samz_types:
-            base_url = f"{HOTSPOT_URL}/{SAMZ_ENDPOINT}"
-        elif data.get('mapType') in topology_types:
-            base_url = f"{HOTSPOT_URL}/{ELEVATION_ENDPOINT}"
-        else:
-            raise ValueError(f"Unsupported map type: {data.get('mapType')}")
+            if data.get('mapType') in vegetation_map_types:
+                base_url = f"{HOTSPOT_URL}/{VEGETATION_ENDPOINT}"
+            elif data.get('mapType') in samz_types:
+                base_url = f"{HOTSPOT_URL}/{SAMZ_ENDPOINT}"
+            elif data.get('mapType') in topology_types:
+                base_url = f"{HOTSPOT_URL}/{ELEVATION_ENDPOINT}"
+            else:
+                raise ValueError(
+                    f"Unsupported map type: "
+                    f"{data.get('mapType')}"
+                )
 
-        params = {
-            'Type': data.get('zoningSegmentation', 'Polygon'),
-            'ZonesCount': data.get('zoneCount', 5),
-            '$epsg-out': 4326
-        }
+            params = {
+                'Type': data.get('zoningSegmentation', 'Polygon'),
+                'ZonesCount': data.get('zoneCount', 5),
+                '$epsg-out': 4326
+            }
 
-        if base_url == f"{HOTSPOT_URL}/{VEGETATION_ENDPOINT}":
-            params['MapType'] = data.get('mapType')
-            params['Position'] = data.get('position', 'Average')
+            if base_url == f"{HOTSPOT_URL}/{VEGETATION_ENDPOINT}":
+                params['MapType'] = data.get('mapType')
+                params['Position'] = data.get('position', 'Average')
 
-        request_body = {
-            'geometry': field_map_json.get('geometry'),
-            'image_id': [field_map_json.get('image_id', [])[0]]
-        }
+            request_body = {
+                'geometry': field_map_json.get('geometry'),
+                'image_id': [field_map_json.get('image_id', [])[0]]
+            }
 
-        map_json = bridge_api.get_hotspot(
-            base_url, params=params, data=request_body)
+            map_json = bridge_api.get_hotspot(
+                base_url, params=params, data=request_body)
 
-        output_dir = setting('output_directory', expected_type=str)
+            output_dir = setting('output_directory', expected_type=str)
 
-        if map_json.get('OutputData', {}).get('Hotspots'):
-            hotspot_filename = (
-                f"{'HotspotsPerPart' if params['Type'] == 'Polygon' else 'HotspotsPerPolygon'}_"
-                f"{map_specification['seasonField']['id']}_"
-                f"{map_specification['image']['date']}")
-            hotspot_filename = check_if_file_exists(
-                output_dir, hotspot_filename, SHP_EXT)
+            if map_json.get('OutputData', {}).get('Hotspots'):
+                hotspot_filename = (
+                    f"{'HotspotsPerPart' if params['Type'] == 'Polygon' else 'HotspotsPerPolygon'}_"
+                    f"{map_specification['seasonField']['id']}_"
+                    f"{map_specification['image']['date']}")
+                hotspot_filename = check_if_file_exists(
+                    output_dir, hotspot_filename, SHP_EXT)
 
-            create_hotspot_layer(
-                map_json['OutputData']['Hotspots'],
-                'hotspots',
-                hotspot_filename
-            )
+                create_hotspot_layer(
+                    map_json['OutputData']['Hotspots'],
+                    'hotspots',
+                    hotspot_filename
+                )
 
-        if map_json.get('OutputData', {}).get('Zones'):
-            segment_filename = (
-                f"{'SegmentsPerPart' if params['Type'] == 'Polygon' else 'SegmentsPerPolygon'}_"
-                f"{map_specification['seasonField']['id']}_"
-                f"{map_specification['image']['date']}")
-            segment_filename = check_if_file_exists(
-                output_dir, segment_filename, SHP_EXT)
+            if map_json.get('OutputData', {}).get('Zones'):
+                segment_filename = (
+                    f"{'SegmentsPerPart' if params['Type'] == 'Polygon' else 'SegmentsPerPolygon'}_"
+                    f"{map_specification['seasonField']['id']}_"
+                    f"{map_specification['image']['date']}")
+                segment_filename = check_if_file_exists(
+                    output_dir, segment_filename, SHP_EXT)
 
-            create_hotspot_layer(
-                map_json['OutputData']['Zones'],
-                'segments',
-                segment_filename
-            )
+                create_hotspot_layer(
+                    map_json['OutputData']['Zones'],
+                    'segments',
+                    segment_filename
+                )
     except Exception as e:
         message = f"Failed to download file. Error: {str(e)}"
         return False, message
