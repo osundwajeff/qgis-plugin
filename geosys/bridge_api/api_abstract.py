@@ -81,9 +81,11 @@ class ApiClient(object):
         :param args: List of endpoints.
         :return: str
         """
-        full_url = self.base_url
+        full_url = self.base_url.rstrip('/')
+
         for item in args:
-            full_url = os.path.join(full_url, item)
+            full_url = f"{full_url}/{item.lstrip('/')}"
+
         return full_url
 
     def get(self, url, **kwargs):
