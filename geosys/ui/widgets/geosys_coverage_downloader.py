@@ -58,6 +58,7 @@ from geosys.utilities.qgis_settings import QGISSettings
 from geosys.utilities.settings import setting
 from geosys.utilities.gui_utilities import create_hotspot_layer
 from geosys.utilities.utilities import check_if_file_exists, log
+from geosys.bridge_api.utilities import get_definition
 
 __copyright__ = "Copyright 2019, Kartoza"
 __license__ = "GPL version 3"
@@ -555,6 +556,7 @@ class CoverageSearchThread(QThread):
 
 def create_map(
         map_specification,
+        map_product,
         geometry,
         output_dir,
         filename,
@@ -632,7 +634,7 @@ def create_map(
     # Construct map creation parameters
     map_specification.update(map_specification['maps'][0])
     map_specification.update(map_specification['seasonField'])
-    map_type_key = map_specification['type']
+    map_type_key = map_product
     season_field_id = map_specification['seasonField']['id']
     season_field_geom = geometry
     image_date = map_specification['image']['date']
@@ -828,8 +830,8 @@ def create_samz_map(
         list_of_image_date,
         zone_count=zone_count,
     )
-    # Construct map creation parameters
-    data = {
+     # Construct map creation parameters
+    request_data = {
         "SeasonField": {
             "Id": None,
             "geometry": geometry
@@ -846,7 +848,7 @@ def create_samz_map(
         destination_base_path=destination_base_path,
         output_map_format=output_map_format,
         headers=bridge_api.headers,
-        data=data)
+        data=request_data)
 
 
 def create_rx_map(
@@ -1042,7 +1044,19 @@ def download_field_map(
             else:
                 url = field_map_json['_links'][output_map_format['api_key']]
         else:  # Other map types
-            url = field_map_json['_links'][output_map_format['api_key']]
+            map_type = get_definition(map_type_key)
+            map_family = map_type['map_family']
+
+            username, password, region, client_id, client_secret, use_testing_service = credentials_parameters_from_settings()
+            bridge_server = (BRIDGE_URLS[region]['test']
+                             if use_testing_service
+                             else BRIDGE_URLS[region]['prod'])
+            if output_map_format in ZIPPED_FORMAT:
+                url = (f"{bridge_server}/field-level-maps/v5/maps/{map_family['endpoint']}/"
+                       f"{map_type_key}/image{output_map_format['extension']}")
+                method = 'POST'
+            else:
+                url = field_map_json['_links'][output_map_format['api_key']]
 
         char_question_mark = '?'  # Filtering char
         # if char_question_mark in url:  # Filtering, which starts with '?' has already been added, so appending with '&'
