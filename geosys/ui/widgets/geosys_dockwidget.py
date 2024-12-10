@@ -1053,7 +1053,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     sample_map_id = map_specification['id']
 
                 is_success, message = create_map(
-                    map_specification, geometry, self.output_directory, filename,
+                    map_specification, self.map_product, geometry, self.output_directory, filename,
                     data=data, output_map_format=self.output_map_format,
                     n_planned_value=self.n_planned_value,
                     yield_val=self.yield_average_form.value(),
