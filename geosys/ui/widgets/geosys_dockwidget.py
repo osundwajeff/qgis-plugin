@@ -980,7 +980,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             source_map_id = None
             try:
                 # Call API to fetch NDVI for the selected image
-                ndvi_response = fetch_ndvi_map(season_field_geom, image_id)
+                ndvi_response = fetch_ndvi_map(season_field_geom, image_id, data=data)
                 if ndvi_response and 'id' in ndvi_response:
                     source_map_id = (ndvi_response['id'])
             except Exception as e:

@@ -365,7 +365,7 @@ class BridgeAPI(ApiClient):
                 "offset": 0,
                 "gain": 0,
             }
-            request_data.update(kwargs)
+            request_data.update(kwargs.pop('data'))
 
         # Get request parameters
         params = kwargs.get('params')
