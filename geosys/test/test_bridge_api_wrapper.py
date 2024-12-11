@@ -142,10 +142,15 @@ class BridgeAPIWrapperTest(unittest.TestCase):
             identity_url=self.app_server.url,
             server_url=self.app_server.url
         )
+        # test get_field_map without data
+        field_map = bridge_api.get_field_map(
+            map_type_key, None, geometry, image_date, image_id
+        )
+        self.assertTrue('seasonField' in field_map)
+        # test get_field_map with data
         field_map = bridge_api.get_field_map(
             map_type_key, None, geometry, image_date, image_id, data=data
         )
-        print(field_map)
         self.assertTrue('seasonField' in field_map)
 
     def test_get_difference_map(self):
