@@ -114,6 +114,15 @@ class BridgeAPIWrapperTest(unittest.TestCase):
         map_type_key = 'NDVI'
         image_date = '2024-10-21'
         image_id = 'IKc73hpUQ71zsw94i77UI1lwJh7dcYFoTFwjoPfYPAq'
+        data = {
+            'HistoricalYieldAverage': 7.0,
+            'MinYieldGoal': 6.0,
+            'MaxYieldGoal': 6.0,
+            'AverageOrganicMatter': 3.0,
+            'zoneCount': 0,
+            'gain': 0.2,
+            'offset': 0.1
+        }
 
         geometry = ("POLYGON(("
                     "1.5614669851321183 43.43877959480905,"
@@ -134,7 +143,7 @@ class BridgeAPIWrapperTest(unittest.TestCase):
             server_url=self.app_server.url
         )
         field_map = bridge_api.get_field_map(
-            map_type_key, None, geometry, image_date, image_id
+            map_type_key, None, geometry, image_date, image_id, data=data
         )
         print(field_map)
         self.assertTrue('seasonField' in field_map)
