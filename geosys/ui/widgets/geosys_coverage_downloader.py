@@ -1193,7 +1193,7 @@ def download_field_map(
     return True, message
 
 
-def fetch_ndvi_map(geometry, image_id):
+def fetch_ndvi_map(geometry, image_id, data):
     """Fetch NDVI map for a given image and geometry.
 
     :param bridge_api: Instance of the BridgeAPI.
@@ -1228,7 +1228,8 @@ def fetch_ndvi_map(geometry, image_id):
         season_field_id=None,
         season_field_geom=geometry,
         image_date=None,  # Optional if already filtered
-        image_id=image_id
+        image_id=image_id,
+        data=data
     )
     return ndvi_map_json
 
