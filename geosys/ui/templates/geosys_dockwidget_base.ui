@@ -42,8 +42,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>0</number>
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="coverage_form_page">
        <property name="minimumSize">
@@ -806,7 +805,7 @@
            <item row="0" column="1">
             <widget class="QSpinBox" name="fetch_rx_zones">
              <property name="maximum">
-              <number>5</number>
+              <number>20</number>
              </property>
             </widget>
            </item>
@@ -830,68 +829,164 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="zone_x_3">
-             <property name="text">
-              <string>Zone 3</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="1">
-            <widget class="QLineEdit" name="zone_4_val"/>
-           </item>
-           <item row="6" column="1">
-            <widget class="QLineEdit" name="zone_5_val"/>
-           </item>
-           <item row="8" column="1">
-            <widget class="QLineEdit" name="lineEdit_8"/>
-           </item>
-           <item row="0" column="2">
-            <widget class="QLineEdit" name="rx_name_line"/>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="zone_x_1">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Zone 1</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QLineEdit" name="zone_2_val"/>
-           </item>
-           <item row="8" column="0">
-            <widget class="QLabel" name="zone_x_7">
-             <property name="text">
-              <string>Zone X</string>
-             </property>
-            </widget>
-           </item>
            <item row="6" column="0">
             <widget class="QLabel" name="zone_x_5">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
              <property name="text">
               <string>Zone 5</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="zone_1_val"/>
+           <item row="20" column="1">
+            <widget class="QLineEdit" name="zone_19_val">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="12" column="0">
+            <widget class="QLabel" name="zone_x_11">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Zone 11</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QSpinBox" name="zone_2_sb">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="maximum">
+              <number>100</number>
+             </property>
+            </widget>
            </item>
            <item row="7" column="1">
-            <widget class="QLineEdit" name="lineEdit_7"/>
+            <widget class="QLineEdit" name="zone_6_val">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
            </item>
-           <item row="4" column="1">
-            <widget class="QLineEdit" name="zone_3_val"/>
+           <item row="2" column="2">
+            <widget class="QSpinBox" name="zone_1_sb">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="maximum">
+              <number>100</number>
+             </property>
+            </widget>
            </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="zone_x_4">
+           <item row="5" column="1">
+            <widget class="QLineEdit" name="zone_4_val">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="16" column="2">
+            <widget class="QSpinBox" name="zone_15_sb">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="20" column="0">
+            <widget class="QLabel" name="zone_x_19">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
              <property name="text">
-              <string>Zone 4</string>
+              <string>Zone 19</string>
+             </property>
+            </widget>
+           </item>
+           <item row="21" column="2">
+            <widget class="QSpinBox" name="zone_20_sb">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="11" column="0">
+            <widget class="QLabel" name="zone_x_10">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Zone 10</string>
+             </property>
+            </widget>
+           </item>
+           <item row="12" column="2">
+            <widget class="QSpinBox" name="zone_11_sb">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="2">
+            <widget class="QSpinBox" name="zone_6_sb">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="maximum">
+              <number>100</number>
+             </property>
+            </widget>
+           </item>
+           <item row="20" column="2">
+            <widget class="QSpinBox" name="zone_19_sb">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
              </property>
             </widget>
            </item>
@@ -903,27 +998,324 @@
                <height>0</height>
               </size>
              </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
              <property name="text">
               <string>Zone 2</string>
              </property>
             </widget>
            </item>
-           <item row="7" column="0">
-            <widget class="QLabel" name="zone_x_6">
+           <item row="15" column="0">
+            <widget class="QLabel" name="zone_x_14">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
              <property name="text">
-              <string>Zone X</string>
+              <string>Zone 14</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="2">
-            <widget class="QSpinBox" name="zone_1_sb">
-             <property name="maximum">
-              <number>100</number>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="zone_2_val">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
              </property>
             </widget>
            </item>
-           <item row="3" column="2">
-            <widget class="QSpinBox" name="zone_2_sb">
+           <item row="10" column="1">
+            <widget class="QLineEdit" name="zone_9_val">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QLineEdit" name="zone_5_val">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="15" column="1">
+            <widget class="QLineEdit" name="zone_14_val">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="14" column="0">
+            <widget class="QLabel" name="zone_x_13">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Zone 13</string>
+             </property>
+            </widget>
+           </item>
+           <item row="18" column="0">
+            <widget class="QLabel" name="zone_x_17">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Zone 17</string>
+             </property>
+            </widget>
+           </item>
+           <item row="12" column="1">
+            <widget class="QLineEdit" name="zone_11_val">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="21" column="0">
+            <widget class="QLabel" name="zone_x_20">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Zone 20</string>
+             </property>
+            </widget>
+           </item>
+           <item row="16" column="0">
+            <widget class="QLabel" name="zone_x_15">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Zone 15</string>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="0">
+            <widget class="QLabel" name="zone_x_8">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Zone 8</string>
+             </property>
+            </widget>
+           </item>
+           <item row="17" column="1">
+            <widget class="QLineEdit" name="zone_16_val">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="zone_x_1">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Zone 1</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="zone_x_3">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Zone 3</string>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="0">
+            <widget class="QLabel" name="zone_x_9">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Zone 9</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0">
+            <widget class="QLabel" name="zone_x_7">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Zone 7</string>
+             </property>
+            </widget>
+           </item>
+           <item row="11" column="1">
+            <widget class="QLineEdit" name="zone_10_val">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="11" column="2">
+            <widget class="QSpinBox" name="zone_10_sb">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="zone_1_val">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="zone_x_4">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Zone 4</string>
+             </property>
+            </widget>
+           </item>
+           <item row="14" column="2">
+            <widget class="QSpinBox" name="zone_13_sb">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="2">
+            <widget class="QSpinBox" name="zone_9_sb">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLineEdit" name="zone_3_val">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="13" column="1">
+            <widget class="QLineEdit" name="zone_12_val">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="19" column="2">
+            <widget class="QSpinBox" name="zone_18_sb">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="15" column="2">
+            <widget class="QSpinBox" name="zone_14_sb">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="2">
+            <widget class="QSpinBox" name="zone_5_sb">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
              <property name="maximum">
               <number>100</number>
              </property>
@@ -931,6 +1323,174 @@
            </item>
            <item row="4" column="2">
             <widget class="QSpinBox" name="zone_3_sb">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="maximum">
+              <number>100</number>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="1">
+            <widget class="QLineEdit" name="zone_7_val">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="1">
+            <widget class="QLineEdit" name="zone_8_val">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLineEdit" name="rx_name_line">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="19" column="1">
+            <widget class="QLineEdit" name="zone_18_val">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="17" column="0">
+            <widget class="QLabel" name="zone_x_16">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Zone 16</string>
+             </property>
+            </widget>
+           </item>
+           <item row="18" column="2">
+            <widget class="QSpinBox" name="zone_17_sb">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="zone_x_6">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Zone 6</string>
+             </property>
+            </widget>
+           </item>
+           <item row="16" column="1">
+            <widget class="QLineEdit" name="zone_15_val">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="2">
+            <widget class="QSpinBox" name="zone_8_sb">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="14" column="1">
+            <widget class="QLineEdit" name="zone_13_val">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="13" column="2">
+            <widget class="QSpinBox" name="zone_12_sb">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="13" column="0">
+            <widget class="QLabel" name="zone_x_12">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Zone 12</string>
+             </property>
+            </widget>
+           </item>
+           <item row="18" column="1">
+            <widget class="QLineEdit" name="zone_17_val">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="17" column="2">
+            <widget class="QSpinBox" name="zone_16_sb">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="2">
+            <widget class="QSpinBox" name="zone_7_sb">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
              <property name="maximum">
               <number>100</number>
              </property>
@@ -938,29 +1498,37 @@
            </item>
            <item row="5" column="2">
             <widget class="QSpinBox" name="zone_4_sb">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
              <property name="maximum">
               <number>100</number>
              </property>
             </widget>
            </item>
-           <item row="6" column="2">
-            <widget class="QSpinBox" name="zone_5_sb">
-             <property name="maximum">
-              <number>100</number>
+           <item row="21" column="1">
+            <widget class="QLineEdit" name="zone_20_val">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
              </property>
             </widget>
            </item>
-           <item row="7" column="2">
-            <widget class="QSpinBox" name="zone_6_sb">
-             <property name="maximum">
-              <number>100</number>
+           <item row="19" column="0">
+            <widget class="QLabel" name="zone_x_18">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
              </property>
-            </widget>
-           </item>
-           <item row="8" column="2">
-            <widget class="QSpinBox" name="zone_7_sb">
-             <property name="maximum">
-              <number>100</number>
+             <property name="text">
+              <string>Zone 18</string>
              </property>
             </widget>
            </item>

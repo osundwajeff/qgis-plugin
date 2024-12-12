@@ -363,6 +363,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if self.fetch_rx_group.isChecked():
             # If on the first page, go to the next page
             if self.current_stacked_widget_index == self.max_stacked_widget_index:
+                # Dynamically show/hide elements based on the RX zone count
+                self.set_zone_visibility()
                 # If on the last page, perform the map creation task
                 self.png_radio_button_2.setEnabled(True)
                 self.tiff_radio_button_2.setEnabled(True)
@@ -372,6 +374,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 return
             else:
                 # Otherwise, proceed to the next page
+                self.set_zone_visibility()
                 self.current_stacked_widget_index += 1
                 self.stacked_widget.setCurrentIndex(
                     self.current_stacked_widget_index
@@ -392,6 +395,32 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.back_push_button.setEnabled(True)
 
         self.handle_difference_map_button()
+        
+    def set_zone_visibility(self):
+        """Shows or hides zone-related UI elements based on the RX zone count."""
+        rx_zone_count = self.fetch_rx_zones.value()
+        for zone_index in range(1, 21):
+            # Dynamically construct object names
+            label_name = f"zone_x_{zone_index}"
+            line_edit_name = f"zone_{zone_index}_val"
+            spinbox_name = f"zone_{zone_index}_sb"
+            
+            # Retrieve the UI elements using getattr
+            label = getattr(self, label_name, None)
+            line_edit = getattr(self, line_edit_name, None)
+            spinbox = getattr(self, spinbox_name, None)
+
+            # Show or hide elements based on the RX zone count
+            if zone_index >= rx_zone_count + 1:
+                # Hide
+                label.hide()
+                line_edit.hide()
+                spinbox.hide()
+            else:
+                # Show
+                label.show()
+                line_edit.show()
+                spinbox.show()
 
     def set_gain_offset_state(self):
         """Disables the gain and offset options in the parameters menu for the COLORCOMPOSITION, ELEVATION,
