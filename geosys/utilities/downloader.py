@@ -101,6 +101,46 @@ def extract_zip(zip_path, destination_base_path):
         output_file.close()
 
     handle.close()
+    
+def extract_kmz(kmz_path, destination_base_path):
+    """Extract files from a KMZ archive to the destination base path.
+
+    Example: test.kmz contains doc.kml and associated files.
+    Extracted files are saved to:
+        - destination_base_path.kml (for doc.kml)
+        - destination_base_path_related_file (for any other files)
+
+    :param kmz_path: Path to the .kmz file
+    :type kmz_path: str
+
+    :param destination_base_path: Base path for extracted files
+    :type destination_base_path: str
+
+    :raises IOError: If KMZ file cannot be processed.
+    """
+    try:
+        with zipfile.ZipFile(kmz_path, 'r') as kmz_file:
+            for name in kmz_file.namelist():
+                # Extract file extension
+                extension = os.path.splitext(name)[1]
+                _, requested_extension = os.path.splitext(destination_base_path)
+
+                # Prioritize naming 'doc.kml' properly
+                if name.endswith('doc.kml'):
+                    output_final_path = f"{destination_base_path}.kml"
+                elif requested_extension:
+                    output_final_path = destination_base_path
+                else:
+                    output_final_path = f"{destination_base_path}_{os.path.basename(name)}"
+
+                # Write file contents
+                with open(output_final_path, 'wb') as output_file:
+                    output_file.write(kmz_file.read(name))
+
+    except zipfile.BadZipFile:
+        raise IOError(f"The KMZ file {kmz_path} could not be opened as a ZIP archive.")
+    except Exception as e:
+        raise IOError(f"An error occurred while processing KMZ: {e}")
 
 
 class FileDownloader:

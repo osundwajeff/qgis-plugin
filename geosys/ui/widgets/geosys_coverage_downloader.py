@@ -17,6 +17,7 @@ from geosys.bridge_api.default import (
     ZIPPED_FORMAT,
     PNG,
     PNG_KMZ,
+    KMZ,
     PGW,
     PGW2,
     LEGEND,
@@ -53,7 +54,7 @@ from geosys.bridge_api.definitions import (
     SAMPLE_MAP
 )
 from geosys.bridge_api_wrapper import BridgeAPI
-from geosys.utilities.downloader import fetch_data, extract_zip
+from geosys.utilities.downloader import fetch_data, extract_zip, extract_kmz
 from geosys.utilities.qgis_settings import QGISSettings
 from geosys.utilities.settings import setting
 from geosys.utilities.gui_utilities import create_hotspot_layer
@@ -1005,7 +1006,7 @@ def download_field_map(
             bridge_server = (BRIDGE_URLS[region]['test']
                              if use_testing_service
                              else BRIDGE_URLS[region]['prod'])
-            if output_map_format in ZIPPED_FORMAT:
+            if output_map_format in ZIPPED_FORMAT or output_map_format == KMZ:
                 url = (f"{bridge_server}/field-level-maps/v5/maps/management-zones-map/"
                        f"{map_type_key}/image{output_map_format['extension']}")
                 method = 'POST'
@@ -1051,13 +1052,15 @@ def download_field_map(
             bridge_server = (BRIDGE_URLS[region]['test']
                              if use_testing_service
                              else BRIDGE_URLS[region]['prod'])
-            if output_map_format in ZIPPED_FORMAT:
+            log(f"output_map_format: {output_map_format}")
+            if output_map_format in ZIPPED_FORMAT or output_map_format == KMZ:
                 url = (f"{bridge_server}/field-level-maps/v5/maps/{map_family['endpoint']}/"
                        f"{map_type_key}/image{output_map_format['extension']}")
                 method = 'POST'
             else:
                 url = field_map_json['_links'][output_map_format['api_key']]
 
+        log(f"Downloading map from {url}")
         char_question_mark = '?'  # Filtering char
         # if char_question_mark in url:  # Filtering, which starts with '?' has already been added, so appending with '&'
         #    url = '{}&zoning=true&zoneCount={}'.format(
@@ -1086,6 +1089,17 @@ def download_field_map(
                 method=method,
                 payload=data)
             extract_zip(zip_path, destination_base_path)
+        elif output_map_format == KMZ:
+            kmz_path = tempfile.mktemp(f'{map_extension}')
+            fetch_data(
+                url,
+                kmz_path,
+                headers=headers,
+                method=method,
+                payload=data)
+            log(f"KMZ path: {kmz_path}")
+            log(f"Destination base path: {destination_base_path}")
+            extract_kmz(kmz_path, destination_base_path)
         else:
             destination_filename = (
                 destination_base_path + output_map_format['extension'])
