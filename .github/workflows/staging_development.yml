@@ -8,7 +8,7 @@ on:
 jobs:
   staging_repository_update:
     name: Staging repository update
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     container:
       image: qgis/qgis:release-3_34
     steps:
