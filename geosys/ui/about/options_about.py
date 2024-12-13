@@ -32,7 +32,7 @@ def options_about():
 
     # Social media icons for use in the about dialog
     icon_linkedin = resources_path('img', 'icons', 'about', 'svg', 'linkedin.svg')
-    icon_twitter = resources_path('img', 'icons', 'about', 'svg', 'twitter.svg')
+    icon_x = resources_path('img', 'icons', 'about', 'svg', 'x.svg')
 
     # Adds the icons to the about dialog
     message.add(tr(
@@ -42,7 +42,7 @@ def options_about():
         '<ul class="nav  justify-content-center">'
         '<li class="px-2">'
         '<li class="px-2"> <a href="https://x.com/earthdailya">'
-        f'<img src={resource_url(icon_twitter)} height=35 width=35 >'
+        f'<img src={resource_url(icon_x)} height=35 width=35 >'
         '</a></li>'
         '<li class="px-2"> <a href="https://www.linkedin.com/company/earthdailyanalytics">'
         f'<img src={resource_url(icon_linkedin)} height=35 width=35 /></li>'
@@ -94,7 +94,7 @@ def content():
         '<div class="col-8">'
         '<ul class="list-unstyled">'
         '<li>'
-        '<span class="hint">EarthDaily </span><b> is a global leader in Earth observation '
+        '<b><span class="hint">EarthDaily </span> is a global leader in Earth observation '
         'delivering unparalleled geospatial insights across industries such as Agriculture, water management, and forest planning. '
         'With a team of world-class agronomists, data scientists, and Earth observation specialists, '
         'EarthDaily transforms the highest-quality satellite imagery into actionable solutions.'
