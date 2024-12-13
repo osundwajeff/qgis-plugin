@@ -54,7 +54,7 @@ from geosys.bridge_api.definitions import (
     SAMPLE_MAP
 )
 from geosys.bridge_api_wrapper import BridgeAPI
-from geosys.utilities.downloader import fetch_data, extract_zip, extract_kmz
+from geosys.utilities.downloader import fetch_data, extract_zip
 from geosys.utilities.qgis_settings import QGISSettings
 from geosys.utilities.settings import setting
 from geosys.utilities.gui_utilities import create_hotspot_layer
@@ -1090,16 +1090,14 @@ def download_field_map(
                 payload=data)
             extract_zip(zip_path, destination_base_path)
         elif output_map_format == KMZ:
-            kmz_path = tempfile.mktemp(f'{map_extension}')
+            destination_filename = (
+                destination_base_path + output_map_format['extension'])
             fetch_data(
                 url,
-                kmz_path,
+                destination_filename,
                 headers=headers,
                 method=method,
                 payload=data)
-            log(f"KMZ path: {kmz_path}")
-            log(f"Destination base path: {destination_base_path}")
-            extract_kmz(kmz_path, destination_base_path)
         else:
             destination_filename = (
                 destination_base_path + output_map_format['extension'])
