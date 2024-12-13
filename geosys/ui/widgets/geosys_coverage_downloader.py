@@ -639,7 +639,7 @@ def create_map(
     season_field_geom = geometry
     image_date = map_specification['image']['date']
     image_id = map_specification['image']['id']
-    destination_base_path = os.path.join(output_dir, filename)
+    destination_base_path = os.path.join(output_dir, filename.replace(":", "_"))
     request_data = {
         'SeasonField': {
             'Id': season_field_id,
@@ -745,7 +745,7 @@ def create_difference_map(
     season_field_id = map_specifications[0]['seasonField']['id']
     earliest_image_date = map_specifications[0]['image']['date']
     latest_image_date = map_specifications[1]['image']['date']
-    destination_base_path = os.path.join(output_dir, filename)
+    destination_base_path = os.path.join(output_dir, filename.replace(":", "_"))
     data = data if data else {}
     params = params if params else {}
     data.update({'params': params})
@@ -816,7 +816,7 @@ def create_samz_map(
     :type params: dict
     """""
     map_type_key = SAMZ['key']
-    destination_base_path = os.path.join(output_dir, filename)
+    destination_base_path = os.path.join(output_dir, filename.replace(":", "_"))
     data = data if data else {}
     params = params if params else {}
     data.update({'params': params})
@@ -895,7 +895,7 @@ def create_rx_map(
     :type params: dict
     """""
     map_type_key = "rx-map"
-    destination_base_path = os.path.join(output_dir, filename)
+    destination_base_path = os.path.join(output_dir, filename.replace(":", "_"))
     data = {
         "name": "MyRx MPv5",
         "tags": [
