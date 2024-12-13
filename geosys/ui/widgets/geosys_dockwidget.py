@@ -158,9 +158,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.hot_spot_med = None
         self.hot_spot_max = None
         self.hot_spot_all = None
-        self.hot_spot_filters_apply = None
-        self.hot_spot_top = None
-        self.hot_spot_bottom = None
         self.zoning_segmentation = None
         self.output_map_format = None
         self.gain = DEFAULT_GAIN
@@ -174,7 +171,9 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         }
         # For rx zone
         self.fetch_rx_map = None
-        self.rx_zone = None # TODO: Handle the RX zone creation parameters similarly to the SAMZ zone
+        # TODO: Handle the RX zone creation parameters similarly to the SAMZ
+        # zone
+        self.rx_zone = None
         # TODO: Need to add the RX map creation parameters settings
 
         self.selected_coverage_results = []
@@ -359,7 +358,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.set_gain_offset_state()  # Disabled gain and offset for some map product types
             self.set_parameter_values_as_default()
             # self.restore_parameter_values_from_setting()
-        
+
         # Handle the case when fetch_rx_group is checked
         if self.fetch_rx_group.isChecked():
             # If on the first page, go to the next page
@@ -397,7 +396,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.back_push_button.setEnabled(True)
 
         self.handle_difference_map_button()
-        
+
     def set_zone_visibility(self):
         """Shows or hides zone-related UI elements based on the RX zone count."""
         rx_zone_count = self.fetch_rx_zones.value()
@@ -406,7 +405,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             label_name = f"zone_x_{zone_index}"
             line_edit_name = f"zone_{zone_index}_val"
             spinbox_name = f"zone_{zone_index}_sb"
-            
+
             # Retrieve the UI elements using getattr
             label = getattr(self, label_name, None)
             line_edit = getattr(self, line_edit_name, None)
@@ -617,7 +616,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     def get_map_format(self):
         """Get selected map format from the radio button."""
-        
+
         if self.fetch_rx_group.isChecked():
             # If fetch_rx_group is checked, the radio buttons are different
             widget_data = [
@@ -671,7 +670,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if self.output_map_format in VALID_QGIS_FORMAT:
             filename = os.path.basename(base_path)
             layer = base_path + self.output_map_format['extension']
-            
+
             if self.output_map_format in VECTOR_FORMAT:
                 map_layer = QgsVectorLayer(layer, filename)
             else:
@@ -745,13 +744,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 self.hot_spot_med = False
                 self.hot_spot_max = False
                 self.hot_spot_all = False
-            self.hot_spot_filters_apply = self.hotspots_filters_group.isChecked()
-            if self.hot_spot_filters_apply:
-                self.hot_spot_top = self.sb_top.value()
-                self.hot_spot_bottom = self.sb_bottom.value()
-            else:
-                self.hot_spot_top = 0
-                self.hot_spot_bottom = 0
 
         # SaMZ map creation accept zero selected results, which means it will
         # trigger automatic SaMZ map creation.
@@ -942,16 +934,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                         POSITION: position
                     })
 
-                if self.hot_spot_filters_apply:
-                    data.update(
-                        {
-                            FILTER: 'top({})|bottom({})'.format(
-                                self.hot_spot_top,
-                                self.hot_spot_bottom
-                            )
-                        }
-                    )
-
         zone_cnt = self.samz_zone_form.value()
         if map_product_definition == SAMZ:
             image_dates = []
@@ -961,8 +943,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 QMessageBox.critical(
                     self,
                     'Image Selection Required',
-                    'At least one image must be selected to generate a SAMZ map.'
-                )
+                    'At least one image must be selected to generate a SAMZ map.')
                 return
             # Proceed with custom SAMZ using selected images
             season_field_id = map_specifications[0]['seasonField']['id']
@@ -1000,7 +981,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
             # Add map to qgis canvas
             self.load_layer(os.path.join(self.output_directory, filename))
-        elif self.fetch_rx_group and self.fetch_rx_group.isChecked(): # RX Map Logic
+        elif self.fetch_rx_group and self.fetch_rx_group.isChecked():  # RX Map Logic
             rx_zone_count = self.fetch_rx_zones.value()
             if not map_specifications:
                 QMessageBox.critical(
@@ -1017,7 +998,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             source_map_id = None
             try:
                 # Call API to fetch NDVI for the selected image
-                ndvi_response = fetch_ndvi_map(season_field_geom, image_id, data=data)
+                ndvi_response = fetch_ndvi_map(
+                    season_field_geom, image_id, data=data)
                 if ndvi_response and 'id' in ndvi_response:
                     source_map_id = (ndvi_response['id'])
             except Exception as e:
@@ -1035,18 +1017,19 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 filename,
                 self.output_map_format['extension']
             )
-            
+
             # Dynamically generate patch_data
             patch_data = []
             for i in range(rx_zone_count):
-                widget = getattr(self, f"zone_{i + 1}_sb", None)  # Dynamically get the spinbox
+                # Dynamically get the spinbox
+                widget = getattr(self, f"zone_{i + 1}_sb", None)
                 if widget:
                     patch_data.append({
                         "op": "add",
                         "path": f"/parameters/zones/{i}/attributes/value",
                         "value": widget.value()
                     })
-            
+
             #patch_data = json.dumps(patch_data)
 
             is_success, message = create_rx_map(
@@ -1497,7 +1480,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 if field_name not in IGNORE_LAYER_FIELDS \
                         and field_type in ALLOWED_FIELD_TYPES:
                     self.cb_column_name.addItem(field_name)
-                    
+
     def update_button_states(self):
         """Update button states dynamically based on fetch_rx_group state."""
         if self.fetch_rx_group.isChecked():
@@ -1508,8 +1491,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         else:
             # Revert to default behavior when fetch_rx_group is not checked
             self.next_push_button.setEnabled(
-                self.current_stacked_widget_index < self.max_stacked_widget_index
-            )
+                self.current_stacked_widget_index < self.max_stacked_widget_index)
             self.set_next_button_text(self.current_stacked_widget_index)
 
     def setup_connectors(self):
@@ -1524,7 +1506,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # Product type has changed
         self.map_product_combo_box.currentIndexChanged.connect(
             self.product_type_change)
-        
+
         # Fetch RX Group state toggled
         self.fetch_rx_group.toggled.connect(self.update_button_states)
 
