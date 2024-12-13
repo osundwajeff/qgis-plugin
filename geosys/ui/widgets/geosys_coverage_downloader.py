@@ -834,7 +834,7 @@ def create_samz_map(
         list_of_image_date,
         zone_count=zone_count,
     )
-     # Construct map creation parameters
+    # Construct map creation parameters
     request_data = {
         "SeasonField": {
             "Id": None,
@@ -1161,7 +1161,7 @@ def download_field_map(
             }
 
             if base_url == f"{HOTSPOT_URL}/{VEGETATION_ENDPOINT}":
-                params['MapType'] = data.get('mapType')
+                params['MapType'] = map_type_key
                 params['Position'] = data.get('position', 'Average')
 
             request_body = {
