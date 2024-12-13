@@ -48,8 +48,7 @@ SECTION_LEVEL_2_STYLE = {
 
 SUBSECTION_LEVEL_3_STYLE = {
     'level': 3,
-    'style_class': 'subsection',
-    'attributes': 'style="color: #00B2F4;"'}
+    'style_class': 'subsection'}
 
 HEADING_LEVEL_4_STYLE = {
     'level': 4,
