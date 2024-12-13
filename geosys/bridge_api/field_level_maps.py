@@ -360,7 +360,6 @@ class FieldLevelMapsAPIClient(ApiClient):
         self,
         url,
         request_data,
-        patch_data,
         params=None):
         """
         Get RX Map data from the server.
@@ -398,21 +397,34 @@ class FieldLevelMapsAPIClient(ApiClient):
             headers=headers,
             json=request_data
         )
-        
-        response_json = response.json()
-        
-        source_map_id = response_json.get("id")
+
+        return response.json()
+    
+    def patch_rx_map(self, source_map_id, patch_data):
+        """ Actual method to get zone hotspots.
+
+        :return: JSON response.
+            Map data specification based on given parameters.
+        :rtype: dict
+        """
+        headers = {
+            'accept': 'application/json',
+            'content-type': 'application/json'
+        }
         
         patch_url = self.full_url(
             'maps',
             source_map_id,
             'rx-map'
         )
-
-        response_patch = self.patch(
+        
+        response = self.patch(
             patch_url,
             headers=headers,
-            json=patch_data
+            json=patch_data,
         )
 
-        return response.json()
+        if response:
+            return response.json()
+
+        return {}

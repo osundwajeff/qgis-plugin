@@ -918,9 +918,13 @@ def create_rx_map(
     rx_map_json = bridge_api.get_rx_map(
         url=bridge_api.bridge_server,
         source_map_id=source_map_id,
-        list_of_image_ids=list_of_image_ids,
-        list_of_image_date=list_of_image_date,
         zone_count=zone_count,
+    )
+    
+    source_map_id = rx_map_json.get("id")
+    
+    patch_rx_map_json = bridge_api.patch_rx_map(
+        source_map_id=source_map_id,
         patch_data=patch_data
     )
 
