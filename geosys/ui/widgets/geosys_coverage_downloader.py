@@ -36,10 +36,19 @@ from geosys.bridge_api.default import (
     HOTSPOT_URL,
     VEGETATION_ENDPOINT,
     ELEVATION_ENDPOINT,
-    SAMZ_ENDPOINT)
+    SAMZ_ENDPOINT,
+    EVI_THUMBNAIL_URL,
+    CVI_THUMBNAIL_URL,
+    NDMI_THUMBNAIL_URL,
+    NDWI_THUMBNAIL_URL,
+    GNDVI_THUMBNAIL_URL,
+    OM_THUMBNAIL_URL,
+    SLOPE_THUMBNAIL_URL)
 from geosys.bridge_api.definitions import (
     SAMZ,
     ELEVATION,
+    EVI,
+    LAI,
     COLOR_COMPOSITION,
     S2REP,
     REFLECTANCE,
@@ -50,9 +59,10 @@ from geosys.bridge_api.definitions import (
     INSEASONFIELD_AVERAGE_REVERSE_NDVI,
     INSEASONFIELD_AVERAGE_REVERSE_LAI,
     CVIN,
+    OM,
     YGM,
     YVM,
-    SAMPLE_MAP
+    SAMPLE_MAP, CVI, NDMI, NDWI, GNDVI, SLOPE
 )
 from geosys.bridge_api_wrapper import BridgeAPI
 from geosys.utilities.downloader import fetch_data, extract_zip
@@ -408,11 +418,26 @@ class CoverageSearchThread(QThread):
                     image = result['image']
                     image_id = image['id']
 
-                    if self.map_product == REFLECTANCE['key']:
+                    data = {
+                        "image": {
+                            "id": image_id
+                        },
+                        "seasonField":
+                            {
+                                "geometry": geometry
+                        }
+                    }
+
+                    if self.map_product in [REFLECTANCE['key'], NDVI['key']]:
                         # Reflectance map type should make use of the NDVI thumbnail
                         # This is a work-around provided by GeoSys
                         thumbnail_url = (
                             NDVI_THUMBNAIL_URL.format(
+                                bridge_url=searcher_client.bridge_server
+                            ))
+                    elif self.map_product == EVI['key']:
+                        thumbnail_url = (
+                            EVI_THUMBNAIL_URL.format(
                                 bridge_url=searcher_client.bridge_server
                             ))
                     elif self.map_product == CVIN['key']:
@@ -420,11 +445,53 @@ class CoverageSearchThread(QThread):
                             CVIN_THUMBNAIL_URL.format(
                                 bridge_url=searcher_client.bridge_server
                             ))
+                    elif self.map_product == CVI['key']:
+                        thumbnail_url = (
+                            CVI_THUMBNAIL_URL.format(
+                                bridge_url=searcher_client.bridge_server
+                            ))
                     elif self.map_product == S2REP['key']:
                         thumbnail_url = (
                             S2REP_THUMBNAIL_URL.format(
                                 bridge_url=searcher_client.bridge_server
                             ))
+                    elif self.map_product == NDMI['key']:
+                        thumbnail_url = (
+                            NDMI_THUMBNAIL_URL.format(
+                                bridge_url=searcher_client.bridge_server
+                            ))
+                    elif self.map_product == NDWI['key']:
+                        thumbnail_url = (
+                            NDWI_THUMBNAIL_URL.format(
+                                bridge_url=searcher_client.bridge_server
+                            ))
+                    elif self.map_product == GNDVI['key']:
+                        thumbnail_url = (
+                            GNDVI_THUMBNAIL_URL.format(
+                                bridge_url=searcher_client.bridge_server
+                            ))
+                    elif self.map_product == SLOPE['key']:
+                        thumbnail_url = (
+                            SLOPE_THUMBNAIL_URL.format(
+                                bridge_url=searcher_client.bridge_server
+                            ))
+                    elif self.map_product == SOIL['key']:
+                        thumbnail_url = (
+                            SAMPLEMAP_THUMBNAIL_URL.format(
+                                bridge_url=searcher_client.bridge_server,
+                                mapType='SOILMAP'
+                            ))
+                    elif self.map_product == OM['key']:
+                        thumbnail_url = (
+                            OM_THUMBNAIL_URL.format(
+                                bridge_url=searcher_client.bridge_server
+                            )
+                        )
+                        data.update({
+                            "averageOrganicMatter": 1,
+                            "offset": 0,
+                            "gain": 1,
+                        })
                     elif self.map_product in nitrogen_products:
                         # Nitrogen map type
                         if self.map_product == INSEASONFIELD_AVERAGE_NDVI['key']:
@@ -432,41 +499,54 @@ class CoverageSearchThread(QThread):
                             thumbnail_url = (
                                 NITROGEN_THUMBNAIL_URL.format(
                                     bridge_url=searcher_client.bridge_server,
-                                    id=result['seasonField']['id'],
-                                    image=result['image']['id'],
-                                    nitrogen_map_type=INSEASONFIELD_AVERAGE_NDVI['key'],
-                                    n_value=str(
-                                        self.n_planned_value)))
+                                    nitrogen_map_type=INSEASONFIELD_AVERAGE_NDVI['key']))
+                            data.update({
+                                "nPlanned": f"{self.n_planned_value}",
+                                "nMin": 0,
+                                "nMax": 0,
+                                "offset": 0,
+                                "gain": 0,
+                            })
+
                         elif self.map_product == INSEASONFIELD_AVERAGE_LAI['key']:
                             #  AVERAGE LAI
                             thumbnail_url = (
                                 NITROGEN_THUMBNAIL_URL.format(
                                     bridge_url=searcher_client.bridge_server,
-                                    id=result['seasonField']['id'],
-                                    image=result['image']['id'],
-                                    nitrogen_map_type=INSEASONFIELD_AVERAGE_LAI['key'],
-                                    n_value=str(
-                                        self.n_planned_value)))
+                                    nitrogen_map_type=INSEASONFIELD_AVERAGE_LAI['key']))
+                            data.update({
+                                "nPlanned": f"{self.n_planned_value}",
+                                "nMin": 0,
+                                "nMax": 0,
+                                "offset": 0,
+                                "gain": 0,
+                            })
                         elif self.map_product == INSEASONFIELD_AVERAGE_REVERSE_NDVI['key']:
                             #  AVERAGE REVERSE NDVI
                             thumbnail_url = (
                                 NITROGEN_THUMBNAIL_URL.format(
                                     bridge_url=searcher_client.bridge_server,
-                                    id=result['seasonField']['id'],
-                                    image=result['image']['id'],
-                                    nitrogen_map_type=INSEASONFIELD_AVERAGE_REVERSE_NDVI['key'],
-                                    n_value=str(
-                                        self.n_planned_value)))
+                                    nitrogen_map_type=INSEASONFIELD_AVERAGE_REVERSE_NDVI['key']))
+                            data.update({
+                                "nPlanned": f"{self.n_planned_value}",
+                                "nMin": 0,
+                                "nMax": 0,
+                                "offset": 0,
+                                "gain": 0,
+                            })
                         elif self.map_product == INSEASONFIELD_AVERAGE_REVERSE_LAI['key']:
                             #  AVERAGE REVERSE LAI
                             thumbnail_url = (
                                 NITROGEN_THUMBNAIL_URL.format(
                                     bridge_url=searcher_client.bridge_server,
-                                    id=result['seasonField']['id'],
-                                    image=result['image']['id'],
-                                    nitrogen_map_type=INSEASONFIELD_AVERAGE_REVERSE_LAI['key'],
-                                    n_value=str(
-                                        self.n_planned_value)))
+                                    nitrogen_map_type=INSEASONFIELD_AVERAGE_REVERSE_LAI['key']))
+                            data.update({
+                                "nPlanned": f"{self.n_planned_value}",
+                                "nMin": 0,
+                                "nMax": 0,
+                                "offset": 0,
+                                "gain": 0,
+                            })
                     elif self.map_product == YGM['key'] or self.map_product == YVM['key']:
                         if self.map_product == YGM['key']:
                             thumbnail_url = (
@@ -496,29 +576,12 @@ class CoverageSearchThread(QThread):
                             COLOR_COMPOSITION_THUMBNAIL_URL.format(
                                 bridge_url=searcher_client.bridge_server
                             ))
-                        image = result['image']
-                        image_id = image['id']
-
                     else:  # All other map types
                         thumbnail_url = None
 
-                    data = {
-                        "image": {
-                            "id": image_id
-                        },
-                        "seasonField":
-                            {
-                                "geometry": geometry
-                        }
-                    }
-                    params = {
-                        "epsg-out": 3857,
-                        "clipping": "bbox"
-                    }
-
                     if thumbnail_url:
                         thumbnail_content = searcher_client.get_content(
-                            thumbnail_url, params=params, data=data)
+                            thumbnail_url, params={}, data=data)
                         thumbnail_ba = QByteArray(thumbnail_content)
                     else:
 
@@ -547,6 +610,7 @@ class CoverageSearchThread(QThread):
                     sys.exc_info()[1]))
 
             error_text = f"{error_text},-- {e}"
+            log(f"{error_text}")
             self.error_occurred.emit(error_text)
         finally:
             self.mutex.unlock()
