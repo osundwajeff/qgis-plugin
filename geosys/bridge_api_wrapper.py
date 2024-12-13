@@ -475,10 +475,7 @@ class BridgeAPI(ApiClient):
             self,
             url,
             source_map_id,
-            list_of_image_ids,
-            list_of_image_date=None,
             zone_count=0,
-            patch_data=None,
             **kwargs):
         """Get requested RX map.
 
@@ -507,6 +504,33 @@ class BridgeAPI(ApiClient):
         }
         request_data.update(kwargs)
 
-        rx_json = api_client.get_rx_map(url, request_data, patch_data)
+        rx_json = api_client.get_rx_map(url, request_data)
 
         return rx_json
+    
+    def patch_rx_map(
+            self,
+            source_map_id,
+            patch_data=None,
+            **kwargs):
+        """Patch requested RX map.
+
+        :param source_map_id: ID of the season field.
+        :param source_map_id: str
+
+        :param patch_data: Patch data.
+        :type patch_data: dict
+
+        :param kwargs: Other map creation and request parameters.
+
+        :return: JSON response.
+            Map data specification based on given criteria.
+        :rtype: dict
+        """
+        # Construct map creation parameters
+        api_client = FieldLevelMapsAPIClient(
+            self.access_token, self.bridge_server)
+        rx_patch = api_client.patch_rx_map(source_map_id, patch_data)
+        
+        return rx_patch
+    

@@ -79,11 +79,12 @@ from geosys.bridge_api.definitions import (
     COLOR_COMPOSITION, SAMPLE_MAP, IGNORE_LAYER_FIELDS, MASK_PARAMETERS,
     ALLOWED_FIELD_TYPES
 )
+from geosys.bridge_api_wrapper import BridgeAPI
 from geosys.bridge_api.utilities import get_definition
 from geosys.ui.help.help_dialog import HelpDialog
 from geosys.ui.widgets.geosys_coverage_downloader import (
     CoverageSearchThread, create_map, create_difference_map, create_samz_map,
-    create_rx_map, fetch_ndvi_map
+    create_rx_map, fetch_ndvi_map, credentials_parameters_from_settings
 )
 from geosys.ui.widgets.geosys_itemwidget import CoverageSearchResultItemWidget
 from geosys.utilities.gui_utilities import (
@@ -92,6 +93,7 @@ from geosys.utilities.gui_utilities import (
     wkt_geometries_from_feature_iterator, item_text_from_combo,
     is_point_layer, attribute_from_feature_iterator
 )
+from geosys.utilities.qgis_settings import QGISSettings
 from geosys.utilities.resources import get_ui_class
 from geosys.utilities.settings import setting, set_setting
 from geosys.utilities.utilities import check_if_file_exists, log, clean_filename
@@ -376,6 +378,9 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             else:
                 # Otherwise, proceed to the next page
                 self.set_zone_visibility()
+                rx_map_json = self.fetch_rx_json(self.selected_coverage_results)
+                area = self.get_areas_from_rx_map(rx_map_json)
+                self.update_zone_areas()
                 self.current_stacked_widget_index += 1
                 self.stacked_widget.setCurrentIndex(
                     self.current_stacked_widget_index
@@ -422,6 +427,87 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 label.show()
                 line_edit.show()
                 spinbox.show()
+                
+    def fetch_rx_json(self, map_specifications):
+        bridge_api = BridgeAPI(
+            *credentials_parameters_from_settings(),
+            proxies=QGISSettings.get_qgis_proxy())
+        
+        # Extract season field and image IDs
+        image_id = map_specifications[0]['image']['id']
+        image_date = map_specifications[0]['image']['date']
+        season_field_geom = self.wkt_geometries[0]
+        source_map_id = None
+        zone_count = self.fetch_rx_zones.value()
+        self.yield_average = self.yield_average_form.value()
+        self.yield_minimum = self.yield_minimum_form.value()
+        self.yield_maximum = self.yield_maximum_form.value()
+        self.organic_average = self.organic_average_form.value()
+        self.gain = self.spinBox_gain.value()  # Gain set by user
+        self.offset = self.spinBox_offset.value()  # Offset set by user
+        data = {
+                YIELD_AVERAGE: self.yield_average,
+                YIELD_MINIMUM: self.yield_minimum,
+                YIELD_MAXIMUM: self.yield_maximum,
+                ORGANIC_AVERAGE: self.organic_average,
+                SAMZ_ZONE: self.samz_zone,
+                GAIN: self.gain,
+                OFFSET: self.offset
+            }
+        try:
+            # Call API to fetch NDVI for the selected image
+            ndvi_response = fetch_ndvi_map(season_field_geom, image_id, data=data)
+            if ndvi_response and 'id' in ndvi_response:
+                source_map_id = (ndvi_response['id'])
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                'RX Map',
+                f'Error fetching NDVI map: {e}'
+            )
+            return
+        
+        rx_map_json = bridge_api.get_rx_map(
+            url=bridge_api.bridge_server,
+            source_map_id=source_map_id,
+            zone_count=zone_count
+            )
+        
+        return rx_map_json
+    
+    def get_areas_from_rx_map(self, rx_map_json):
+        """Collect areas of each zone from the rx_map_json."""
+        areas = []
+
+        # Check if 'zones' is in rx_map_json
+        if 'zones' in rx_map_json:
+            # Iterate through each zone in the 'zones' list
+            for zone in rx_map_json['zones']:
+                # Check if 'stats' and 'area' exist for the zone
+                if 'stats' in zone and 'area' in zone['stats']:
+                    areas.append(zone['stats']['area'])
+        return areas
+    
+    def update_zone_areas(self):
+        """Updates the area values in the corresponding line_edit fields based on the RX zone data."""
+        
+        # Fetch the rx_map_json and extract the areas
+        rx_map_json = self.fetch_rx_json(self.selected_coverage_results)
+        areas = self.get_areas_from_rx_map(rx_map_json)  # Call the method to get areas
+        
+        for zone_index in range(1, 21):
+            # Dynamically construct object names for line edits
+            line_edit_name = f"zone_{zone_index}_val"
+            
+            # Retrieve the line_edit element using getattr
+            line_edit = getattr(self, line_edit_name, None)
+
+            # Only update if the line_edit exists and the area data is available for the zone
+            if line_edit and zone_index <= len(areas):
+                area_value = areas[zone_index - 1]  # Adjust for 0-based index
+                area_in_hectares = area_value / 10000  # Convert area to hectares
+                line_edit.setText(f"{area_in_hectares:.3f} Ha")
+                line_edit.setReadOnly(True)
 
     def set_gain_offset_state(self):
         """Disables the gain and offset options in the parameters menu for the COLORCOMPOSITION, ELEVATION,
@@ -1020,13 +1106,14 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
             # Dynamically generate patch_data
             patch_data = []
+            value = self.rx_name_line.text() or 'value'
             for i in range(rx_zone_count):
                 # Dynamically get the spinbox
                 widget = getattr(self, f"zone_{i + 1}_sb", None)
                 if widget:
                     patch_data.append({
                         "op": "add",
-                        "path": f"/parameters/zones/{i}/attributes/value",
+                        "path": f"/parameters/zones/{i}/attributes/{value}",
                         "value": widget.value()
                     })
 
