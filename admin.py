@@ -2,6 +2,7 @@
 """ GEOSYS plugin admin operations
 
 """
+import sys
 
 import datetime as dt
 import shlex
@@ -76,6 +77,20 @@ def main(
     }
 
 
+def _qgis_profile_path() -> str:
+    """Returns the path segment to QGIS profiles folder based on the platform.
+
+    :returns: Correct path segment corresponding to the current platform.
+    :rtype: str
+    """
+    if sys.platform == "win32":
+        app_data_dir = "AppData/Roaming"
+    else:
+        app_data_dir = ".local/share"
+
+    return f"{app_data_dir}/QGIS/QGIS3/profiles/"
+
+
 @app.command()
 def generate_zip(
         context: typer.Context,
@@ -138,6 +153,61 @@ def build(
         _log("Could not copy icon", context=context)
     compile_resources(context, output_directory)
     return output_directory
+
+
+@app.command()
+def install(context: typer.Context, build_src: bool = True):
+    """Deploys plugin to QGIS plugins directory
+
+    :param context: Application context
+    :type context: typer.Context
+
+    :param build_src: Whether to build plugin files from source
+    :type build_src: bool
+    """
+    _log("Uninstalling...", context=context)
+    uninstall(context)
+    _log("Building...", context=context)
+
+    built_directory = (
+        build(
+            context,
+            clean=True) if build_src else LOCAL_ROOT_DIR
+        / "build"
+        / SRC_NAME
+    )
+
+    root_directory = (
+        Path.home() / f"{_qgis_profile_path()}{context.obj['qgis_profile']}"
+    )
+
+    base_target_directory = root_directory / "python/plugins" / SRC_NAME
+    _log(
+        f"Copying built plugin to "
+        f"{base_target_directory}...",
+        context=context
+    )
+    shutil.copytree(built_directory, base_target_directory)
+    _log(
+        f"Installed {str(built_directory)!r}"
+        f" into {str(base_target_directory)!r}",
+        context=context,
+    )
+
+
+@app.command()
+def uninstall(context: typer.Context):
+    """Removes the plugin from QGIS plugins directory
+
+    :param context: Application context
+    :type context: typer.Context
+    """
+    root_directory = (
+        Path.home() / f"{_qgis_profile_path()}{context.obj['qgis_profile']}"
+    )
+    base_target_directory = root_directory / "python/plugins" / SRC_NAME
+    shutil.rmtree(str(base_target_directory), ignore_errors=True)
+    _log(f"Removed {str(base_target_directory)!r}", context=context)
 
 
 @app.command()
