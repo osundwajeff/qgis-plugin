@@ -76,10 +76,24 @@ COLOR_COMPOSITION_THUMBNAIL_URL = (
 NDVI_THUMBNAIL_URL = (
     '{bridge_url}/field-level-maps/v5/maps/base-reference-map/NDVI/thumbnail.png'
 )
+NDWI_THUMBNAIL_URL = (
+    '{bridge_url}/field-level-maps/v5/maps/base-reference-map/NDWI/thumbnail.png'
+)
+NDMI_THUMBNAIL_URL = (
+    '{bridge_url}/field-level-maps/v5/maps/base-reference-map/NDMI/thumbnail.png'
+)
+GNDVI_THUMBNAIL_URL = (
+    '{bridge_url}/field-level-maps/v5/maps/base-reference-map/GNDVI/thumbnail.png'
+)
+EVI_THUMBNAIL_URL = (
+    '{bridge_url}/field-level-maps/v5/maps/base-reference-map/EVI/thumbnail.png'
+)
+CVI_THUMBNAIL_URL = (
+    '{bridge_url}/field-level-maps/v5/maps/base-reference-map/CVI/thumbnail.png'
+)
 
 NITROGEN_THUMBNAIL_URL = (
-    '{bridge_url}/field-level-maps/v5/season-fields/{id}/coverage/{image}'
-    '/model-map/{nitrogen_map_type}/n-planned/{n_value}/thumbnail.png')
+    '{bridge_url}/field-level-maps/v5/maps/model-map/{nitrogen_map_type}/thumbnail.png')
 
 S2REP_THUMBNAIL_URL = (
     '{bridge_url}/field-level-maps/v5/maps/base-reference-map/S2REP/thumbnail.png'
@@ -97,9 +111,15 @@ YPM_THUMBNAIL_URL = (
 SAMZ_THUMBNAIL_URL = (
     '{bridge_url}/maps/management-zones-map/SAMZ/thumbnail.png'
 )
+SLOPE_THUMBNAIL_URL = (
+    '{bridge_url}/maps/topology-map/SLOPE/thumbnail.png'
+)
 
 SAMPLEMAP_THUMBNAIL_URL = (
-    '{bridge_url}/maps/sample/SAMPLEMAP/thumbnail.png')
+    '{bridge_url}/maps/sample/{mapType}/thumbnail.png')
+
+OM_THUMBNAIL_URL = (
+    '{bridge_url}/maps/organic-matter-map/OM/thumbnail.png')
 
 # coverage filters
 COVERAGE_TYPE = 'CoverageType'
