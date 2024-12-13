@@ -93,7 +93,7 @@ from geosys.utilities.gui_utilities import (
 )
 from geosys.utilities.resources import get_ui_class
 from geosys.utilities.settings import setting, set_setting
-from geosys.utilities.utilities import check_if_file_exists, log
+from geosys.utilities.utilities import check_if_file_exists, log, clean_filename
 FORM_CLASS = get_ui_class('geosys_dockwidget_base.ui')
 
 
@@ -944,6 +944,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
             filename = '{}_{}_zones'.format(
                 SAMZ['key'], str(zone_cnt))
+            filename = clean_filename(filename)
             filename = check_if_file_exists(
                 self.output_directory,
                 filename,
@@ -992,6 +993,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 return
 
             filename = f"RX_zones_{rx_zone_count}"
+            filename = clean_filename(filename)
             filename = check_if_file_exists(
                 self.output_directory,
                 filename,
@@ -1042,6 +1044,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     map_specification['seasonField']['id'],
                     map_specification['image']['date']
                 )
+                filename = clean_filename(filename)
                 filename = check_if_file_exists(
                     self.output_directory,
                     filename,
