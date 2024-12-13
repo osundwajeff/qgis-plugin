@@ -133,6 +133,7 @@ PNG_EXT = '.png'
 TIFF_EXT = '.tiff'
 SHP_EXT = '.shp'
 KMZ_EXT = '.kmz'
+KML_EXT = '.kml'
 LEGEND_EXT = '.legend.png'
 
 # API key
@@ -141,6 +142,7 @@ PNG_KEY = 'image:image/png'
 ZIPPED_TIFF_KEY = 'image:image/tiff+zip'
 ZIPPED_SHP_KEY = 'image:application/shp+zip'
 KMZ_KEY = 'image:application/vnd.google-earth.kmz'
+KML_KEY = 'image:application/vnd.google-earth.kml'
 THUMBNAIL_KEY = 'thumbnail'
 LEGEND_KEY = 'legend'
 WORLD_FILE_KEY = 'worldFile'
@@ -172,7 +174,11 @@ ZIPPED_SHP = {
 }
 KMZ = {
     'api_key': KMZ_KEY,
-    'extension': KMZ_EXT
+    'extension': KML_EXT
+}
+KML = {
+    'api_key': KML_KEY,
+    'extension': KML_EXT
 }
 LEGEND = {
     'api_key': LEGEND_KEY,
@@ -181,5 +187,5 @@ LEGEND = {
 
 ZIPPED_FORMAT = [ZIPPED_TIFF, ZIPPED_SHP]
 RASTER_FORMAT = [ZIPPED_TIFF, PNG, PNG_KMZ]
-VECTOR_FORMAT = [ZIPPED_SHP, KMZ]
-VALID_QGIS_FORMAT = [ZIPPED_TIFF, ZIPPED_SHP, KMZ, PNG, PNG_KMZ]
+VECTOR_FORMAT = [ZIPPED_SHP, KML]
+VALID_QGIS_FORMAT = [ZIPPED_TIFF, ZIPPED_SHP, KML, PNG, PNG_KMZ]

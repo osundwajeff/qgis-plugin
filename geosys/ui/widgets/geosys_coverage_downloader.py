@@ -18,6 +18,7 @@ from geosys.bridge_api.default import (
     PNG,
     PNG_KMZ,
     KMZ,
+    KML,
     PGW,
     PGW2,
     LEGEND,
@@ -1010,7 +1011,7 @@ def download_field_map(
             bridge_server = (BRIDGE_URLS[region]['test']
                              if use_testing_service
                              else BRIDGE_URLS[region]['prod'])
-            if output_map_format in ZIPPED_FORMAT or output_map_format == KMZ:
+            if output_map_format in ZIPPED_FORMAT or output_map_format == KML:
                 url = (f"{bridge_server}/field-level-maps/v5/maps/management-zones-map/"
                        f"{map_type_key}/image{output_map_format['extension']}")
                 method = 'POST'
@@ -1056,7 +1057,7 @@ def download_field_map(
             bridge_server = (BRIDGE_URLS[region]['test']
                              if use_testing_service
                              else BRIDGE_URLS[region]['prod'])
-            if output_map_format in ZIPPED_FORMAT or output_map_format == KMZ:
+            if output_map_format in ZIPPED_FORMAT or output_map_format == KML:
                 url = (f"{bridge_server}/field-level-maps/v5/maps/{map_family['endpoint']}/"
                        f"{map_type_key}/image{output_map_format['extension']}")
                 method = 'POST'
@@ -1091,7 +1092,7 @@ def download_field_map(
                 method=method,
                 payload=data)
             extract_zip(zip_path, destination_base_path)
-        elif output_map_format == KMZ:
+        elif output_map_format == KML:
             destination_filename = (
                 destination_base_path + output_map_format['extension'])
             fetch_data(
