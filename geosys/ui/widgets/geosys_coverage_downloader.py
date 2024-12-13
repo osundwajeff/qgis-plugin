@@ -1052,7 +1052,6 @@ def download_field_map(
             bridge_server = (BRIDGE_URLS[region]['test']
                              if use_testing_service
                              else BRIDGE_URLS[region]['prod'])
-            log(f"output_map_format: {output_map_format}")
             if output_map_format in ZIPPED_FORMAT or output_map_format == KMZ:
                 url = (f"{bridge_server}/field-level-maps/v5/maps/{map_family['endpoint']}/"
                        f"{map_type_key}/image{output_map_format['extension']}")
@@ -1060,7 +1059,6 @@ def download_field_map(
             else:
                 url = field_map_json['_links'][output_map_format['api_key']]
 
-        log(f"Downloading map from {url}")
         char_question_mark = '?'  # Filtering char
         # if char_question_mark in url:  # Filtering, which starts with '?' has already been added, so appending with '&'
         #    url = '{}&zoning=true&zoneCount={}'.format(
