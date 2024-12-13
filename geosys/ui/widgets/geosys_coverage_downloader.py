@@ -57,7 +57,7 @@ from geosys.utilities.downloader import fetch_data, extract_zip
 from geosys.utilities.qgis_settings import QGISSettings
 from geosys.utilities.settings import setting
 from geosys.utilities.gui_utilities import create_hotspot_layer
-from geosys.utilities.utilities import check_if_file_exists, log
+from geosys.utilities.utilities import check_if_file_exists, clean_filename, log
 from geosys.bridge_api.utilities import get_definition
 
 __copyright__ = "Copyright 2019, Kartoza"
@@ -639,6 +639,7 @@ def create_map(
     season_field_geom = geometry
     image_date = map_specification['image']['date']
     image_id = map_specification['image']['id']
+    filename = clean_filename(filename)
     destination_base_path = os.path.join(output_dir, filename)
     request_data = {
         'SeasonField': {
@@ -745,6 +746,7 @@ def create_difference_map(
     season_field_id = map_specifications[0]['seasonField']['id']
     earliest_image_date = map_specifications[0]['image']['date']
     latest_image_date = map_specifications[1]['image']['date']
+    filename = clean_filename(filename)
     destination_base_path = os.path.join(output_dir, filename)
     data = data if data else {}
     params = params if params else {}
@@ -816,6 +818,7 @@ def create_samz_map(
     :type params: dict
     """""
     map_type_key = SAMZ['key']
+    filename = clean_filename(filename)
     destination_base_path = os.path.join(output_dir, filename)
     data = data if data else {}
     params = params if params else {}
@@ -895,6 +898,7 @@ def create_rx_map(
     :type params: dict
     """""
     map_type_key = "rx-map"
+    filename = clean_filename(filename)
     destination_base_path = os.path.join(output_dir, filename)
     data = {
         "name": "MyRx MPv5",

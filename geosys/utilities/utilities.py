@@ -377,3 +377,20 @@ def log(
         notifyUser=notify,
     )
 
+def clean_filename(filename):
+    """Creates a safe filename by removing operating system
+    invalid filename characters.
+
+    :param filename: File name
+    :type filename: str
+
+    :returns A clean file name
+    :rtype str
+    """
+    characters = " %:/,\[]<>*?"
+
+    for character in characters:
+        if character in filename:
+            filename = filename.replace(character, "_")
+
+    return filename

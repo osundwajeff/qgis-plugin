@@ -155,7 +155,9 @@ class GeosysOptionsDialog(QtWidgets.QDialog, FORM_CLASS):
         new_path = QFileDialog.getExistingDirectory(
             self, title, path, QFileDialog.ShowDirsOnly)
         if new_path is not None and os.path.exists(new_path):
-            line_edit.setText(new_path)
+            # Normalize the path for consistent format
+            normalized_path = os.path.normpath(new_path)
+            line_edit.setText(normalized_path)
 
     def open_output_directory_dialog(self):
         """Open directory dialog."""
