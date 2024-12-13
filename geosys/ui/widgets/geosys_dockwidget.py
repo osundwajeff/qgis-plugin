@@ -47,6 +47,7 @@ from geosys.bridge_api.default import (
     ZIPPED_TIFF,
     ZIPPED_SHP,
     KMZ,
+    KML,
     VALID_QGIS_FORMAT,
     YIELD_AVERAGE,
     YIELD_MINIMUM,
@@ -370,6 +371,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 self.tiff_radio_button_2.setEnabled(True)
                 self.shp_radio_button_2.setEnabled(True)
                 self.kmz_radio_button_2.setEnabled(True)
+                self.back_push_button.setEnabled(True)
                 self.start_map_creation()
                 return
             else:
@@ -633,7 +635,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 },
                 {
                     'widget': self.kmz_radio_button_2,
-                    'data': KMZ
+                    'data': KML
                 },
             ]
         else:
@@ -653,7 +655,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 },
                 {
                     'widget': self.kmz_radio_button,
-                    'data': KMZ
+                    'data': KML
                 },
             ]
         for wd in widget_data:
@@ -668,14 +670,19 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         """
         if self.output_map_format in VALID_QGIS_FORMAT:
             filename = os.path.basename(base_path)
+            layer = base_path + self.output_map_format['extension']
+            
             if self.output_map_format in VECTOR_FORMAT:
-                map_layer = QgsVectorLayer(
-                    base_path + self.output_map_format['extension'],
-                    filename)
+                map_layer = QgsVectorLayer(layer, filename)
             else:
-                map_layer = QgsRasterLayer(
-                    base_path + self.output_map_format['extension'],
-                    filename)
+                if os.path.exists(layer):
+                    map_layer = QgsRasterLayer(layer, filename)
+                else:
+                    if '.tiff' in layer:
+                        layer = layer.replace('.tiff', '.tif')
+                        map_layer = QgsRasterLayer(layer, filename)
+                    else:
+                        raise FileNotFoundError(f"File not found: {layer}")
             add_layer_to_canvas(map_layer, filename)
 
     def save_parameter_values_as_setting(self):

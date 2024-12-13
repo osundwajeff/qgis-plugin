@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>514</width>
-    <height>850</height>
+    <height>800</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>514</width>
-    <height>850</height>
+    <height>800</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -42,7 +42,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="coverage_form_page">
        <property name="minimumSize">
@@ -534,6 +534,9 @@
              <property name="singleStep">
               <double>0.100000000000000</double>
              </property>
+             <property name="value">
+              <double>1.000000000000000</double>
+             </property>
             </widget>
            </item>
            <item row="6" column="0">
@@ -618,7 +621,7 @@
            <item row="1" column="3">
             <widget class="QRadioButton" name="kmz_radio_button">
              <property name="text">
-              <string>KMZ</string>
+              <string>KML</string>
              </property>
             </widget>
            </item>
@@ -1600,7 +1603,7 @@
            <item row="1" column="3">
             <widget class="QRadioButton" name="kmz_radio_button_2">
              <property name="text">
-              <string>KMZ</string>
+              <string>KML</string>
              </property>
             </widget>
            </item>
