@@ -1219,19 +1219,14 @@ def download_field_map(
                 'NDWI',
                 'S2REP']
             samz_types = ['SAMZ']
-            topology_types = ['EROSION', 'ELEVATION', 'SLOPE']
-
             if map_type_key in vegetation_map_types:
                 base_url = f"{HOTSPOT_URL}/{VEGETATION_ENDPOINT}"
             elif map_type_key in samz_types:
                 base_url = f"{HOTSPOT_URL}/{SAMZ_ENDPOINT}"
-            elif map_type_key in topology_types:
-                base_url = f"{HOTSPOT_URL}/{ELEVATION_ENDPOINT}"
             else:
-                raise ValueError(
-                    f"Unsupported map type: "
-                    f"{map_type_key}"
-                )
+                message = (f"Hotspots support not available"
+                           f" for {map_type_key} map type ")
+                return False, message
 
             params = {
                 'Type': data.get('zoningSegmentation', 'Polygon'),
