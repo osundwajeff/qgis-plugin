@@ -153,13 +153,11 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.hotspot_polygon = None
         self.hotspot_polygon_part = None
         self.hotspot_position = None
-        self.hot_spot_none = None
         self.hot_spot_point_on_surface = None
         self.hot_spot_min = None
         self.hot_spot_ave = None
         self.hot_spot_med = None
         self.hot_spot_max = None
-        self.hot_spot_all = None
         self.zoning_segmentation = None
         self.output_map_format = None
         self.gain = DEFAULT_GAIN
@@ -378,7 +376,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             else:
                 # Otherwise, proceed to the next page
                 self.set_zone_visibility()
-                rx_map_json = self.fetch_rx_json(self.selected_coverage_results)
+                rx_map_json = self.fetch_rx_json(
+                    self.selected_coverage_results)
                 area = self.get_areas_from_rx_map(rx_map_json)
                 self.update_zone_areas()
                 self.current_stacked_widget_index += 1
@@ -427,12 +426,12 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 label.show()
                 line_edit.show()
                 spinbox.show()
-                
+
     def fetch_rx_json(self, map_specifications):
         bridge_api = BridgeAPI(
             *credentials_parameters_from_settings(),
             proxies=QGISSettings.get_qgis_proxy())
-        
+
         # Extract season field and image IDs
         image_id = map_specifications[0]['image']['id']
         image_date = map_specifications[0]['image']['date']
@@ -446,17 +445,18 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.gain = self.spinBox_gain.value()  # Gain set by user
         self.offset = self.spinBox_offset.value()  # Offset set by user
         data = {
-                YIELD_AVERAGE: self.yield_average,
-                YIELD_MINIMUM: self.yield_minimum,
-                YIELD_MAXIMUM: self.yield_maximum,
-                ORGANIC_AVERAGE: self.organic_average,
-                SAMZ_ZONE: self.samz_zone,
-                GAIN: self.gain,
-                OFFSET: self.offset
-            }
+            YIELD_AVERAGE: self.yield_average,
+            YIELD_MINIMUM: self.yield_minimum,
+            YIELD_MAXIMUM: self.yield_maximum,
+            ORGANIC_AVERAGE: self.organic_average,
+            SAMZ_ZONE: self.samz_zone,
+            GAIN: self.gain,
+            OFFSET: self.offset
+        }
         try:
             # Call API to fetch NDVI for the selected image
-            ndvi_response = fetch_ndvi_map(season_field_geom, image_id, data=data)
+            ndvi_response = fetch_ndvi_map(
+                season_field_geom, image_id, data=data)
             if ndvi_response and 'id' in ndvi_response:
                 source_map_id = (ndvi_response['id'])
         except Exception as e:
@@ -466,15 +466,15 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 f'Error fetching NDVI map: {e}'
             )
             return
-        
+
         rx_map_json = bridge_api.get_rx_map(
             url=bridge_api.bridge_server,
             source_map_id=source_map_id,
             zone_count=zone_count
-            )
-        
+        )
+
         return rx_map_json
-    
+
     def get_areas_from_rx_map(self, rx_map_json):
         """Collect areas of each zone from the rx_map_json."""
         areas = []
@@ -487,22 +487,24 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 if 'stats' in zone and 'area' in zone['stats']:
                     areas.append(zone['stats']['area'])
         return areas
-    
+
     def update_zone_areas(self):
         """Updates the area values in the corresponding line_edit fields based on the RX zone data."""
-        
+
         # Fetch the rx_map_json and extract the areas
         rx_map_json = self.fetch_rx_json(self.selected_coverage_results)
-        areas = self.get_areas_from_rx_map(rx_map_json)  # Call the method to get areas
-        
+        areas = self.get_areas_from_rx_map(
+            rx_map_json)  # Call the method to get areas
+
         for zone_index in range(1, 21):
             # Dynamically construct object names for line edits
             line_edit_name = f"zone_{zone_index}_val"
-            
+
             # Retrieve the line_edit element using getattr
             line_edit = getattr(self, line_edit_name, None)
 
-            # Only update if the line_edit exists and the area data is available for the zone
+            # Only update if the line_edit exists and the area data is
+            # available for the zone
             if line_edit and zone_index <= len(areas):
                 area_value = areas[zone_index - 1]  # Adjust for 0-based index
                 area_in_hectares = area_value / 10000  # Convert area to hectares
@@ -815,21 +817,17 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.hotspot_polygon_part = self.hotspot_polygon_part_form.isChecked()
             self.hotspot_position = self.hotspots_position_group.isChecked()
             if self.hotspot_position:
-                self.hot_spot_none = self.cb_none.isChecked()
-                self.hot_spot_point_on_surface = self.cb_point_on_surface.isChecked()
-                self.hot_spot_min = self.cb_min.isChecked()
-                self.hot_spot_ave = self.cb_ave.isChecked()
-                self.hot_spot_med = self.cb_med.isChecked()
-                self.hot_spot_max = self.cb_max.isChecked()
-                self.hot_spot_all = self.cb_all.isChecked()
+                self.hot_spot_point_on_surface = self.rb_point_on_surface.isChecked()
+                self.hot_spot_min = self.rb_min.isChecked()
+                self.hot_spot_ave = self.rb_ave.isChecked()
+                self.hot_spot_med = self.rb_med.isChecked()
+                self.hot_spot_max = self.rb_max.isChecked()
             else:
-                self.hot_spot_none = False
                 self.hot_spot_point_on_surface = False
                 self.hot_spot_min = False
                 self.hot_spot_ave = False
                 self.hot_spot_med = False
                 self.hot_spot_max = False
-                self.hot_spot_all = False
 
         # SaMZ map creation accept zero selected results, which means it will
         # trigger automatic SaMZ map creation.
@@ -998,17 +996,15 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 if self.hotspot_polygon_part:
                     data.update({
                         HOTSPOT: self.hotspot_polygon_part,
-                        ZONING_SEGMENTATION: 'polygon'
+                        ZONING_SEGMENTATION: 'Zone'
                     })
                 if self.hotspot_position:
                     position_values = {
-                        'none': self.hot_spot_none,
-                        'pointonsurface': self.hot_spot_point_on_surface,
-                        'min': self.hot_spot_min,
-                        'max': self.hot_spot_max,
-                        'average': self.hot_spot_ave,
-                        'median': self.hot_spot_med,
-                        'all': self.hot_spot_all
+                        'PointOnSurface': self.hot_spot_point_on_surface,
+                        'Minimum': self.hot_spot_min,
+                        'Maximum': self.hot_spot_max,
+                        'Average': self.hot_spot_ave,
+                        'Median': self.hot_spot_med,
                     }
                     position = ""
                     for key, value in position_values.items():
@@ -1160,7 +1156,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 sample_map_id = None
                 if self.map_product == SAMPLE_MAP['key']:
                     sample_map_id = map_specification['id']
-
                 is_success, message = create_map(
                     map_specification, self.map_product, geometry, self.output_directory, filename,
                     data=data, output_map_format=self.output_map_format,
@@ -1170,6 +1165,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     max_yield_val=self.yield_maximum_form.value(),
                     sample_map_id=sample_map_id
                 )
+
                 if not is_success:
                     QMessageBox.critical(
                         self,
