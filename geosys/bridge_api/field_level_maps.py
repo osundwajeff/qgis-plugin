@@ -351,16 +351,16 @@ class FieldLevelMapsAPIClient(ApiClient):
                 params=params
             )
 
-        if response:
+        if response.status_code == 200:
             return response.json()
 
-        return {}
+        return response
 
     def get_rx_map(
-        self,
-        url,
-        request_data,
-        params=None):
+            self,
+            url,
+            request_data,
+            params=None):
         """
         Get RX Map data from the server.
 
@@ -399,7 +399,7 @@ class FieldLevelMapsAPIClient(ApiClient):
         )
 
         return response.json()
-    
+
     def patch_rx_map(self, source_map_id, patch_data):
         """ Actual method to get zone hotspots.
 
@@ -411,13 +411,13 @@ class FieldLevelMapsAPIClient(ApiClient):
             'accept': 'application/json',
             'content-type': 'application/json'
         }
-        
+
         patch_url = self.full_url(
             'maps',
             source_map_id,
             'rx-map'
         )
-        
+
         response = self.patch(
             patch_url,
             headers=headers,

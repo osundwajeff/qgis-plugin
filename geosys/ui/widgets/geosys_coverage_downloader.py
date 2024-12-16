@@ -4,8 +4,10 @@
 import os
 import sys
 import tempfile
+import uuid
 
 from PyQt5.QtCore import QThread, pyqtSignal, QByteArray, QSettings, QDate
+from urllib3 import request
 
 from geosys.bridge_api.default import (
     MAPS_TYPE,
@@ -718,6 +720,7 @@ def create_map(
     }
     params = params if params else {}
     data.update({'params': params})
+    data.update({'request_data': request_data})
 
     bridge_api = BridgeAPI(
         *credentials_parameters_from_settings(),
@@ -738,15 +741,17 @@ def create_map(
     if map_type_key == SAMPLE_MAP['key']:
         field_map_json = map_specification
 
-    return download_field_map(
+    result, message = download_field_map(
         field_map_json=field_map_json,
         map_type_key=map_type_key,
         destination_base_path=destination_base_path,
         output_map_format=output_map_format,
         headers=bridge_api.headers,
         map_specification=map_specification,
-        data=request_data,
+        data=data,
         image_id=image_id)
+
+    return result, message
 
 
 def create_difference_map(
@@ -985,9 +990,9 @@ def create_rx_map(
         source_map_id=source_map_id,
         zone_count=zone_count,
     )
-    
+
     source_map_id = rx_map_json.get("id")
-    
+
     patch_rx_map_json = bridge_api.patch_rx_map(
         source_map_id=source_map_id,
         patch_data=patch_data
@@ -1071,6 +1076,9 @@ def download_field_map(
     # If request succeeded, download zipped map and extract it
     # in requested format.
     map_extension = output_map_format['extension']
+
+    request_data = data.get('request_data') if 'request_data' in data else data
+
     try:
         seasonfield_id = field_map_json['seasonField']['id']
         if map_type_key == "SAMZ":  # Handle SAMZ-specific URL construction
@@ -1158,7 +1166,7 @@ def download_field_map(
                 zip_path,
                 headers=headers,
                 method=method,
-                payload=data)
+                payload=request_data)
             extract_zip(zip_path, destination_base_path)
         elif output_map_format == KML:
             destination_filename = (
@@ -1168,7 +1176,7 @@ def download_field_map(
                 destination_filename,
                 headers=headers,
                 method=method,
-                payload=data)
+                payload=request_data)
         else:
             destination_filename = (
                 destination_base_path + output_map_format['extension'])
@@ -1197,6 +1205,8 @@ def download_field_map(
         bridge_api = BridgeAPI(
             *credentials_parameters_from_settings(),
             proxies=QGISSettings.get_qgis_proxy())
+
+        data.pop('request_data', None)
 
         if data.get('zoning') and data.get('hotspot'):
             vegetation_map_types = [
@@ -1234,42 +1244,60 @@ def download_field_map(
                 params['Position'] = data.get('position', 'Average')
 
             request_body = {
-                'geometry': field_map_json.get('geometry'),
-                'image_id': [field_map_json.get('image_id', [])[0]]
-            }
+                'geometry': request_data.get(
+                    'SeasonField',
+                    {}).get('geometry'),
+                'image_id': [
+                    request_data.get(
+                        'Image',
+                        {}).get('Id')]}
 
             map_json = bridge_api.get_hotspot(
                 base_url, params=params, data=request_body)
-
             output_dir = setting('output_directory', expected_type=str)
+
+            if not isinstance(map_json, dict):
+                message = (f"Failed to fetch hotspots"
+                           f" {map_json.status_code}, {map_json.text}")
+                return False, message
+
+            crs_authid = (
+                f"EPSG:"
+                f"{params.get('$epsg-out', 4326)}"
+            )
 
             if map_json.get('OutputData', {}).get('Hotspots'):
                 hotspot_filename = (
                     f"{'HotspotsPerPart' if params['Type'] == 'Polygon' else 'HotspotsPerPolygon'}_"
-                    f"{map_specification['seasonField']['id']}_"
-                    f"{map_specification['image']['date']}")
+                    f"{params.get('Position').lower()}_"
+                    f"{str(request_body.get('image_id')[0])[:4]}_"
+                    f"{str(uuid.uuid4())[:4]}")
                 hotspot_filename = check_if_file_exists(
                     output_dir, hotspot_filename, SHP_EXT)
 
                 create_hotspot_layer(
                     map_json['OutputData']['Hotspots'],
                     'hotspots',
-                    hotspot_filename
+                    hotspot_filename,
+                    crs_authid
                 )
 
             if map_json.get('OutputData', {}).get('Zones'):
                 segment_filename = (
                     f"{'SegmentsPerPart' if params['Type'] == 'Polygon' else 'SegmentsPerPolygon'}_"
-                    f"{map_specification['seasonField']['id']}_"
-                    f"{map_specification['image']['date']}")
+                    f"{params.get('Position').lower()}_"
+                    f"{str(request_body.get('image_id')[0])[:4]}_"
+                    f"{str(uuid.uuid4())[:4]}")
                 segment_filename = check_if_file_exists(
                     output_dir, segment_filename, SHP_EXT)
 
                 create_hotspot_layer(
                     map_json['OutputData']['Zones'],
                     'segments',
-                    segment_filename
+                    segment_filename,
+                    crs_authid
                 )
+
     except Exception as e:
         message = f"Failed to download file. Error: {str(e)}"
         return False, message

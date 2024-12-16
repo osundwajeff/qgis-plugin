@@ -374,6 +374,7 @@ def wkt_geometries_from_feature_iterator(
     else:
         return []
 
+
 def attribute_from_feature_iterator(
         feature_iterator, attribute):
     """Get list of attributes from a QgsMapLayer feature iterator.
@@ -397,7 +398,13 @@ def attribute_from_feature_iterator(
 
     return attr_vals
 
-def create_hotspot_layer(source, source_type, source_filename):
+
+def create_hotspot_layer(
+        source,
+        source_type,
+        source_filename,
+        crs_authid=None
+):
     """Creates layer from wkt text in the source.
 
         :param source: Array with json objects containing WKT text.
@@ -439,21 +446,26 @@ def create_hotspot_layer(source, source_type, source_filename):
 
         :param source_filename: Filename of the result layer
         :type source_filename: string
+
+        :param crs_authid: string containing a coordinate reference system definition
+        :type crs_authid: string
     """
-    crs = QgsCoordinateReferenceSystem()
+    crs = QgsCoordinateReferenceSystem(crs_authid)
     fields = QgsFields()
     features = []
 
     if source_type == "hotspots":
         layer_type = "MULTIPOINT?crs={}".format(crs.authid())
         fields.append(QgsField("segmentId", QVariant.String))
+        fields.append(QgsField("value", QVariant.String))
 
         for spot in source:
-            geom = QgsGeometry.fromWkt(spot['geometry'])
+            geom = QgsGeometry.fromWkt(spot.get('geometry'))
             feature = QgsFeature()
             feature.setFields(fields)
             feature.setGeometry(geom)
-            feature[0] = spot['segmentId']
+            feature[0] = spot.get('segmentId')
+            feature[1] = str(spot.get('value'))
             features.append(feature)
     else:
         layer_type = "MULTIPOLYGON?crs={}".format(crs.authid())
@@ -493,7 +505,7 @@ def create_hotspot_layer(source, source_type, source_filename):
 
     file_name = '{}{}'.format(source_filename, SHP_EXT)
     output_dir = setting(
-            'output_directory', expected_type=str)
+        'output_directory', expected_type=str)
     file_name = os.path.join(output_dir, file_name)
 
     # Save memory layer to disk

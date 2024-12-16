@@ -670,55 +670,41 @@
               <bool>true</bool>
              </property>
              <layout class="QGridLayout" name="gridLayout_3">
-              <item row="0" column="0">
-               <widget class="QCheckBox" name="cb_none">
+              <item row="1" column="1">
+               <widget class="QRadioButton" name="rb_max">
                 <property name="text">
-                 <string>None</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
+                 <string>Maximum</string>
                 </property>
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QCheckBox" name="cb_med">
+               <widget class="QRadioButton" name="rb_med">
                 <property name="text">
                  <string>Median</string>
                 </property>
                </widget>
               </item>
               <item row="1" column="0">
-               <widget class="QCheckBox" name="cb_point_on_surface">
-                <property name="text">
-                 <string>Point on surface</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QCheckBox" name="cb_max">
-                <property name="text">
-                 <string>Maximum</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QCheckBox" name="cb_min">
+               <widget class="QRadioButton" name="rb_min">
                 <property name="text">
                  <string>Minimum</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="1">
-               <widget class="QCheckBox" name="cb_all">
+              <item row="2" column="0">
+               <widget class="QRadioButton" name="rb_ave">
                 <property name="text">
-                 <string>All</string>
+                 <string>Average</string>
                 </property>
                </widget>
               </item>
-              <item row="3" column="0">
-               <widget class="QCheckBox" name="cb_ave">
+              <item row="0" column="0">
+               <widget class="QRadioButton" name="rb_point_on_surface">
                 <property name="text">
-                 <string>Average</string>
+                 <string>Point on surface</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>

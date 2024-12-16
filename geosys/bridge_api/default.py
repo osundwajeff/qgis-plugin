@@ -43,7 +43,7 @@ BRIDGE_URLS = {
     }
 }
 
-HOTSPOT_URL = 'https://hotspots-dev.aws-dev.geosys.com/hotspots-processor'
+HOTSPOT_URL = 'https://hotspots.aws.geosys.com/hotspots-processor'
 
 VEGETATION_ENDPOINT = 'vegetation'
 SAMZ_ENDPOINT = 'management-zones'
