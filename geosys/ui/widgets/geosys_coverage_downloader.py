@@ -709,15 +709,28 @@ def create_map(
     image_id = map_specification['image']['id']
     filename = clean_filename(filename)
     destination_base_path = os.path.join(output_dir, filename)
-    request_data = {
-        'SeasonField': {
-            'Id': season_field_id,
-            'geometry': season_field_geom
-        },
-        'Image': {
-            'Id': image_id
+    
+    if map_type_key == OM['key']:
+        request_data = {
+                'Image': {
+                    "Id": image_id
+                },
+                "AverageOrganicMatter": 100,
+                'SeasonField': {
+                    'Id': season_field_id,
+                    'geometry': season_field_geom
+                }
+            }
+    else:
+        request_data = {
+            'SeasonField': {
+                'Id': season_field_id,
+                'geometry': season_field_geom
+            },
+            'Image': {
+                'Id': image_id
+            }
         }
-    }
     params = params if params else {}
     data.update({'params': params})
     data.update({'request_data': request_data})
