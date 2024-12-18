@@ -168,6 +168,8 @@ class CoverageSearchThread(QThread):
         coverage_percent_filter = ''
         if self.coverage_percent:
             coverage_percent_filter = f'$gte:{self.coverage_percent}'
+        else:
+            coverage_percent_filter = f'$gte:{0}' # Using this as the min value is captured as None
 
         # Disable filter when map product is Elevation
         self.filters = {}
