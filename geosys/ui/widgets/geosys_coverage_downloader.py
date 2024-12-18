@@ -719,8 +719,8 @@ def create_map(
         }
     }
     params = params if params else {}
-    data.update({'params': params})
-    data.update({'request_data': request_data})
+    data.update(params or {})
+    data.update(request_data)
 
     bridge_api = BridgeAPI(
         *credentials_parameters_from_settings(),
