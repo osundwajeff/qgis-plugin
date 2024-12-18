@@ -73,7 +73,7 @@ from geosys.bridge_api.default import (
     DEFAULT_COVERAGE_PERCENT)
 from geosys.bridge_api.definitions import (
     ARCHIVE_MAP_PRODUCTS, ALL_SENSORS, SENSORS, NDVI, EVI,
-    SAMZ, SOIL, ELEVATION, REFLECTANCE, LANDSAT_8, LANDSAT_9, SENTINEL_2,
+    SAMZ, SOIL, SLOPE, ELEVATION, REFLECTANCE, LANDSAT_8, LANDSAT_9, SENTINEL_2,
     INSEASONFIELD_AVERAGE_NDVI, INSEASONFIELD_AVERAGE_REVERSE_NDVI,
     INSEASONFIELD_AVERAGE_LAI, INSEASONFIELD_AVERAGE_REVERSE_LAI,
     COLOR_COMPOSITION, SAMPLE_MAP, IGNORE_LAYER_FIELDS, MASK_PARAMETERS,
@@ -287,7 +287,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # widget is on the map creation page, the back button should
             # take the user to the coverage parameters page
             if ((self.map_product == ELEVATION['key']
-                 or self.map_product == SOIL['key'])
+                 or self.map_product == SOIL['key']
+                 or self.map_product == SLOPE['key'])
                     and self.current_stacked_widget_index == 2):
                 self.current_stacked_widget_index -= 2
             else:
@@ -513,12 +514,13 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     def set_gain_offset_state(self):
         """Disables the gain and offset options in the parameters menu for the COLORCOMPOSITION, ELEVATION,
-        OM, SOILMAP, SAMZ, YGM, and YPM map product types.
+        OM, SLOPE, SOILMAP, SAMZ, YGM, and YPM map product types.
         """
         selected_map_product = self.map_product  # Map product type selected by the user
         list_products_to_exclude = [
             'COLORCOMPOSITION',
             'ELEVATION',
+            'SLOPE',
             'OM',
             'SOILMAP',
             'SAMZ',
@@ -598,6 +600,9 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             elif self.map_product == ELEVATION['key']:
                 # For elevation map type
                 item_json['maps'][0]['type'] = ELEVATION['key']
+            elif self.map_product == SLOPE['key']:
+                # For slope map type
+                item_json['maps'][0]['type'] = SLOPE['key']
             elif self.map_product == INSEASONFIELD_AVERAGE_NDVI['key']:
                 item_json['maps'][0]['type'] = INSEASONFIELD_AVERAGE_NDVI['key']
             elif self.map_product == INSEASONFIELD_AVERAGE_LAI['key']:
@@ -946,6 +951,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         list_products_to_exclude = [
             'COLORCOMPOSITION',
             'ELEVATION',
+            'SLOPE',
             'OM',
             'SOILMAP',
             'SAMZ',
@@ -1322,7 +1328,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
             # When user selected Elevation or Soil map, we want to skip the coverage
             # results panel and go straight to the map creation panel rather.
-            if self.map_product == ELEVATION['key'] or self.map_product == SOIL['key']:
+            if self.map_product == ELEVATION['key'] or self.map_product == SOIL['key'] or self.map_product == SLOPE['key']:
                 self.show_next_page()
 
     def show_coverage_result(self, coverage_map_json, thumbnail_ba):
@@ -1485,7 +1491,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.clear_combo_box(self.sensor_combo_box)
             self.populate_sensors()
 
-        if map_product == SOIL['name'] or map_product == ELEVATION['key'] or map_product == SAMPLE_MAP['name']:
+        if map_product == SOIL['name'] or map_product == ELEVATION['key'] or map_product == SAMPLE_MAP['name'] or map_product == SLOPE['key']:
             # Mask type not required for soil, elevation, and sample maps
             self.cb_mask.setEnabled(False)
         else:

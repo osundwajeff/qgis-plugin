@@ -171,7 +171,7 @@ class CoverageSearchThread(QThread):
 
         # Disable filter when map product is Elevation
         self.filters = {}
-        if self.map_product != ELEVATION['key']:
+        if self.map_product != ELEVATION['key'] or self.map_product != SLOPE['key']:
             if self.map_product == REFLECTANCE['key']:
                 # Catalog-imagery API call. Maps.Type will be set to NDVI
                 # This is a work-around provided by GeoSys, because reflectance results
@@ -400,7 +400,7 @@ class CoverageSearchThread(QThread):
                                     break
                             else:  # Other map types
                                 if map_result['type'] == self.map_product or (
-                                        self.map_product == ELEVATION['key']):
+                                        self.map_product == ELEVATION['key'] or self.map_product == SLOPE['key']):
                                     requested_map = map_result
                                     break
 
