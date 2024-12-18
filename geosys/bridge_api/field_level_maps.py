@@ -388,7 +388,7 @@ class FieldLevelMapsAPIClient(ApiClient):
         # Construct the full URL for the RX Map endpoint
         full_url = self.full_url(
             'maps',
-            'rx-map?storeRequest=true&directLinks=true&zoning=true'
+            'rx-map?storeRequest=true&directLinks=true&zoning=true&minzonesize=0.0247'
         )
 
         # Send the request to the server
