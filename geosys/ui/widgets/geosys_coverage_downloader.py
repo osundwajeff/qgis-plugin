@@ -1118,7 +1118,7 @@ def download_field_map(
             bridge_server = (BRIDGE_URLS[region]['test']
                              if use_testing_service
                              else BRIDGE_URLS[region]['prod'])
-            if output_map_format in ZIPPED_FORMAT:
+            if output_map_format in ZIPPED_FORMAT or output_map_format == KML:
                 source_map_id = field_map_json.get('id')
                 url = (f"{bridge_server}/field-level-maps/v5/maps/"
                        f"{source_map_id}/image{output_map_format['extension']}")
