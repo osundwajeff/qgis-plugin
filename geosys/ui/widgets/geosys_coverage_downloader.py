@@ -318,6 +318,13 @@ class CoverageSearchThread(QThread):
                         break
 
                     requested_map = None
+                    
+                    nitrogen_products = [
+                        INSEASONFIELD_AVERAGE_NDVI['key'],
+                        INSEASONFIELD_AVERAGE_LAI['key'],
+                        INSEASONFIELD_AVERAGE_REVERSE_NDVI['key'],
+                        INSEASONFIELD_AVERAGE_REVERSE_LAI['key']
+                    ]
 
                     if self.map_product == SAMPLE_MAP['key']:
                         # Sample maps has a different workflow than other map products
@@ -388,6 +395,17 @@ class CoverageSearchThread(QThread):
                         result['id'] = json_id
                         # Links are required for map creation, etc.
                         result['_links'] = field_map_json['_links']
+                        
+                    elif self.map_product in nitrogen_products:
+                        # Set the requested_map to the nitrogen product key
+                        if self.map_product == INSEASONFIELD_AVERAGE_NDVI['key']:
+                            requested_map = INSEASONFIELD_AVERAGE_NDVI
+                        elif self.map_product == INSEASONFIELD_AVERAGE_LAI['key']:
+                            requested_map = INSEASONFIELD_AVERAGE_LAI
+                        elif self.map_product == INSEASONFIELD_AVERAGE_REVERSE_NDVI['key']:
+                            requested_map = INSEASONFIELD_AVERAGE_REVERSE_NDVI
+                        elif self.map_product == INSEASONFIELD_AVERAGE_REVERSE_LAI['key']:
+                            requested_map = INSEASONFIELD_AVERAGE_REVERSE_LAI
                     else:
                         # All other map types
                         for map_result in result['maps']:
@@ -407,13 +425,6 @@ class CoverageSearchThread(QThread):
                     # Workflow differs for Sample maps
                     if not requested_map and self.map_product != SAMPLE_MAP['key']:
                         continue
-
-                    nitrogen_products = [
-                        INSEASONFIELD_AVERAGE_NDVI['key'],
-                        INSEASONFIELD_AVERAGE_LAI['key'],
-                        INSEASONFIELD_AVERAGE_REVERSE_NDVI['key'],
-                        INSEASONFIELD_AVERAGE_REVERSE_LAI['key']
-                    ]
 
                     thumbnail_url = None
 
@@ -531,10 +542,8 @@ class CoverageSearchThread(QThread):
                                     nitrogen_map_type=INSEASONFIELD_AVERAGE_REVERSE_NDVI['key']))
                             data.update({
                                 "nPlanned": f"{self.n_planned_value}",
-                                "nMin": 0,
-                                "nMax": 0,
-                                "offset": 0,
-                                "gain": 0,
+                                "nMin": 1,
+                                "nMax": 130,
                             })
                         elif self.map_product == INSEASONFIELD_AVERAGE_REVERSE_LAI['key']:
                             #  AVERAGE REVERSE LAI
@@ -612,7 +621,6 @@ class CoverageSearchThread(QThread):
                     sys.exc_info()[1]))
 
             error_text = f"{error_text},-- {e}"
-            log(f"{error_text}")
             self.error_occurred.emit(error_text)
         finally:
             self.mutex.unlock()
@@ -709,15 +717,35 @@ def create_map(
     image_id = map_specification['image']['id']
     filename = clean_filename(filename)
     destination_base_path = os.path.join(output_dir, filename)
-    request_data = {
-        'SeasonField': {
-            'Id': season_field_id,
-            'geometry': season_field_geom
-        },
-        'Image': {
-            'Id': image_id
+    
+    nitrogen_maps = [
+        INSEASONFIELD_AVERAGE_NDVI['key'],
+        INSEASONFIELD_AVERAGE_LAI['key'],
+        INSEASONFIELD_AVERAGE_REVERSE_NDVI['key'],
+        INSEASONFIELD_AVERAGE_REVERSE_LAI['key']
+    ]
+    
+    if map_type_key in nitrogen_maps:
+        request_data = {
+                'Image': {
+                    "Id": image_id
+                },
+                'SeasonField': {
+                    'Id': season_field_id,
+                    'geometry': season_field_geom
+                },
+                "nPlanned": n_planned_value,
+            }
+    else:
+        request_data = {
+            'SeasonField': {
+                'Id': season_field_id,
+                'geometry': season_field_geom
+            },
+            'Image': {
+                'Id': image_id
+            }
         }
-    }
     params = params if params else {}
     data.update(params or {})
     data.update(request_data)

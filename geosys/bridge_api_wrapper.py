@@ -8,7 +8,13 @@ from geosys.bridge_api.definitions import CROPS, SAMZ
 from geosys.bridge_api.field_level_maps import FieldLevelMapsAPIClient
 from geosys.bridge_api.utilities import get_definition
 
-from geosys.bridge_api.definitions import SAMPLE_MAP
+from geosys.bridge_api.definitions import (
+    SAMPLE_MAP,
+    INSEASONFIELD_AVERAGE_NDVI,
+    INSEASONFIELD_AVERAGE_LAI,
+    INSEASONFIELD_AVERAGE_REVERSE_NDVI,
+    INSEASONFIELD_AVERAGE_REVERSE_LAI
+)
 
 from geosys.utilities.utilities import log
 
@@ -345,6 +351,12 @@ class BridgeAPI(ApiClient):
             Map data specification based on given criteria.
         :rtype: dict
         """
+        nitrogen_maps = [
+            INSEASONFIELD_AVERAGE_NDVI['key'],
+            INSEASONFIELD_AVERAGE_LAI['key'],
+            INSEASONFIELD_AVERAGE_REVERSE_NDVI['key'],
+            INSEASONFIELD_AVERAGE_REVERSE_LAI['key']
+        ]
         # Construct map creation parameters
         if map_type_key == SAMPLE_MAP['key']:
             # Only for Sample maps
@@ -353,6 +365,19 @@ class BridgeAPI(ApiClient):
                 request_data.update(kwargs)
             else:
                 request_data = None
+        elif map_type_key in nitrogen_maps:
+            request_data = {
+                'Image': {
+                    "Id": image_id
+                },
+                'SeasonField': {
+                    'Id': season_field_id,
+                    'geometry': season_field_geom
+                },
+                "offset": 0,
+                "gain": 0,
+                "nPlanned": n_planned,
+            }
         else:
             request_data = {
                 'Image': {
@@ -365,10 +390,10 @@ class BridgeAPI(ApiClient):
                 "offset": 0,
                 "gain": 0,
             }
-            if 'data' in kwargs:
-                request_data.update(kwargs.pop('data'))
-            else:
-                request_data.update(kwargs)
+        if 'data' in kwargs:
+            request_data.update(kwargs.pop('data'))
+        else:
+            request_data.update(kwargs)
 
         # Get request parameters
         params = kwargs.get('params')

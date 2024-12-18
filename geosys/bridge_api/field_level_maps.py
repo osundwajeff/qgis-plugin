@@ -198,17 +198,13 @@ class FieldLevelMapsAPIClient(ApiClient):
                 )
             elif map_type['key'] in nitrogen_maps:
                 full_url = self.full_url(
-                    'season-fields',
-                    seasonfield_id,
-                    'coverage',
-                    image_id,
+                    'maps',
                     map_family['endpoint'],
                     map_type['key'],
-                    'n-planned',
-                    str(n_planned)
+                    '?storeRequest=true&directLinks=true'
                 )
 
-                response = self.get(
+                response = self.post(
                     full_url,
                     headers=headers,
                     params=params,
