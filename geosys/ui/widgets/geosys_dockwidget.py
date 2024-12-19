@@ -348,6 +348,10 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
                 self.kmz_radio_button.setChecked(False)
                 self.kmz_radio_button.setEnabled(False)
+                
+                # Hide groups that are not needed for color composition
+                self.hotspots_group.hide()
+                self.fetch_rx_group.hide()
             else:
                 # If these radio buttons has been disabled, it is reenabled
                 self.png_radio_button.setEnabled(True)
