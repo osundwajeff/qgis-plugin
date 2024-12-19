@@ -182,15 +182,13 @@ class FieldLevelMapsAPIClient(ApiClient):
                 # Reflectance and S2REP maps needs to make use of the
                 # catalog-imagery API
                 full_url = self.full_url(
-                    'season-fields',
-                    seasonfield_id,
-                    'coverage',
-                    image_id,
+                    'maps',
                     map_family['endpoint'],
-                    map_type['key']
+                    map_type['key'],
+                    '?directLinks=true'
                 )
 
-                response = self.get(
+                response = self.post(
                     full_url,
                     headers=headers,
                     params=params,

@@ -1134,13 +1134,9 @@ def download_field_map(
                              else BRIDGE_URLS[region]['prod'])
 
             reflectance_map_family = REFLECTANCE['map_family']
-            url = '{}/field-level-maps/v5/season-fields/{}/coverage/{}/{}/{}/image.tiff.zip'.format(
-                bridge_server,
-                seasonfield_id,
-                image_id,
-                reflectance_map_family['endpoint'],
-                REFLECTANCE['key']
-            )
+            url = (f"{bridge_server}/field-level-maps/v5/maps/{reflectance_map_family['endpoint']}/"
+                       f"{map_type_key}/image{output_map_format['extension']}")
+            method = 'POST'
         elif map_type_key == "rx-map":
             # Special handling for RX maps
             # Retrieve the bridge server URL
