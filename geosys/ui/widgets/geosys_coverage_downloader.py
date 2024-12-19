@@ -168,6 +168,8 @@ class CoverageSearchThread(QThread):
         coverage_percent_filter = ''
         if self.coverage_percent:
             coverage_percent_filter = f'$gte:{self.coverage_percent}'
+        else:
+            coverage_percent_filter = f'$gte:{0}' # Using this as the min value is captured as None
 
         # Disable filter when map product is Elevation
         self.filters = {}
@@ -243,7 +245,6 @@ class CoverageSearchThread(QThread):
                     self.sensor_type and self.filters.update({
                         IMAGE_SENSOR: self.sensor_type
                     })
-
             else:
                 # Coverage API call. Maps.Type should be included
                 if self.mask_type in {'All', 'None'}:
@@ -261,7 +262,8 @@ class CoverageSearchThread(QThread):
                     self.filters.update({
                         MAPS_TYPE: self.map_product,
                         IMAGE_DATE: date_filter,
-                        MASK: self.mask_type
+                        MASK: self.mask_type,
+                        COVERAGE_PERCENT: coverage_percent_filter
                     })
                     self.sensor_type and self.filters.update({
                         IMAGE_SENSOR: self.sensor_type
