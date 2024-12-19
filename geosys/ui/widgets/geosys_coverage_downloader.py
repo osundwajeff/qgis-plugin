@@ -997,6 +997,13 @@ def create_rx_map(
         source_map_id=source_map_id,
         patch_data=patch_data
     )
+    
+    rx_map_json_2 = bridge_api.get_rx_generated(
+        url=bridge_api.bridge_server,
+        source_map_id=source_map_id,
+    )
+    
+    parameters = rx_map_json_2.get('parameters')
 
     return download_field_map(
         field_map_json=rx_map_json,
@@ -1123,6 +1130,7 @@ def download_field_map(
                 url = (f"{bridge_server}/field-level-maps/v5/maps/"
                        f"{source_map_id}/image{output_map_format['extension']}")
                 method = 'GET'
+                log(f'source_map_id download: {source_map_id}')
             else:
                 url = field_map_json['_links'][output_map_format['api_key']]
         else:  # Other map types
@@ -1317,15 +1325,7 @@ def fetch_ndvi_map(geometry, image_id, data):
     :return: JSON response containing NDVI map details.
     :rtype: dict
     """
-
-    request_data = {
-        "SeasonField": {
-            "geometry": geometry
-        },
-        "Image": {
-            "Id": image_id
-        }
-    }
+    
     bridge_api = BridgeAPI(
         *credentials_parameters_from_settings(),
         proxies=QGISSettings.get_qgis_proxy())

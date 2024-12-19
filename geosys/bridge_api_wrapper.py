@@ -365,13 +365,15 @@ class BridgeAPI(ApiClient):
                 "offset": 0,
                 "gain": 0,
             }
-            if 'data' in kwargs:
-                request_data.update(kwargs.pop('data'))
-            else:
-                request_data.update(kwargs)
+        if 'data' in kwargs:
+            request_data.update(kwargs.pop('data'))
+        else:
+            request_data.update(kwargs)
 
         # Get request parameters
         params = kwargs.get('params')
+        
+        log(f'request_data: {request_data}')
 
         return self._get_field_map(
             map_type_key,
@@ -534,3 +536,18 @@ class BridgeAPI(ApiClient):
         
         return rx_patch
     
+    def get_rx_generated(self, url, source_map_id,**kwargs):
+        """Get RX map generated.
+
+        :param url: URL of the RX map.
+        :type url: str
+
+        :return: JSON response.
+            Map data specification based on given criteria.
+        :rtype: dict
+        """
+        api_client = FieldLevelMapsAPIClient(
+            self.access_token, self.bridge_server)
+        rx_json = api_client.get_rx_generated(url, source_map_id)
+
+        return rx_json

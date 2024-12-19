@@ -360,32 +360,27 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # self.restore_parameter_values_from_setting()
 
         # Handle the case when fetch_rx_group is checked
-        if self.fetch_rx_group.isChecked():
+        if self.current_stacked_widget_index == 2 and self.fetch_rx_group.isChecked():
             # If on the first page, go to the next page
-            if self.current_stacked_widget_index == self.max_stacked_widget_index:
-                # Dynamically show/hide elements based on the RX zone count
-                self.set_zone_visibility()
-                # If on the last page, perform the map creation task
-                self.png_radio_button_2.setEnabled(True)
-                self.tiff_radio_button_2.setEnabled(True)
-                self.shp_radio_button_2.setEnabled(True)
-                self.kmz_radio_button_2.setEnabled(True)
-                self.back_push_button.setEnabled(True)
-                self.start_map_creation()
-                return
-            else:
-                # Otherwise, proceed to the next page
-                self.set_zone_visibility()
-                rx_map_json = self.fetch_rx_json(
-                    self.selected_coverage_results)
-                area = self.get_areas_from_rx_map(rx_map_json)
-                self.update_zone_areas()
-                self.current_stacked_widget_index += 1
-                self.stacked_widget.setCurrentIndex(
-                    self.current_stacked_widget_index
-                )
-                self.set_next_button_text(self.current_stacked_widget_index)
-                return
+            self.set_zone_visibility()
+            self.update_zone_areas()
+            self.current_stacked_widget_index += 1
+            self.stacked_widget.setCurrentIndex(
+                self.current_stacked_widget_index
+            )
+            self.set_next_button_text(self.current_stacked_widget_index)
+            return
+        elif self.current_stacked_widget_index == self.max_stacked_widget_index:
+            # Dynamically show/hide elements based on the RX zone count
+            self.set_zone_visibility()
+            # If on the last page, perform the map creation task
+            self.png_radio_button_2.setEnabled(True)
+            self.tiff_radio_button_2.setEnabled(True)
+            self.shp_radio_button_2.setEnabled(True)
+            self.kmz_radio_button_2.setEnabled(True)
+            self.back_push_button.setEnabled(True)
+            self.start_map_creation()
+            return
 
         # If current page is map creation parameters page, create map without
         # increasing index.
@@ -436,6 +431,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         image_id = map_specifications[0]['image']['id']
         image_date = map_specifications[0]['image']['date']
         season_field_geom = self.wkt_geometries[0]
+        log(f'season_field_geom: {season_field_geom}')
         source_map_id = None
         zone_count = self.fetch_rx_zones.value()
         self.yield_average = self.yield_average_form.value()
@@ -453,12 +449,14 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             GAIN: self.gain,
             OFFSET: self.offset
         }
+        log(f'image id: {image_id}')
         try:
             # Call API to fetch NDVI for the selected image
             ndvi_response = fetch_ndvi_map(
                 season_field_geom, image_id, data=data)
             if ndvi_response and 'id' in ndvi_response:
                 source_map_id = (ndvi_response['id'])
+                log(f'source_map_id_1: {source_map_id}')
         except Exception as e:
             QMessageBox.critical(
                 self,
@@ -481,6 +479,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         # Check if 'zones' is in rx_map_json
         if 'zones' in rx_map_json:
+            #log(f'Zones: {rx_map_json["zones"]}')
             # Iterate through each zone in the 'zones' list
             for zone in rx_map_json['zones']:
                 # Check if 'stats' and 'area' exist for the zone
@@ -495,6 +494,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         rx_map_json = self.fetch_rx_json(self.selected_coverage_results)
         areas = self.get_areas_from_rx_map(
             rx_map_json)  # Call the method to get areas
+        log(f'Areas: {areas}')
 
         for zone_index in range(1, 21):
             # Dynamically construct object names for line edits
@@ -507,8 +507,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # available for the zone
             if line_edit and zone_index <= len(areas):
                 area_value = areas[zone_index - 1]  # Adjust for 0-based index
-                area_in_hectares = area_value / 10000  # Convert area to hectares
-                line_edit.setText(f"{area_in_hectares:.3f} Ha")
+                line_edit.setText(f"{area_value:.3f} Ha")
                 line_edit.setReadOnly(True)
 
     def set_gain_offset_state(self):
