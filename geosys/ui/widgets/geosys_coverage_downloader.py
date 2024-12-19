@@ -45,7 +45,7 @@ from geosys.bridge_api.default import (
     NDWI_THUMBNAIL_URL,
     GNDVI_THUMBNAIL_URL,
     OM_THUMBNAIL_URL,
-    SLOPE_THUMBNAIL_URL)
+    SLOPE_THUMBNAIL_URL, LAI_THUMBNAIL_URL)
 from geosys.bridge_api.definitions import (
     SAMZ,
     ELEVATION,
@@ -169,7 +169,8 @@ class CoverageSearchThread(QThread):
         if self.coverage_percent:
             coverage_percent_filter = f'$gte:{self.coverage_percent}'
         else:
-            coverage_percent_filter = f'$gte:{0}' # Using this as the min value is captured as None
+            # Using this as the min value is captured as None
+            coverage_percent_filter = f'$gte:{0}'
 
         # Disable filter when map product is Elevation
         self.filters = {}
@@ -320,7 +321,7 @@ class CoverageSearchThread(QThread):
                         break
 
                     requested_map = None
-                    
+
                     nitrogen_products = [
                         INSEASONFIELD_AVERAGE_NDVI['key'],
                         INSEASONFIELD_AVERAGE_LAI['key'],
@@ -397,7 +398,7 @@ class CoverageSearchThread(QThread):
                         result['id'] = json_id
                         # Links are required for map creation, etc.
                         result['_links'] = field_map_json['_links']
-                        
+
                     elif self.map_product in nitrogen_products:
                         # Set the requested_map to the nitrogen product key
                         if self.map_product == INSEASONFIELD_AVERAGE_NDVI['key']:
@@ -439,7 +440,8 @@ class CoverageSearchThread(QThread):
                         },
                         "seasonField":
                             {
-                                "geometry": geometry
+                                "geometry": geometry,
+                                "crop": self.crop_type
                         }
                     }
 
@@ -478,6 +480,11 @@ class CoverageSearchThread(QThread):
                     elif self.map_product == NDWI['key']:
                         thumbnail_url = (
                             NDWI_THUMBNAIL_URL.format(
+                                bridge_url=searcher_client.bridge_server
+                            ))
+                    elif self.map_product == LAI['key']:
+                        thumbnail_url = (
+                            LAI_THUMBNAIL_URL.format(
                                 bridge_url=searcher_client.bridge_server
                             ))
                     elif self.map_product == GNDVI['key']:
@@ -719,25 +726,25 @@ def create_map(
     image_id = map_specification['image']['id']
     filename = clean_filename(filename)
     destination_base_path = os.path.join(output_dir, filename)
-    
+
     nitrogen_maps = [
         INSEASONFIELD_AVERAGE_NDVI['key'],
         INSEASONFIELD_AVERAGE_LAI['key'],
         INSEASONFIELD_AVERAGE_REVERSE_NDVI['key'],
         INSEASONFIELD_AVERAGE_REVERSE_LAI['key']
     ]
-    
+
     if map_type_key in nitrogen_maps:
         request_data = {
-                'Image': {
-                    "Id": image_id
-                },
-                'SeasonField': {
-                    'Id': season_field_id,
-                    'geometry': season_field_geom
-                },
-                "nPlanned": n_planned_value,
-            }
+            'Image': {
+                "Id": image_id
+            },
+            'SeasonField': {
+                'Id': season_field_id,
+                'geometry': season_field_geom
+            },
+            "nPlanned": n_planned_value,
+        }
     else:
         request_data = {
             'SeasonField': {
@@ -1135,7 +1142,7 @@ def download_field_map(
 
             reflectance_map_family = REFLECTANCE['map_family']
             url = (f"{bridge_server}/field-level-maps/v5/maps/{reflectance_map_family['endpoint']}/"
-                       f"{map_type_key}/image{output_map_format['extension']}")
+                   f"{map_type_key}/image{output_map_format['extension']}")
             method = 'POST'
         elif map_type_key == "rx-map":
             # Special handling for RX maps
