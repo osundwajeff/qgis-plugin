@@ -979,9 +979,8 @@ def create_samz_map(
 
 
 def create_rx_map(
+        rx_map_json,
         source_map_id,
-        list_of_image_ids,
-        list_of_image_date,
         zone_count,
         output_dir,
         filename,
@@ -990,16 +989,12 @@ def create_rx_map(
         patch_data=None,
         params=None):
     """Create map based on given parameters.
+    
+    :param rx_map_json: JSON response from Bridge API field map request.
+    :type rx_map_json: dict
 
     :param source_map_id: ID of the season field.
     :param source_map_id: str
-
-    :param list_of_image_ids: List of selected image IDs
-    :param list_of_image_ids: list
-
-    :param list_of_image_date: List of image date indicating the maps
-        which are going to be compiled.
-    :type list_of_image_date: list
 
     :param output_dir: Base directory of the output.
     :type output_dir: str
@@ -1038,17 +1033,15 @@ def create_rx_map(
     bridge_api = BridgeAPI(
         *credentials_parameters_from_settings(),
         proxies=QGISSettings.get_qgis_proxy())
-    rx_map_json = bridge_api.get_rx_map(
-        url=bridge_api.bridge_server,
-        source_map_id=source_map_id,
-        zone_count=zone_count,
-    )
-
-    source_map_id = rx_map_json.get("id")
 
     patch_rx_map_json = bridge_api.patch_rx_map(
         source_map_id=source_map_id,
         patch_data=patch_data
+    )
+    
+    rx_map_json_2 = bridge_api.get_rx_generated(
+        url=bridge_api.bridge_server,
+        source_map_id=source_map_id,
     )
 
     return download_field_map(
@@ -1167,7 +1160,7 @@ def download_field_map(
             bridge_server = (BRIDGE_URLS[region]['test']
                              if use_testing_service
                              else BRIDGE_URLS[region]['prod'])
-            if output_map_format in ZIPPED_FORMAT:
+            if output_map_format in ZIPPED_FORMAT or output_map_format == KML:
                 source_map_id = field_map_json.get('id')
                 url = (f"{bridge_server}/field-level-maps/v5/maps/"
                        f"{source_map_id}/image{output_map_format['extension']}")
@@ -1366,15 +1359,7 @@ def fetch_ndvi_map(geometry, image_id, data):
     :return: JSON response containing NDVI map details.
     :rtype: dict
     """
-
-    request_data = {
-        "SeasonField": {
-            "geometry": geometry
-        },
-        "Image": {
-            "Id": image_id
-        }
-    }
+    
     bridge_api = BridgeAPI(
         *credentials_parameters_from_settings(),
         proxies=QGISSettings.get_qgis_proxy())

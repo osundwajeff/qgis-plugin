@@ -570,3 +570,18 @@ class BridgeAPI(ApiClient):
         
         return rx_patch
     
+    def get_rx_generated(self, url, source_map_id,**kwargs):
+        """Get RX map generated.
+
+        :param url: URL of the RX map.
+        :type url: str
+
+        :return: JSON response.
+            Map data specification based on given criteria.
+        :rtype: dict
+        """
+        api_client = FieldLevelMapsAPIClient(
+            self.access_token, self.bridge_server)
+        rx_json = api_client.get_rx_generated(url, source_map_id)
+
+        return rx_json

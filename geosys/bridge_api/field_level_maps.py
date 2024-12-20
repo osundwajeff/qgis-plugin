@@ -382,7 +382,7 @@ class FieldLevelMapsAPIClient(ApiClient):
         # Construct the full URL for the RX Map endpoint
         full_url = self.full_url(
             'maps',
-            'rx-map?storeRequest=true&directLinks=true&zoning=true'
+            'rx-map?colorMapId=RX&storeRequest=true&directLinks=true&zoning=true&minZoneSize=0.0247'
         )
 
         # Send the request to the server
@@ -422,3 +422,40 @@ class FieldLevelMapsAPIClient(ApiClient):
             return response.json()
 
         return {}
+    
+    def get_rx_generated(
+            self,
+            url,
+            source_map_id,
+            params=None):
+        """
+        Get RX Map data from the server.
+
+        :param source_map_id: ID of the season field.
+        :type source_map_id: str
+
+        :param params: Additional parameters for RX Map creation.
+        :type params: dict
+
+        :return: JSON response.
+        :rtype: dict
+        """
+        params = params if params else {}
+        headers = {
+            'accept': 'application/json',
+            'content-type': 'application/json'
+        }
+
+        # Construct the full URL for the RX Map endpoint
+        full_url = self.full_url(
+            'maps',
+            f'{source_map_id}?directLinks=true'
+        )
+
+        # Send the request to the server
+        response = self.get(
+            full_url,
+            headers=headers
+        )
+
+        return response.json()

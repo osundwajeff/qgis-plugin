@@ -174,8 +174,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # TODO: Handle the RX zone creation parameters similarly to the SAMZ
         # zone
         self.rx_zone = None
-        # TODO: Need to add the RX map creation parameters settings
-
+        self.rx_map_json = None
         self.selected_coverage_results = []
 
         # Stores the selected layer text for when a coverage search is done
@@ -365,32 +364,27 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # self.restore_parameter_values_from_setting()
 
         # Handle the case when fetch_rx_group is checked
-        if self.fetch_rx_group.isChecked():
+        if self.current_stacked_widget_index == 2 and self.fetch_rx_group.isChecked():
             # If on the first page, go to the next page
-            if self.current_stacked_widget_index == self.max_stacked_widget_index:
-                # Dynamically show/hide elements based on the RX zone count
-                self.set_zone_visibility()
-                # If on the last page, perform the map creation task
-                self.png_radio_button_2.setEnabled(True)
-                self.tiff_radio_button_2.setEnabled(True)
-                self.shp_radio_button_2.setEnabled(True)
-                self.kmz_radio_button_2.setEnabled(True)
-                self.back_push_button.setEnabled(True)
-                self.start_map_creation()
-                return
-            else:
-                # Otherwise, proceed to the next page
-                self.set_zone_visibility()
-                rx_map_json = self.fetch_rx_json(
-                    self.selected_coverage_results)
-                area = self.get_areas_from_rx_map(rx_map_json)
-                self.update_zone_areas()
-                self.current_stacked_widget_index += 1
-                self.stacked_widget.setCurrentIndex(
-                    self.current_stacked_widget_index
-                )
-                self.set_next_button_text(self.current_stacked_widget_index)
-                return
+            self.set_zone_visibility()
+            self.update_zone_areas()
+            self.current_stacked_widget_index += 1
+            self.stacked_widget.setCurrentIndex(
+                self.current_stacked_widget_index
+            )
+            self.set_next_button_text(self.current_stacked_widget_index)
+            return
+        elif self.current_stacked_widget_index == self.max_stacked_widget_index:
+            # Dynamically show/hide elements based on the RX zone count
+            self.set_zone_visibility()
+            # If on the last page, perform the map creation task
+            self.png_radio_button_2.setEnabled(True)
+            self.tiff_radio_button_2.setEnabled(True)
+            self.shp_radio_button_2.setEnabled(True)
+            self.kmz_radio_button_2.setEnabled(True)
+            self.back_push_button.setEnabled(True)
+            self.start_map_creation()
+            return
 
         # If current page is map creation parameters page, create map without
         # increasing index.
@@ -497,9 +491,9 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         """Updates the area values in the corresponding line_edit fields based on the RX zone data."""
 
         # Fetch the rx_map_json and extract the areas
-        rx_map_json = self.fetch_rx_json(self.selected_coverage_results)
+        self.rx_map_json = self.fetch_rx_json(self.selected_coverage_results)
         areas = self.get_areas_from_rx_map(
-            rx_map_json)  # Call the method to get areas
+            self.rx_map_json)  # Call the method to get areas
 
         for zone_index in range(1, 21):
             # Dynamically construct object names for line edits
@@ -512,8 +506,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             # available for the zone
             if line_edit and zone_index <= len(areas):
                 area_value = areas[zone_index - 1]  # Adjust for 0-based index
-                area_in_hectares = area_value / 10000  # Convert area to hectares
-                line_edit.setText(f"{area_in_hectares:.3f} Ha")
+                line_edit.setText(f"{area_value:.3f} Ha")
                 line_edit.setReadOnly(True)
 
     def set_gain_offset_state(self):
@@ -1075,32 +1068,10 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.load_layer(os.path.join(self.output_directory, filename))
         elif self.fetch_rx_group and self.fetch_rx_group.isChecked():  # RX Map Logic
             rx_zone_count = self.fetch_rx_zones.value()
-            if not map_specifications:
-                QMessageBox.critical(
-                    self,
-                    'Map Creation Error',
-                    'No coverage results available for RX Map creation.'
-                )
-                return
-
-            # Extract season field and image IDs
-            image_id = map_specifications[0]['image']['id']
-            image_date = map_specifications[0]['image']['date']
-            season_field_geom = self.wkt_geometries[0]
-            source_map_id = None
-            try:
-                # Call API to fetch NDVI for the selected image
-                ndvi_response = fetch_ndvi_map(
-                    season_field_geom, image_id, data=data)
-                if ndvi_response and 'id' in ndvi_response:
-                    source_map_id = (ndvi_response['id'])
-            except Exception as e:
-                QMessageBox.critical(
-                    self,
-                    'RX Map',
-                    f'Error fetching NDVI map: {e}'
-                )
-                return
+            
+            rx_json_map = self.rx_map_json
+            
+            source_map_id = rx_json_map.get('id')
 
             filename = f"RX_zones_{rx_zone_count}"
             filename = clean_filename(filename)
@@ -1126,9 +1097,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             #patch_data = json.dumps(patch_data)
 
             is_success, message = create_rx_map(
+                rx_map_json=rx_json_map,
                 source_map_id=source_map_id,
-                list_of_image_ids=image_id,
-                list_of_image_date=image_date,
                 zone_count=rx_zone_count,
                 output_dir=self.output_directory,
                 filename=filename,
