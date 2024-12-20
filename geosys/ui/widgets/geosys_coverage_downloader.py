@@ -726,15 +726,24 @@ def create_map(
     image_id = map_specification['image']['id']
     filename = clean_filename(filename)
     destination_base_path = os.path.join(output_dir, filename)
-
     nitrogen_maps = [
         INSEASONFIELD_AVERAGE_NDVI['key'],
         INSEASONFIELD_AVERAGE_LAI['key'],
         INSEASONFIELD_AVERAGE_REVERSE_NDVI['key'],
         INSEASONFIELD_AVERAGE_REVERSE_LAI['key']
     ]
-
-    if map_type_key in nitrogen_maps:
+    if map_type_key == OM['key']:
+        request_data = {
+                'Image': {
+                    "Id": image_id
+                },
+                "AverageOrganicMatter": 100,
+                'SeasonField': {
+                    'Id': season_field_id,
+                    'geometry': season_field_geom
+                }
+            }
+    elif map_type_key in nitrogen_maps:
         request_data = {
             'Image': {
                 "Id": image_id

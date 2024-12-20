@@ -4,7 +4,7 @@
 from geosys.bridge_api.api_abstract import ApiClient
 from geosys.bridge_api.connection import ConnectionAPIClient
 from geosys.bridge_api.default import IDENTITY_URLS, BRIDGE_URLS, ALL_REGIONS
-from geosys.bridge_api.definitions import CROPS, SAMZ
+from geosys.bridge_api.definitions import CROPS, SAMZ, OM
 from geosys.bridge_api.field_level_maps import FieldLevelMapsAPIClient
 from geosys.bridge_api.utilities import get_definition
 
@@ -365,6 +365,17 @@ class BridgeAPI(ApiClient):
                 request_data.update(kwargs)
             else:
                 request_data = None
+        elif map_type_key == OM['key']:
+            request_data = {
+                'Image': {
+                    "Id": image_id
+                },
+                "AverageOrganicMatter": 100,
+                'SeasonField': {
+                    'Id': season_field_id,
+                    'geometry': season_field_geom
+                }
+            }
         elif map_type_key in nitrogen_maps:
             request_data = {
                 'Image': {
