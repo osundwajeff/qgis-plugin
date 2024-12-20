@@ -113,7 +113,8 @@ class FieldLevelMapsAPIClient(ApiClient):
             min_yield_val=None,
             max_yield_val=None,
             sample_field_id=None,
-            params=None
+            params=None,
+            zone_count=None,
     ):
         """Get requested field map.
 
@@ -201,6 +202,8 @@ class FieldLevelMapsAPIClient(ApiClient):
                     map_type['key'],
                     '?storeRequest=true&directLinks=true'
                 )
+                if zone_count:
+                    full_url = f'{full_url}&zoning=true&zoneCount={zone_count}'
 
                 response = self.post(
                     full_url,
@@ -310,6 +313,9 @@ class FieldLevelMapsAPIClient(ApiClient):
                     map_type['name'],
                     '?storeRequest=true&directLinks=true'
                 )
+                if zone_count:
+                    full_url = f'{full_url}&zoning=true&zoneCount={zone_count}'
+                    
                 response = self.post(
                     f"{full_url}",
                     headers=headers,
