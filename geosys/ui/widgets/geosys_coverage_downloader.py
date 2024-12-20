@@ -652,7 +652,9 @@ def create_map(
         max_yield_val,
         sample_map_id=None,
         data=None,
-        params=None):
+        params=None,
+        crop_type=None
+):
     """Create map based on given parameters.
 
     :param map_specification: Result of single map coverage specifications.
@@ -753,6 +755,17 @@ def create_map(
                 'geometry': season_field_geom
             },
             "nPlanned": n_planned_value,
+        }
+    elif map_type_key == LAI['key']:
+        request_data = {
+            'SeasonField': {
+                'Id': season_field_id,
+                'geometry': season_field_geom,
+                'crop': crop_type
+            },
+            'Image': {
+                'Id': image_id
+            }
         }
     else:
         request_data = {
