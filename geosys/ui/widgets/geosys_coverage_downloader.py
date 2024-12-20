@@ -726,7 +726,7 @@ def create_map(
     image_id = map_specification['image']['id']
     filename = clean_filename(filename)
     destination_base_path = os.path.join(output_dir, filename)
-	nitrogen_maps = [
+    nitrogen_maps = [
         INSEASONFIELD_AVERAGE_NDVI['key'],
         INSEASONFIELD_AVERAGE_LAI['key'],
         INSEASONFIELD_AVERAGE_REVERSE_NDVI['key'],

@@ -366,7 +366,7 @@ class BridgeAPI(ApiClient):
             else:
                 request_data = None
         elif map_type_key == OM['key']:
-			request_data = {
+            request_data = {
                 'Image': {
                     "Id": image_id
                 },
@@ -375,7 +375,8 @@ class BridgeAPI(ApiClient):
                     'Id': season_field_id,
                     'geometry': season_field_geom
                 }
-		elif map_type_key in nitrogen_maps:
+            }
+        elif map_type_key in nitrogen_maps:
             request_data = {
                 'Image': {
                     "Id": image_id
