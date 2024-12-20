@@ -390,8 +390,6 @@ class FieldLevelMapsAPIClient(ApiClient):
             'maps',
             'rx-map?colorMapId=RX&storeRequest=true&directLinks=true&zoning=true&minZoneSize=0.0247'
         )
-        log(f'full_url: {full_url}')
-        log(f'headers: {headers}')
 
         # Send the request to the server
         response = self.post(
@@ -459,7 +457,6 @@ class FieldLevelMapsAPIClient(ApiClient):
             'maps',
             f'{source_map_id}?directLinks=true'
         )
-        log(f'full_url: {full_url}')
 
         # Send the request to the server
         response = self.get(

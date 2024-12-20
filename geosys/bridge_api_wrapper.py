@@ -372,8 +372,6 @@ class BridgeAPI(ApiClient):
 
         # Get request parameters
         params = kwargs.get('params')
-        
-        log(f'request_data: {request_data}')
 
         return self._get_field_map(
             map_type_key,

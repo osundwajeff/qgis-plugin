@@ -174,8 +174,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # TODO: Handle the RX zone creation parameters similarly to the SAMZ
         # zone
         self.rx_zone = None
-        # TODO: Need to add the RX map creation parameters settings
-
+        self.rx_map_json = None
         self.selected_coverage_results = []
 
         # Stores the selected layer text for when a coverage search is done
@@ -431,7 +430,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         image_id = map_specifications[0]['image']['id']
         image_date = map_specifications[0]['image']['date']
         season_field_geom = self.wkt_geometries[0]
-        log(f'season_field_geom: {season_field_geom}')
         source_map_id = None
         zone_count = self.fetch_rx_zones.value()
         self.yield_average = self.yield_average_form.value()
@@ -449,14 +447,12 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             GAIN: self.gain,
             OFFSET: self.offset
         }
-        log(f'image id: {image_id}')
         try:
             # Call API to fetch NDVI for the selected image
             ndvi_response = fetch_ndvi_map(
                 season_field_geom, image_id, data=data)
             if ndvi_response and 'id' in ndvi_response:
                 source_map_id = (ndvi_response['id'])
-                log(f'source_map_id_1: {source_map_id}')
         except Exception as e:
             QMessageBox.critical(
                 self,
@@ -479,7 +475,6 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         # Check if 'zones' is in rx_map_json
         if 'zones' in rx_map_json:
-            #log(f'Zones: {rx_map_json["zones"]}')
             # Iterate through each zone in the 'zones' list
             for zone in rx_map_json['zones']:
                 # Check if 'stats' and 'area' exist for the zone
@@ -491,10 +486,9 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         """Updates the area values in the corresponding line_edit fields based on the RX zone data."""
 
         # Fetch the rx_map_json and extract the areas
-        rx_map_json = self.fetch_rx_json(self.selected_coverage_results)
+        self.rx_map_json = self.fetch_rx_json(self.selected_coverage_results)
         areas = self.get_areas_from_rx_map(
-            rx_map_json)  # Call the method to get areas
-        log(f'Areas: {areas}')
+            self.rx_map_json)  # Call the method to get areas
 
         for zone_index in range(1, 21):
             # Dynamically construct object names for line edits
@@ -1064,32 +1058,10 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.load_layer(os.path.join(self.output_directory, filename))
         elif self.fetch_rx_group and self.fetch_rx_group.isChecked():  # RX Map Logic
             rx_zone_count = self.fetch_rx_zones.value()
-            if not map_specifications:
-                QMessageBox.critical(
-                    self,
-                    'Map Creation Error',
-                    'No coverage results available for RX Map creation.'
-                )
-                return
-
-            # Extract season field and image IDs
-            image_id = map_specifications[0]['image']['id']
-            image_date = map_specifications[0]['image']['date']
-            season_field_geom = self.wkt_geometries[0]
-            source_map_id = None
-            try:
-                # Call API to fetch NDVI for the selected image
-                ndvi_response = fetch_ndvi_map(
-                    season_field_geom, image_id, data=data)
-                if ndvi_response and 'id' in ndvi_response:
-                    source_map_id = (ndvi_response['id'])
-            except Exception as e:
-                QMessageBox.critical(
-                    self,
-                    'RX Map',
-                    f'Error fetching NDVI map: {e}'
-                )
-                return
+            
+            rx_json_map = self.rx_map_json
+            
+            source_map_id = rx_json_map.get('id')
 
             filename = f"RX_zones_{rx_zone_count}"
             filename = clean_filename(filename)
@@ -1115,9 +1087,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             #patch_data = json.dumps(patch_data)
 
             is_success, message = create_rx_map(
+                rx_map_json=rx_json_map,
                 source_map_id=source_map_id,
-                list_of_image_ids=image_id,
-                list_of_image_date=image_date,
                 zone_count=rx_zone_count,
                 output_dir=self.output_directory,
                 filename=filename,

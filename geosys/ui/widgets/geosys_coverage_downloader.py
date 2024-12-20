@@ -612,7 +612,6 @@ class CoverageSearchThread(QThread):
                     sys.exc_info()[1]))
 
             error_text = f"{error_text},-- {e}"
-            log(f"{error_text}")
             self.error_occurred.emit(error_text)
         finally:
             self.mutex.unlock()
@@ -926,9 +925,8 @@ def create_samz_map(
 
 
 def create_rx_map(
+        rx_map_json,
         source_map_id,
-        list_of_image_ids,
-        list_of_image_date,
         zone_count,
         output_dir,
         filename,
@@ -937,16 +935,12 @@ def create_rx_map(
         patch_data=None,
         params=None):
     """Create map based on given parameters.
+    
+    :param rx_map_json: JSON response from Bridge API field map request.
+    :type rx_map_json: dict
 
     :param source_map_id: ID of the season field.
     :param source_map_id: str
-
-    :param list_of_image_ids: List of selected image IDs
-    :param list_of_image_ids: list
-
-    :param list_of_image_date: List of image date indicating the maps
-        which are going to be compiled.
-    :type list_of_image_date: list
 
     :param output_dir: Base directory of the output.
     :type output_dir: str
@@ -985,13 +979,6 @@ def create_rx_map(
     bridge_api = BridgeAPI(
         *credentials_parameters_from_settings(),
         proxies=QGISSettings.get_qgis_proxy())
-    rx_map_json = bridge_api.get_rx_map(
-        url=bridge_api.bridge_server,
-        source_map_id=source_map_id,
-        zone_count=zone_count,
-    )
-
-    source_map_id = rx_map_json.get("id")
 
     patch_rx_map_json = bridge_api.patch_rx_map(
         source_map_id=source_map_id,
@@ -1002,8 +989,6 @@ def create_rx_map(
         url=bridge_api.bridge_server,
         source_map_id=source_map_id,
     )
-    
-    parameters = rx_map_json_2.get('parameters')
 
     return download_field_map(
         field_map_json=rx_map_json,
@@ -1130,7 +1115,6 @@ def download_field_map(
                 url = (f"{bridge_server}/field-level-maps/v5/maps/"
                        f"{source_map_id}/image{output_map_format['extension']}")
                 method = 'GET'
-                log(f'source_map_id download: {source_map_id}')
             else:
                 url = field_map_json['_links'][output_map_format['api_key']]
         else:  # Other map types
