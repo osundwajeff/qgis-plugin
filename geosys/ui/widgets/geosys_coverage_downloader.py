@@ -524,10 +524,8 @@ class CoverageSearchThread(QThread):
                                     nitrogen_map_type=INSEASONFIELD_AVERAGE_NDVI['key']))
                             data.update({
                                 "nPlanned": f"{self.n_planned_value}",
-                                "nMin": 0,
-                                "nMax": 0,
-                                "offset": 0,
-                                "gain": 0,
+                                "nMin": 0.001,
+                                "nMax": 120,
                             })
 
                         elif self.map_product == INSEASONFIELD_AVERAGE_LAI['key']:
@@ -538,10 +536,8 @@ class CoverageSearchThread(QThread):
                                     nitrogen_map_type=INSEASONFIELD_AVERAGE_LAI['key']))
                             data.update({
                                 "nPlanned": f"{self.n_planned_value}",
-                                "nMin": 0,
-                                "nMax": 0,
-                                "offset": 0,
-                                "gain": 0,
+                                "nMin": 0.001,
+                                "nMax": 120,
                             })
                         elif self.map_product == INSEASONFIELD_AVERAGE_REVERSE_NDVI['key']:
                             #  AVERAGE REVERSE NDVI
@@ -551,8 +547,8 @@ class CoverageSearchThread(QThread):
                                     nitrogen_map_type=INSEASONFIELD_AVERAGE_REVERSE_NDVI['key']))
                             data.update({
                                 "nPlanned": f"{self.n_planned_value}",
-                                "nMin": 1,
-                                "nMax": 130,
+                                "nMin": 0.001,
+                                "nMax": 120,
                             })
                         elif self.map_product == INSEASONFIELD_AVERAGE_REVERSE_LAI['key']:
                             #  AVERAGE REVERSE LAI
@@ -562,10 +558,8 @@ class CoverageSearchThread(QThread):
                                     nitrogen_map_type=INSEASONFIELD_AVERAGE_REVERSE_LAI['key']))
                             data.update({
                                 "nPlanned": f"{self.n_planned_value}",
-                                "nMin": 0,
-                                "nMax": 0,
-                                "offset": 0,
-                                "gain": 0,
+                                "nMin": 0.001,
+                                "nMax": 120,
                             })
                     elif self.map_product == YGM['key'] or self.map_product == YVM['key']:
                         if self.map_product == YGM['key']:
