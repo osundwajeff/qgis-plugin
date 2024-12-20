@@ -98,6 +98,9 @@ NITROGEN_THUMBNAIL_URL = (
 S2REP_THUMBNAIL_URL = (
     '{bridge_url}/field-level-maps/v5/maps/base-reference-map/S2REP/thumbnail.png'
 )
+LAI_THUMBNAIL_URL = (
+    '{bridge_url}/field-level-maps/v5/maps/base-reference-map/LAI/thumbnail.png'
+)
 CVIN_THUMBNAIL_URL = (
     '{bridge_url}/field-level-maps/v5/maps/base-reference-map/CVIN/thumbnail.png'
 )

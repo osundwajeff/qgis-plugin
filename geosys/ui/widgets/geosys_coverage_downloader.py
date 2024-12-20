@@ -45,7 +45,7 @@ from geosys.bridge_api.default import (
     NDWI_THUMBNAIL_URL,
     GNDVI_THUMBNAIL_URL,
     OM_THUMBNAIL_URL,
-    SLOPE_THUMBNAIL_URL)
+    SLOPE_THUMBNAIL_URL, LAI_THUMBNAIL_URL)
 from geosys.bridge_api.definitions import (
     SAMZ,
     ELEVATION,
@@ -168,10 +168,13 @@ class CoverageSearchThread(QThread):
         coverage_percent_filter = ''
         if self.coverage_percent:
             coverage_percent_filter = f'$gte:{self.coverage_percent}'
+        else:
+            # Using this as the min value is captured as None
+            coverage_percent_filter = f'$gte:{0}'
 
         # Disable filter when map product is Elevation
         self.filters = {}
-        if self.map_product != ELEVATION['key']:
+        if self.map_product != ELEVATION['key'] or self.map_product != SLOPE['key']:
             if self.map_product == REFLECTANCE['key']:
                 # Catalog-imagery API call. Maps.Type will be set to NDVI
                 # This is a work-around provided by GeoSys, because reflectance results
@@ -243,7 +246,6 @@ class CoverageSearchThread(QThread):
                     self.sensor_type and self.filters.update({
                         IMAGE_SENSOR: self.sensor_type
                     })
-
             else:
                 # Coverage API call. Maps.Type should be included
                 if self.mask_type in {'All', 'None'}:
@@ -261,7 +263,8 @@ class CoverageSearchThread(QThread):
                     self.filters.update({
                         MAPS_TYPE: self.map_product,
                         IMAGE_DATE: date_filter,
-                        MASK: self.mask_type
+                        MASK: self.mask_type,
+                        COVERAGE_PERCENT: coverage_percent_filter
                     })
                     self.sensor_type and self.filters.update({
                         IMAGE_SENSOR: self.sensor_type
@@ -318,6 +321,13 @@ class CoverageSearchThread(QThread):
                         break
 
                     requested_map = None
+
+                    nitrogen_products = [
+                        INSEASONFIELD_AVERAGE_NDVI['key'],
+                        INSEASONFIELD_AVERAGE_LAI['key'],
+                        INSEASONFIELD_AVERAGE_REVERSE_NDVI['key'],
+                        INSEASONFIELD_AVERAGE_REVERSE_LAI['key']
+                    ]
 
                     if self.map_product == SAMPLE_MAP['key']:
                         # Sample maps has a different workflow than other map products
@@ -388,6 +398,17 @@ class CoverageSearchThread(QThread):
                         result['id'] = json_id
                         # Links are required for map creation, etc.
                         result['_links'] = field_map_json['_links']
+
+                    elif self.map_product in nitrogen_products:
+                        # Set the requested_map to the nitrogen product key
+                        if self.map_product == INSEASONFIELD_AVERAGE_NDVI['key']:
+                            requested_map = INSEASONFIELD_AVERAGE_NDVI
+                        elif self.map_product == INSEASONFIELD_AVERAGE_LAI['key']:
+                            requested_map = INSEASONFIELD_AVERAGE_LAI
+                        elif self.map_product == INSEASONFIELD_AVERAGE_REVERSE_NDVI['key']:
+                            requested_map = INSEASONFIELD_AVERAGE_REVERSE_NDVI
+                        elif self.map_product == INSEASONFIELD_AVERAGE_REVERSE_LAI['key']:
+                            requested_map = INSEASONFIELD_AVERAGE_REVERSE_LAI
                     else:
                         # All other map types
                         for map_result in result['maps']:
@@ -400,20 +421,13 @@ class CoverageSearchThread(QThread):
                                     break
                             else:  # Other map types
                                 if map_result['type'] == self.map_product or (
-                                        self.map_product == ELEVATION['key']):
+                                        self.map_product == ELEVATION['key'] or self.map_product == SLOPE['key']):
                                     requested_map = map_result
                                     break
 
                     # Workflow differs for Sample maps
                     if not requested_map and self.map_product != SAMPLE_MAP['key']:
                         continue
-
-                    nitrogen_products = [
-                        INSEASONFIELD_AVERAGE_NDVI['key'],
-                        INSEASONFIELD_AVERAGE_LAI['key'],
-                        INSEASONFIELD_AVERAGE_REVERSE_NDVI['key'],
-                        INSEASONFIELD_AVERAGE_REVERSE_LAI['key']
-                    ]
 
                     thumbnail_url = None
 
@@ -426,7 +440,8 @@ class CoverageSearchThread(QThread):
                         },
                         "seasonField":
                             {
-                                "geometry": geometry
+                                "geometry": geometry,
+                                "crop": self.crop_type
                         }
                     }
 
@@ -465,6 +480,11 @@ class CoverageSearchThread(QThread):
                     elif self.map_product == NDWI['key']:
                         thumbnail_url = (
                             NDWI_THUMBNAIL_URL.format(
+                                bridge_url=searcher_client.bridge_server
+                            ))
+                    elif self.map_product == LAI['key']:
+                        thumbnail_url = (
+                            LAI_THUMBNAIL_URL.format(
                                 bridge_url=searcher_client.bridge_server
                             ))
                     elif self.map_product == GNDVI['key']:
@@ -531,10 +551,8 @@ class CoverageSearchThread(QThread):
                                     nitrogen_map_type=INSEASONFIELD_AVERAGE_REVERSE_NDVI['key']))
                             data.update({
                                 "nPlanned": f"{self.n_planned_value}",
-                                "nMin": 0,
-                                "nMax": 0,
-                                "offset": 0,
-                                "gain": 0,
+                                "nMin": 1,
+                                "nMax": 130,
                             })
                         elif self.map_product == INSEASONFIELD_AVERAGE_REVERSE_LAI['key']:
                             #  AVERAGE REVERSE LAI
@@ -612,7 +630,6 @@ class CoverageSearchThread(QThread):
                     sys.exc_info()[1]))
 
             error_text = f"{error_text},-- {e}"
-            log(f"{error_text}")
             self.error_occurred.emit(error_text)
         finally:
             self.mutex.unlock()
@@ -709,7 +726,12 @@ def create_map(
     image_id = map_specification['image']['id']
     filename = clean_filename(filename)
     destination_base_path = os.path.join(output_dir, filename)
-    
+	nitrogen_maps = [
+        INSEASONFIELD_AVERAGE_NDVI['key'],
+        INSEASONFIELD_AVERAGE_LAI['key'],
+        INSEASONFIELD_AVERAGE_REVERSE_NDVI['key'],
+        INSEASONFIELD_AVERAGE_REVERSE_LAI['key']
+    ]
     if map_type_key == OM['key']:
         request_data = {
                 'Image': {
@@ -721,6 +743,17 @@ def create_map(
                     'geometry': season_field_geom
                 }
             }
+    elif map_type_key in nitrogen_maps:
+        request_data = {
+            'Image': {
+                "Id": image_id
+            },
+            'SeasonField': {
+                'Id': season_field_id,
+                'geometry': season_field_geom
+            },
+            "nPlanned": n_planned_value,
+        }
     else:
         request_data = {
             'SeasonField': {
@@ -732,8 +765,8 @@ def create_map(
             }
         }
     params = params if params else {}
-    data.update({'params': params})
-    data.update({'request_data': request_data})
+    data.update(params or {})
+    data.update(request_data)
 
     bridge_api = BridgeAPI(
         *credentials_parameters_from_settings(),
@@ -1117,13 +1150,9 @@ def download_field_map(
                              else BRIDGE_URLS[region]['prod'])
 
             reflectance_map_family = REFLECTANCE['map_family']
-            url = '{}/field-level-maps/v5/season-fields/{}/coverage/{}/{}/{}/image.tiff.zip'.format(
-                bridge_server,
-                seasonfield_id,
-                image_id,
-                reflectance_map_family['endpoint'],
-                REFLECTANCE['key']
-            )
+            url = (f"{bridge_server}/field-level-maps/v5/maps/{reflectance_map_family['endpoint']}/"
+                   f"{map_type_key}/image{output_map_format['extension']}")
+            method = 'POST'
         elif map_type_key == "rx-map":
             # Special handling for RX maps
             # Retrieve the bridge server URL
