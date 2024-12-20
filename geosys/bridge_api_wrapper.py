@@ -237,7 +237,8 @@ class BridgeAPI(ApiClient):
             min_yield_val=None,
             max_yield_val=None,
             sample_field_id=None,
-            params=None
+            params=None,
+            zone_count=None
     ):
         """Actual method to call field map creation request.
 
@@ -267,7 +268,8 @@ class BridgeAPI(ApiClient):
             min_yield_val,
             max_yield_val,
             sample_field_id,
-            params)
+            params,
+            zone_count=zone_count)
 
         return field_map_json
 
@@ -312,6 +314,7 @@ class BridgeAPI(ApiClient):
             max_yield_val=0,
             sample_map_data=None,
             sample_map_id=None,
+            zone_count=None,
             **kwargs):
         """Get requested field map.
 
@@ -417,7 +420,7 @@ class BridgeAPI(ApiClient):
             min_yield_val,
             max_yield_val,
             sample_map_id,
-            params)
+            params, zone_count=zone_count)
 
     def get_difference_map(
             self, map_type_key, season_field_geometry,

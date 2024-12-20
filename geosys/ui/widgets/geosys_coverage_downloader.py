@@ -647,7 +647,8 @@ def create_map(
         sample_map_id=None,
         data=None,
         params=None,
-        crop_type=None
+        crop_type=None,
+        zone_count=None
 ):
     """Create map based on given parameters.
 
@@ -769,7 +770,8 @@ def create_map(
             },
             'Image': {
                 'Id': image_id
-            }
+            },
+            "zoneCount": zone_count
         }
     params = params if params else {}
     data.update(params or {})
@@ -789,6 +791,7 @@ def create_map(
         min_yield_val,
         max_yield_val,
         sample_map_id=sample_map_id,
+        zone_count=zone_count,
         **data)
 
     if map_type_key == SAMPLE_MAP['key']:
@@ -802,7 +805,7 @@ def create_map(
         headers=bridge_api.headers,
         map_specification=map_specification,
         data=data,
-        image_id=image_id)
+        image_id=image_id, zone_count=zone_count)
 
     return result, message
 
@@ -1061,7 +1064,9 @@ def download_field_map(
         headers,
         map_specification=None,
         data=None,
-        image_id=''):
+        image_id='',
+        zone_count=None
+    ):
     """Download field map from requested field map json.
 
     :param field_map_json: JSON response from Bridge API field map request.
@@ -1182,15 +1187,6 @@ def download_field_map(
             else:
                 url = field_map_json['_links'][output_map_format['api_key']]
 
-        char_question_mark = '?'  # Filtering char
-        # if char_question_mark in url:  # Filtering, which starts with '?' has already been added, so appending with '&'
-        #    url = '{}&zoning=true&zoneCount={}'.format(
-        #        url, data.get('zoneCount')) \
-        #        if data.get('zoning') else url
-        # else:  # No filtering added yet, so appending with '?'
-        #    url = '{}?zoning=true&zoneCount={}'.format(
-        #        url, data.get('zoneCount')) \
-        #        if data.get('zoning') else url
     except KeyError:
         # requested map format not found
         message = (
@@ -1203,6 +1199,8 @@ def download_field_map(
         if output_map_format in ZIPPED_FORMAT:
             zip_path = tempfile.mktemp('{}.zip'.format(map_extension))
             url = '{}.zip'.format(url)
+            if zone_count:
+                url = f"{url}?zoning=true&zoneCount={zone_count}"
             fetch_data(
                 url,
                 zip_path,
@@ -1213,6 +1211,8 @@ def download_field_map(
         elif output_map_format == KML:
             destination_filename = (
                 destination_base_path + output_map_format['extension'])
+            if zone_count:
+                url = f"{url}?zoning=true&zoneCount={zone_count}"
             fetch_data(
                 url,
                 destination_filename,
