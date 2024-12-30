@@ -21,13 +21,13 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QWebView" name="about_web_view" native="true">
+    <widget class="QWebView" name="about_web_view">
      <property name="styleSheet">
       <string notr="true">background:transparent;</string>
      </property>
-     <property name="url" stdset="0">
+     <property name="url">
       <url>
-       <string>https://earthdailyagro.com</string>
+       <string>https://earthdailyagro.com/</string>
       </url>
      </property>
     </widget>
@@ -48,9 +48,26 @@
   <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
-   <header>qwebview.h</header>
+   <header location="global">QtWebKitWidgets/QWebView</header>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>button_box</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>719</x>
+     <y>394</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>668</x>
+     <y>487</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
