@@ -108,7 +108,7 @@ YGM_THUMBNAIL_URL = (
     '{bridge_url}/field-level-maps/v5/maps/yield-goal-map/YGM/thumbnail.png')
 
 YPM_THUMBNAIL_URL = (
-    '{bridge_url}/field-level-maps/v5/maps/yield-variability-map/{mapType}/thumbnail.png'
+    '{bridge_url}/field-level-maps/v5/maps/yield-variability-map/YPM/thumbnail.png'
 )
 
 SAMZ_THUMBNAIL_URL = (

@@ -510,9 +510,7 @@ class CoverageSearchThread(QThread):
                             )
                         )
                         data.update({
-                            "averageOrganicMatter": 1,
-                            "offset": 0,
-                            "gain": 1,
+                            "AverageOrganicMatter": 100
                         })
                     elif self.map_product in nitrogen_products:
                         # Nitrogen map type
@@ -563,11 +561,19 @@ class CoverageSearchThread(QThread):
                             })
                     elif self.map_product == YGM['key'] or self.map_product == YVM['key']:
                         if self.map_product == YGM['key']:
+                            data.update({
+                                "HistoricalYieldAverage": 55,
+                                "MaxYieldGoal": 120,
+                                "MinYieldGoal": 50,
+                            })
                             thumbnail_url = (
                                 YGM_THUMBNAIL_URL.format(
                                     bridge_url=searcher_client.bridge_server
                                 ))
                         else:
+                            data.update({
+                                "historicalyieldaverage": 50,
+                            })
                             thumbnail_url = (
                                 YPM_THUMBNAIL_URL.format(
                                     bridge_url=searcher_client.bridge_server
