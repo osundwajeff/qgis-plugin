@@ -1143,7 +1143,8 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     yield_val=self.yield_average_form.value(),
                     min_yield_val=self.yield_minimum_form.value(),
                     max_yield_val=self.yield_maximum_form.value(),
-                    sample_map_id=sample_map_id, params=data, crop_type=self.crop_type, zone_count=self.samz_zone,
+                    sample_map_id=sample_map_id, params=data, crop_type=self.crop_type,
+                    gain=self.gain, offset=self.offset, zone_count=self.samz_zone,
                 )
 
                 if not is_success:
