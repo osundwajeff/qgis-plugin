@@ -978,13 +978,17 @@ def create_samz_map(
         "zoneCount": zone_count
     }
 
+    data['request_data'] = request_data
+    data.pop('params', None)
+    data.update(params)
+
     return download_field_map(
         field_map_json=samz_map_json,
         map_type_key=map_type_key,
         destination_base_path=destination_base_path,
         output_map_format=output_map_format,
         headers=bridge_api.headers,
-        data=request_data)
+        data=data)
 
 
 def create_rx_map(
@@ -1286,22 +1290,28 @@ def download_field_map(
                 params['MapType'] = map_type_key
                 params['Position'] = data.get('position', 'Average')
 
+            image_data = request_data.get('Image', {}).get('Id')
+            image_id = [image_data]
+
+            if not image_data:
+                image_id = [image.get("id")
+                            for image in request_data.get('Images', [])
+                            ]
+
             request_body = {
                 'geometry': request_data.get(
                     'SeasonField',
                     {}).get('geometry'),
-                'image_id': [
-                    request_data.get(
-                        'Image',
-                        {}).get('Id')]}
+                'image_id': image_id
+            }
 
             map_json = bridge_api.get_hotspot(
                 base_url, params=params, data=request_body)
             output_dir = setting('output_directory', expected_type=str)
 
             if not isinstance(map_json, dict):
-                message = (f"Failed to fetch hotspots"
-                           f" {map_json.status_code}, {map_json.text}")
+                message = (f"Failed to fetch hotspots "
+                           f"{map_json.status_code}, {map_json.text}")
                 return False, message
 
             crs_authid = (
@@ -1312,7 +1322,7 @@ def download_field_map(
             if map_json.get('OutputData', {}).get('Hotspots'):
                 hotspot_filename = (
                     f"{'HotspotsPerPart' if params['Type'] == 'Polygon' else 'HotspotsPerPolygon'}_"
-                    f"{params.get('Position').lower()}_"
+                    f"{params.get('Position').lower() if params.get('Position') else ''}_"
                     f"{str(request_body.get('image_id')[0])[:4]}_"
                     f"{str(uuid.uuid4())[:4]}")
                 hotspot_filename = check_if_file_exists(
@@ -1328,7 +1338,7 @@ def download_field_map(
             if map_json.get('OutputData', {}).get('Zones'):
                 segment_filename = (
                     f"{'SegmentsPerPart' if params['Type'] == 'Polygon' else 'SegmentsPerPolygon'}_"
-                    f"{params.get('Position').lower()}_"
+                    f"{params.get('Position').lower() if params.get('Position') else ''}_"
                     f"{str(request_body.get('image_id')[0])[:4]}_"
                     f"{str(uuid.uuid4())[:4]}")
                 segment_filename = check_if_file_exists(
