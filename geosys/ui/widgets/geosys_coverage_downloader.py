@@ -1270,11 +1270,14 @@ def download_field_map(
                 'LAI',
                 'NDWI',
                 'S2REP']
+            topology_types = ['EROSION', 'ELEVATION', 'SLOPE']
             samz_types = ['SAMZ']
             if map_type_key in vegetation_map_types:
                 base_url = f"{HOTSPOT_URL}/{VEGETATION_ENDPOINT}"
             elif map_type_key in samz_types:
                 base_url = f"{HOTSPOT_URL}/{SAMZ_ENDPOINT}"
+            elif map_type_key in topology_types:
+                base_url = f"{HOTSPOT_URL}/{ELEVATION_ENDPOINT}"
             else:
                 message = (f"Hotspots support not available"
                            f" for {map_type_key} map type ")
