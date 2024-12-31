@@ -654,6 +654,8 @@ def create_map(
         data=None,
         params=None,
         crop_type=None,
+        gain=None,
+        offset=None,
         zone_count=None
 ):
     """Create map based on given parameters.
@@ -753,10 +755,14 @@ def create_map(
             },
             'SeasonField': {
                 'Id': season_field_id,
-                'geometry': season_field_geom
+                'geometry': season_field_geom,
+                'crop': crop_type
             },
             "nPlanned": n_planned_value,
+            "gain": gain or 1,
+            "offset": offset or 0
         }
+
     elif map_type_key == LAI['key']:
         request_data = {
             'SeasonField': {
