@@ -1133,9 +1133,35 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     self.output_map_format['extension']
                 )
 
-                sample_map_id = None
+                sample_map_data = None
                 if self.map_product == SAMPLE_MAP['key']:
-                    sample_map_id = map_specification['id']
+                    sample_data = []
+                    i = 0
+                    # Create the request data from the points and its
+                    # values
+                    for geom in self.wkt_point_geometries:
+                        val = self.attributes[i]
+                        data_item = {
+                            "geometry": geom,
+                            "value": val
+                        }
+                        sample_data.append(data_item)
+
+                        i += 1
+                    # The final request data
+                    sample_map_data = {
+                        "seasonField": {
+                            "Id": None,
+                            "geometry": geometry,
+                        },
+                        "properties": {
+                            "nutrientType": self.sample_map_field
+                        },
+                        "data": sample_data
+                    }
+
+                    data = sample_map_data
+
                 is_success, message = create_map(
                     map_specification, self.map_product, geometry, self.output_directory, filename,
                     data=data, output_map_format=self.output_map_format,
@@ -1143,7 +1169,7 @@ class GeosysPluginDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                     yield_val=self.yield_average_form.value(),
                     min_yield_val=self.yield_minimum_form.value(),
                     max_yield_val=self.yield_maximum_form.value(),
-                    sample_map_id=sample_map_id, params=data, crop_type=self.crop_type,
+                    sample_map_id=None, params=data, crop_type=self.crop_type,
                     gain=self.gain, offset=self.offset, zone_count=self.samz_zone,
                 )
 
