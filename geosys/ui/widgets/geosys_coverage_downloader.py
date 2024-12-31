@@ -154,6 +154,7 @@ class CoverageSearchThread(QThread):
         self.mutex = mutex
         self.coverage_percent = coverage_percent if coverage_percent is not None else DEFAULT_COVERAGE_PERCENT
         self.n_planned_value = n_planned_value
+        self.sample_map_data = None
         self.parent = parent
 
         # setup coverage search filters
@@ -315,6 +316,7 @@ class CoverageSearchThread(QThread):
                 sample_map_ids = []
                 for result in results:
 
+                    request_data = None
                     result['seasonField']['geometry'] = geometry
                     # Get thumbnail content
                     if self.need_stop:
@@ -339,11 +341,8 @@ class CoverageSearchThread(QThread):
                         image_id = image['id']
                         image_date = image['date']
                         season_field = result['seasonField']
-                        season_field_id = season_field['id']
-
                         result_ids = {
                             'image_id': image_id,
-                            'field_id': season_field_id
                         }
                         sample_map_ids.append(result_ids)
 
@@ -363,13 +362,16 @@ class CoverageSearchThread(QThread):
                         # The final request data
                         request_data = {
                             "seasonField": {
-                                "id": season_field_id
+                                "Id": None,
+                                "geometry": geometry,
                             },
                             "properties": {
                                 "nutrientType": self.attribute_field
                             },
                             "data": data
                         }
+
+                        self.sample_map_data = request_data
 
                         bridge_api = BridgeAPI(
                             *credentials_parameters_from_settings(),
@@ -386,18 +388,12 @@ class CoverageSearchThread(QThread):
                         # This step now "creates" the sample map
                         field_map_json = bridge_api.get_field_map(
                             SAMPLE_MAP['key'],
-                            season_field_id,
+                            None,
                             image_date,
                             image_id,
                             sample_map_data=request_data,
                             params=params
                         )
-
-                        # This ID is required for thumpnails, etc.
-                        json_id = field_map_json['id']
-                        result['id'] = json_id
-                        # Links are required for map creation, etc.
-                        result['_links'] = field_map_json['_links']
 
                     elif self.map_product in nitrogen_products:
                         # Set the requested_map to the nitrogen product key
@@ -587,8 +583,11 @@ class CoverageSearchThread(QThread):
                         # Sample maps
                         thumbnail_url = (
                             SAMPLEMAP_THUMBNAIL_URL.format(
-                                bridge_url=searcher_client.bridge_server
+                                bridge_url=searcher_client.bridge_server,
+                                mapType="SAMPLEMAP"
                             ))
+
+                        data = request_data
 
                     elif self.map_product == COLOR_COMPOSITION['key']:
                         # Sample maps
@@ -786,28 +785,51 @@ def create_map(
             "zoneCount": zone_count
         }
     params = params if params else {}
-    data.update(params or {})
-    data.update(request_data)
+    if data:
+        data.update(params or {})
+        data.update(request_data)
 
     bridge_api = BridgeAPI(
         *credentials_parameters_from_settings(),
         proxies=QGISSettings.get_qgis_proxy())
-    field_map_json = bridge_api.get_field_map(
-        map_type_key,
-        season_field_id,
-        season_field_geom,
-        image_date,
-        image_id,
-        n_planned_value,
-        yield_val,
-        min_yield_val,
-        max_yield_val,
-        sample_map_id=sample_map_id,
-        zone_count=zone_count,
-        **data)
 
     if map_type_key == SAMPLE_MAP['key']:
-        field_map_json = map_specification
+
+        map_params = {
+            'directlinks': 'true',
+            '$epsg-out': '4326'
+        }
+        map_data = {}
+        map_data['seasonField'] = data.get('seasonField')
+        map_data['properties'] = data.get('properties')
+        map_data['data'] = data.get('data')
+
+        # Perform the request
+        # This step now "creates" the sample map
+        field_map_json = bridge_api.get_field_map(
+            SAMPLE_MAP['key'],
+            None,
+            image_date,
+            image_id,
+            sample_map_data=map_data,
+            params=map_params
+        )
+
+        data['request_data'] = map_data
+    else:
+        field_map_json = bridge_api.get_field_map(
+            map_type_key,
+            season_field_id,
+            season_field_geom,
+            image_date,
+            image_id,
+            n_planned_value,
+            yield_val,
+            min_yield_val,
+            max_yield_val,
+            sample_map_id=None,
+            zone_count=zone_count,
+            **data)
 
     result, message = download_field_map(
         field_map_json=field_map_json,
