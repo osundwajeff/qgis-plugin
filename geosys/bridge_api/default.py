@@ -112,17 +112,17 @@ YPM_THUMBNAIL_URL = (
 )
 
 SAMZ_THUMBNAIL_URL = (
-    '{bridge_url}/maps/management-zones-map/SAMZ/thumbnail.png'
+    '{bridge_url}/field-level-maps/v5/maps/management-zones-map/SAMZ/thumbnail.png'
 )
 SLOPE_THUMBNAIL_URL = (
-    '{bridge_url}/maps/topology-map/SLOPE/thumbnail.png'
+    '{bridge_url}/field-level-maps/v5/maps/topology-map/SLOPE/thumbnail.png'
 )
 
 SAMPLEMAP_THUMBNAIL_URL = (
-    '{bridge_url}/maps/sample/{mapType}/thumbnail.png')
+    '{bridge_url}/field-level-maps/v5/maps/sample/{mapType}/thumbnail.png')
 
 OM_THUMBNAIL_URL = (
-    '{bridge_url}/maps/organic-matter-map/OM/thumbnail.png')
+    '{bridge_url}/field-level-maps/v5/maps/organic-matter-map/OM/thumbnail.png')
 
 # coverage filters
 COVERAGE_TYPE = 'CoverageType'
