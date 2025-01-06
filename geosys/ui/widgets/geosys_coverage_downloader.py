@@ -1222,15 +1222,17 @@ def download_field_map(
                 url = (f"{bridge_server}/field-level-maps/v5/maps/{map_family['endpoint']}/"
                        f"{map_type_key}/image{output_map_format['extension']}")
                 method = 'POST'
+
             else:
                 url = field_map_json['_links'][output_map_format['api_key']]
+
 
     except KeyError:
         # requested map format not found
         message = (
             '{} format not found. '
-            'Please select another output format.'.format(
-                output_map_format['api_key']))
+            'Please select another output format. {}'.format(
+                output_map_format['api_key'], field_map_json))
         return False, message
 
     try:

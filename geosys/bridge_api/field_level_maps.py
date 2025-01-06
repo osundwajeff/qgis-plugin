@@ -213,17 +213,13 @@ class FieldLevelMapsAPIClient(ApiClient):
                 )
             elif map_type['key'] == YVM['key']:
                 full_url = self.full_url(
-                    'season-fields',
-                    seasonfield_id,
-                    'coverage',
-                    image_id,
+                    'maps',
                     map_family['endpoint'],
                     map_type['key'],
-                    'historical-yield-average',
-                    str(yield_val)
+                    '?directLinks=true'
                 )
 
-                response = self.get(
+                response = self.post(
                     full_url,
                     headers=headers,
                     params=params,
@@ -231,21 +227,12 @@ class FieldLevelMapsAPIClient(ApiClient):
                 )
             elif map_type['key'] == YGM['key']:
                 full_url = self.full_url(
-                    'season-fields',
-                    seasonfield_id,
-                    'coverage',
-                    image_id,
+                    'maps',
                     map_family['endpoint'],
                     map_type['key'],
-                    'historical-yield-average',
-                    str(yield_val),
-                    'max-yield-Goal',
-                    str(max_yield_val),
-                    'min-yield-Goal',
-                    str(min_yield_val)
+                    '?directLinks=true'
                 )
-
-                response = self.get(
+                response = self.post(
                     full_url,
                     headers=headers,
                     params=params,
