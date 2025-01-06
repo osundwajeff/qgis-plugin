@@ -266,20 +266,19 @@ class FieldLevelMapsAPIClient(ApiClient):
                 )
             elif map_type['key'] == SOIL['key']:
                 # Body required by soilmap
-                # This is a workaround provided by GeoSys
                 data = {
-                    "provider": "Shared",
-                    "asset": "USA",
                     "seasonField": {
-                        "id": seasonfield_id
+                        "geometry": data.get('SeasonField', {}).get('geometry')
                     }
                 }
 
                 full_url = self.full_url(
                     'maps',
                     map_family['endpoint'],
-                    map_type['key']
+                    map_type['key'],
+                    '?directLinks=true'
                 )
+
                 response = self.post(
                     full_url,
                     headers=headers,
