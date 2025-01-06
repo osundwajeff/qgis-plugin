@@ -1234,8 +1234,8 @@ def download_field_map(
         # requested map format not found
         message = (
             '{} format not found. '
-            'Please select another output format. {}'.format(
-                output_map_format['api_key'], field_map_json))
+            'Please select another output format.'.format(
+                output_map_format['api_key']))
         return False, message
 
     try:
