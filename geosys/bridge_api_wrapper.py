@@ -4,7 +4,7 @@
 from geosys.bridge_api.api_abstract import ApiClient
 from geosys.bridge_api.connection import ConnectionAPIClient
 from geosys.bridge_api.default import IDENTITY_URLS, BRIDGE_URLS, ALL_REGIONS
-from geosys.bridge_api.definitions import CROPS, SAMZ, OM
+from geosys.bridge_api.definitions import CROPS, SAMZ, OM, YVM, YGM
 from geosys.bridge_api.field_level_maps import FieldLevelMapsAPIClient
 from geosys.bridge_api.utilities import get_definition
 
@@ -379,6 +379,40 @@ class BridgeAPI(ApiClient):
                     'geometry': season_field_geom
                 }
             }
+        elif map_type_key == YVM['key']:
+            request_data = {
+                'Image': {
+                    'Id': image_id
+                },
+                'HistoricalYieldAverage': 50,
+                'SeasonField': {
+                    'Id': season_field_id,
+                    'geometry': season_field_geom
+                }
+            }
+        elif map_type_key == YGM['key']:
+            request_data = {
+                'Image': {
+                    'Id': image_id
+                },
+                'HistoricalYieldAverage': 55,
+                'MaxYieldGoal': 120,
+                'MinYieldGoal': 50,
+                'SeasonField': {
+                    'Id': season_field_id,
+                    'geometry': season_field_geom
+                }
+            }
+
+            if 'data' in kwargs:
+                kwargs['data']['MinYieldGoal'] = 50
+                kwargs['data']['MaxYieldGoal'] = 120
+                kwargs['data']['HistoricalYieldAverage'] = 55
+            else:
+                kwargs['MinYieldGoal'] = 50
+                kwargs['MaxYieldGoal'] = 120
+                kwargs['HistoricalYieldAverage'] = 55
+
         elif map_type_key in nitrogen_maps:
             request_data = {
                 'Image': {
@@ -404,6 +438,7 @@ class BridgeAPI(ApiClient):
                 "offset": 0,
                 "gain": 0,
             }
+
         if 'data' in kwargs:
             request_data.update(kwargs.pop('data'))
         else:

@@ -1211,6 +1211,11 @@ def download_field_map(
             else:
                 url = field_map_json['_links'][output_map_format['api_key']]
         else:  # Other map types
+            if map_type_key == YGM['key']:
+                request_data['HistoricalYieldAverage'] = 55
+                request_data['MaxYieldGoal'] = 120
+                request_data['MinYieldGoal'] = 50
+
             map_type = get_definition(map_type_key)
             map_family = map_type['map_family']
 
@@ -1239,6 +1244,7 @@ def download_field_map(
             url = '{}.zip'.format(url)
             if zone_count:
                 url = f"{url}?zoning=true&zoneCount={zone_count}"
+
             fetch_data(
                 url,
                 zip_path,
